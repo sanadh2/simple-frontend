@@ -14,6 +14,9 @@ export function useProfile() {
   return useQuery({
     queryKey: authKeys.profile(),
     queryFn: async () => {
+      // Check if we're in the browser
+      if (typeof window === 'undefined') return null;
+      
       const token = localStorage.getItem('accessToken');
       if (!token) return null;
       
@@ -36,7 +39,8 @@ export function useProfile() {
         return null;
       }
     },
-    enabled: typeof window !== 'undefined',
+    staleTime: 1000 * 60 * 5, // 5 minutes
+    retry: false, // Don't retry on failure to avoid unnecessary requests
   });
 }
 
@@ -176,4 +180,3 @@ export function useAuthMutations() {
     refreshToken,
   };
 }
-

@@ -1,39 +1,100 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useProfile } from '@/hooks/useAuth';
 import LoginForm from '@/components/LoginForm';
 import RegisterForm from '@/components/RegisterForm';
 import UserProfile from '@/components/UserProfile';
+import LoadingSpinner from '@/components/LoadingSpinner';
+import ErrorFallback from '@/components/ErrorBoundaryFallback';
+import AuthLayout from '@/components/AuthLayout';
 
 export default function Home() {
-  const { data: user, isLoading } = useProfile();
+  const { data: user, isLoading, error, refetch } = useProfile();
   const [isLoginMode, setIsLoginMode] = useState(true);
+  const [mounted, setMounted] = useState(false);
 
+  // Prevent hydration mismatch by only rendering after mount
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Show loading on server-side render to prevent hydration mismatch
+  if (!mounted) {
+    return <LoadingSpinner text="Initializing..." />;
+  }
+
+  // Handle error state
+  if (error && !user) {
+    return <ErrorFallback error={error as Error} onRetry={() => refetch()} />;
+  }
+
+  // Show loading state while checking authentication
   if (isLoading) {
+    return <LoadingSpinner text="Checking authentication..." />;
+  }
+
+  // User is authenticated - show dashboard
+  if (user) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-zinc-50 to-zinc-100 dark:from-zinc-950 dark:to-black">
-        <div className="text-center">
-          <div className="inline-block h-12 w-12 animate-spin rounded-full border-4 border-solid border-blue-600 border-r-transparent"></div>
-          <p className="mt-4 text-sm text-zinc-600 dark:text-zinc-400">Loading...</p>
+      <div className="flex min-h-screen bg-linear-to-br from-zinc-50 to-zinc-100 dark:from-zinc-950 dark:to-black p-4">
+        <div className="w-full max-w-4xl mx-auto my-auto animate-in fade-in slide-in-from-bottom-4 duration-700">
+          <UserProfile user={user} />
         </div>
       </div>
     );
   }
 
+  // User not authenticated - show auth forms
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-zinc-50 to-zinc-100 dark:from-zinc-950 dark:to-black p-4">
-      {user ? (
-        <UserProfile user={user} />
-      ) : (
-        <>
+    <AuthLayout>
+      <div className="relative">
+        {/* Toggle between login and register with smooth animation */}
+        <div className="relative overflow-hidden">
           {isLoginMode ? (
-            <LoginForm onToggleMode={() => setIsLoginMode(false)} />
+            <div
+              key="login"
+              className="animate-in fade-in slide-in-from-right-4 duration-500"
+            >
+              <LoginForm onToggleMode={() => setIsLoginMode(false)} />
+            </div>
           ) : (
-            <RegisterForm onToggleMode={() => setIsLoginMode(true)} />
+            <div
+              key="register"
+              className="animate-in fade-in slide-in-from-left-4 duration-500"
+            >
+              <RegisterForm onToggleMode={() => setIsLoginMode(true)} />
+            </div>
           )}
-        </>
-      )}
-    </div>
+        </div>
+
+        {/* Helper text */}
+        <div className="mt-6 text-center">
+          <p className="text-xs text-zinc-500 dark:text-zinc-500">
+            {isLoginMode ? (
+              <>
+                New here?{' '}
+                <button
+                  onClick={() => setIsLoginMode(false)}
+                  className="text-blue-600 dark:text-blue-400 hover:underline font-medium"
+                >
+                  Create an account
+                </button>
+              </>
+            ) : (
+              <>
+                Already have an account?{' '}
+                <button
+                  onClick={() => setIsLoginMode(true)}
+                  className="text-blue-600 dark:text-blue-400 hover:underline font-medium"
+                >
+                  Sign in
+                </button>
+              </>
+            )}
+          </p>
+        </div>
+      </div>
+    </AuthLayout>
   );
 }
