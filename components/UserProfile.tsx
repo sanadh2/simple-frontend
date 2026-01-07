@@ -13,8 +13,10 @@ import {
   Shield, 
   HelpCircle,
   BadgeCheck,
-  Clock
+  Clock,
+  FileText
 } from 'lucide-react';
+import Link from 'next/link';
 
 interface UserProfileProps {
   user: User;
@@ -176,10 +178,12 @@ export default function UserProfile({ user }: UserProfileProps) {
             <span className="text-xs font-medium">Settings</span>
           </Button>
           
-          <Button variant="outline" className="flex flex-col items-center justify-center h-auto p-4">
-            <Shield className="w-6 h-6 text-zinc-600 dark:text-zinc-400 mb-2" />
-            <span className="text-xs font-medium">Security</span>
-          </Button>
+          <Link href="/logs" className="w-full">
+            <Button variant="outline" className="w-full flex flex-col items-center justify-center h-auto p-4">
+              <FileText className="w-6 h-6 text-zinc-600 dark:text-zinc-400 mb-2" />
+              <span className="text-xs font-medium">Logs</span>
+            </Button>
+          </Link>
           
           <Button variant="outline" className="flex flex-col items-center justify-center h-auto p-4">
             <HelpCircle className="w-6 h-6 text-zinc-600 dark:text-zinc-400 mb-2" />

@@ -44,7 +44,9 @@ class ApiClient {
   private async handleResponse<T>(response: Response): Promise<ApiResponse<T>> {
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.message || 'An error occurred');
+      const errorWithStatus: any = new Error(error.message || 'An error occurred');
+      errorWithStatus.status = response.status;
+      throw errorWithStatus;
     }
 
     return response.json();
