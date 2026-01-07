@@ -4,9 +4,6 @@ import { apiClient, User, ApiResponse, AuthTokens } from '@/lib/api';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 
-/**
- * Server-side API client that uses cookies for authentication
- */
 class ServerApiClient {
   private baseURL: string;
 
@@ -52,7 +49,7 @@ class ServerApiClient {
         ...options.headers,
       },
       credentials: 'include',
-      cache: 'no-store', // Prevent caching for server-side requests
+      cache: 'no-store',
     };
 
     try {
@@ -114,10 +111,6 @@ class ServerApiClient {
 
 export const serverApiClient = new ServerApiClient(API_BASE_URL);
 
-/**
- * Get current user from server-side
- * Use this in Server Components
- */
 export async function getCurrentUser(): Promise<User | null> {
   try {
     const cookieStore = await cookies();
@@ -135,61 +128,43 @@ export async function getCurrentUser(): Promise<User | null> {
   }
 }
 
-/**
- * Check if user is authenticated (server-side)
- */
 export async function isAuthenticated(): Promise<boolean> {
   const user = await getCurrentUser();
   return user !== null;
 }
 
-/**
- * Set authentication cookies
- */
 export async function setAuthCookies(accessToken: string, refreshToken: string) {
   const cookieStore = await cookies();
   
-  // Set access token (15 minutes)
   cookieStore.set('accessToken', accessToken, {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'strict',
-    maxAge: 15 * 60, // 15 minutes
+    maxAge: 15 * 60,
     path: '/',
   });
 
-  // Set refresh token (7 days)
   cookieStore.set('refreshToken', refreshToken, {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'strict',
-    maxAge: 7 * 24 * 60 * 60, // 7 days
+    maxAge: 7 * 24 * 60 * 60,
     path: '/',
   });
 }
 
-/**
- * Clear authentication cookies
- */
 export async function clearAuthCookies() {
   const cookieStore = await cookies();
   cookieStore.delete('accessToken');
   cookieStore.delete('refreshToken');
 }
 
-/**
- * Get access token from cookies
- */
 export async function getAccessToken(): Promise<string | null> {
   const cookieStore = await cookies();
   return cookieStore.get('accessToken')?.value || null;
 }
 
-/**
- * Get refresh token from cookies
- */
 export async function getRefreshToken(): Promise<string | null> {
   const cookieStore = await cookies();
   return cookieStore.get('refreshToken')?.value || null;
 }
-

@@ -10,7 +10,6 @@ export default function ErrorFallback({ error, onRetry }: ErrorFallbackProps) {
     <div className="flex min-h-screen items-center justify-center bg-linear-to-br from-zinc-50 to-zinc-100 dark:from-zinc-950 dark:to-black p-4">
       <div className="w-full max-w-md p-8 space-y-6 bg-white rounded-xl shadow-lg dark:bg-zinc-900 animate-in fade-in slide-in-from-bottom-4 duration-500">
         <div className="text-center space-y-4">
-          {/* Error Icon */}
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-red-100 dark:bg-red-900/20">
             <svg
               className="w-8 h-8 text-red-600 dark:text-red-400"
@@ -27,7 +26,6 @@ export default function ErrorFallback({ error, onRetry }: ErrorFallbackProps) {
             </svg>
           </div>
 
-          {/* Error Message */}
           <div>
             <h2 className="text-2xl font-bold text-zinc-900 dark:text-white mb-2">
               Something went wrong
@@ -42,7 +40,6 @@ export default function ErrorFallback({ error, onRetry }: ErrorFallbackProps) {
             </p>
           </div>
 
-          {/* Action Buttons */}
           <div className="flex flex-col gap-3">
             {onRetry && (
               <button
@@ -64,4 +61,3 @@ export default function ErrorFallback({ error, onRetry }: ErrorFallbackProps) {
     </div>
   );
 }
-

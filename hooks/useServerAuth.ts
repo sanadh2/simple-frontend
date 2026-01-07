@@ -9,9 +9,6 @@ import {
 } from '@/actions/auth-actions';
 import { authKeys } from '@/hooks/useAuth';
 
-/**
- * Hook for login using Server Actions
- */
 export function useServerLogin() {
   const queryClient = useQueryClient();
 
@@ -24,15 +21,11 @@ export function useServerLogin() {
       return response.data;
     },
     onSuccess: (data) => {
-      // Update the profile cache
       queryClient.setQueryData(authKeys.profile(), data);
     },
   });
 }
 
-/**
- * Hook for register using Server Actions
- */
 export function useServerRegister() {
   const queryClient = useQueryClient();
 
@@ -55,15 +48,11 @@ export function useServerRegister() {
       return response.data;
     },
     onSuccess: (data) => {
-      // Update the profile cache
       queryClient.setQueryData(authKeys.profile(), data);
     },
   });
 }
 
-/**
- * Hook for logout using Server Actions
- */
 export function useServerLogout() {
   const queryClient = useQueryClient();
 
@@ -72,16 +61,12 @@ export function useServerLogout() {
       await logoutAction();
     },
     onSuccess: () => {
-      // Clear all auth queries
       queryClient.setQueryData(authKeys.profile(), null);
       queryClient.removeQueries({ queryKey: authKeys.all });
     },
   });
 }
 
-/**
- * Hook for token refresh using Server Actions
- */
 export function useServerRefreshToken() {
   const queryClient = useQueryClient();
 
@@ -94,15 +79,11 @@ export function useServerRefreshToken() {
       return response.data;
     },
     onSuccess: () => {
-      // Invalidate profile to refetch with new token
       queryClient.invalidateQueries({ queryKey: authKeys.profile() });
     },
   });
 }
 
-/**
- * Combined hook for easier access to all server auth functionality
- */
 export function useServerAuthMutations() {
   const login = useServerLogin();
   const register = useServerRegister();
@@ -116,4 +97,3 @@ export function useServerAuthMutations() {
     refreshToken,
   };
 }
-

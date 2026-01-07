@@ -93,4 +93,3 @@ export default function LoginForm({ onToggleMode }: LoginFormProps) {
     </div>
   );
 }
-

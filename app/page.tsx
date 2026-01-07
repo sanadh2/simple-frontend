@@ -14,27 +14,22 @@ export default function Home() {
   const [isLoginMode, setIsLoginMode] = useState(true);
   const [mounted, setMounted] = useState(false);
 
-  // Prevent hydration mismatch by only rendering after mount
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  // Show loading on server-side render to prevent hydration mismatch
   if (!mounted) {
     return <LoadingSpinner text="Initializing..." />;
   }
 
-  // Handle error state
   if (error && !user) {
     return <ErrorFallback error={error as Error} onRetry={() => refetch()} />;
   }
 
-  // Show loading state while checking authentication
   if (isLoading) {
     return <LoadingSpinner text="Checking authentication..." />;
   }
 
-  // User is authenticated - show dashboard
   if (user) {
     return (
       <div className="flex min-h-screen bg-linear-to-br from-zinc-50 to-zinc-100 dark:from-zinc-950 dark:to-black p-4">
@@ -45,11 +40,9 @@ export default function Home() {
     );
   }
 
-  // User not authenticated - show auth forms
   return (
     <AuthLayout>
       <div className="relative">
-        {/* Toggle between login and register with smooth animation */}
         <div className="relative overflow-hidden">
           {isLoginMode ? (
             <div
@@ -68,7 +61,6 @@ export default function Home() {
           )}
         </div>
 
-        {/* Helper text */}
         <div className="mt-6 text-center">
           <p className="text-xs text-zinc-500 dark:text-zinc-500">
             {isLoginMode ? (

@@ -16,9 +16,6 @@ export type ActionResponse<T = any> = {
   error?: string;
 };
 
-/**
- * Server Action: Login user
- */
 export async function loginAction(
   email: string,
   password: string
@@ -29,10 +26,8 @@ export async function loginAction(
     if (response.success && response.data) {
       const { tokens } = response.data;
       
-      // Set authentication cookies
       await setAuthCookies(tokens.accessToken, tokens.refreshToken);
 
-      // Revalidate the current path to refresh server components
       revalidatePath('/');
 
       return {
@@ -55,9 +50,6 @@ export async function loginAction(
   }
 }
 
-/**
- * Server Action: Register user
- */
 export async function registerAction(
   email: string,
   password: string,
@@ -70,10 +62,8 @@ export async function registerAction(
     if (response.success && response.data) {
       const { tokens } = response.data;
       
-      // Set authentication cookies
       await setAuthCookies(tokens.accessToken, tokens.refreshToken);
 
-      // Revalidate the current path
       revalidatePath('/');
 
       return {
@@ -96,33 +86,23 @@ export async function registerAction(
   }
 }
 
-/**
- * Server Action: Logout user
- */
 export async function logoutAction(): Promise<ActionResponse> {
   try {
-    // Call backend logout endpoint
     await serverApiClient.logout();
 
-    // Clear authentication cookies
     await clearAuthCookies();
 
-    // Revalidate and redirect
     revalidatePath('/');
     redirect('/');
   } catch (error) {
     console.error('Logout action error:', error);
     
-    // Even if backend fails, clear cookies and redirect
     await clearAuthCookies();
     revalidatePath('/');
     redirect('/');
   }
 }
 
-/**
- * Server Action: Get current user profile
- */
 export async function getProfileAction(): Promise<ActionResponse> {
   try {
     const user = await getCurrentUser();
@@ -147,9 +127,6 @@ export async function getProfileAction(): Promise<ActionResponse> {
   }
 }
 
-/**
- * Server Action: Refresh access token
- */
 export async function refreshTokenAction(): Promise<ActionResponse> {
   try {
     const response = await serverApiClient.refreshToken();
@@ -157,7 +134,6 @@ export async function refreshTokenAction(): Promise<ActionResponse> {
     if (response.success && response.data) {
       const { accessToken } = response.data;
       
-      // Update access token cookie (refresh token stays the same)
       const cookieStore = await import('next/headers').then(m => m.cookies());
       const cookies = await cookieStore;
       const refreshToken = cookies.get('refreshToken')?.value;
@@ -187,9 +163,6 @@ export async function refreshTokenAction(): Promise<ActionResponse> {
   }
 }
 
-/**
- * Server Action: Check authentication status
- */
 export async function checkAuthAction(): Promise<ActionResponse<{ authenticated: boolean }>> {
   try {
     const user = await getCurrentUser();
@@ -206,4 +179,3 @@ export async function checkAuthAction(): Promise<ActionResponse<{ authenticated:
     };
   }
 }
-

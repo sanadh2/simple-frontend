@@ -61,7 +61,7 @@ class ApiClient {
         ...this.getAuthHeaders(),
         ...options.headers,
       },
-      credentials: 'include', // Include cookies for session management
+      credentials: 'include',
     };
 
     try {
@@ -119,4 +119,3 @@ class ApiClient {
 }
 
 export const apiClient = new ApiClient(API_BASE_URL);
-

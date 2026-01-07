@@ -3,18 +3,15 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { apiClient, User } from '@/lib/api';
 
-// Query keys
 export const authKeys = {
   all: ['auth'] as const,
   profile: () => [...authKeys.all, 'profile'] as const,
 };
 
-// Hook to get current user profile
 export function useProfile() {
   return useQuery({
     queryKey: authKeys.profile(),
     queryFn: async () => {
-      // Check if we're in the browser
       if (typeof window === 'undefined') return null;
       
       const token = localStorage.getItem('accessToken');
@@ -24,7 +21,6 @@ export function useProfile() {
         const response = await apiClient.getProfile();
         return response.success && response.data ? response.data.user : null;
       } catch (error) {
-        // Try to refresh token if profile fetch fails
         try {
           const refreshResponse = await apiClient.refreshToken();
           if (refreshResponse.success && refreshResponse.data) {
@@ -39,12 +35,11 @@ export function useProfile() {
         return null;
       }
     },
-    staleTime: 1000 * 60 * 5, // 5 minutes
-    retry: false, // Don't retry on failure to avoid unnecessary requests
+    staleTime: 1000 * 60 * 5,
+    retry: false,
   });
 }
 
-// Hook for login mutation
 export function useLogin() {
   const queryClient = useQueryClient();
 
@@ -57,17 +52,13 @@ export function useLogin() {
       return response.data;
     },
     onSuccess: (data) => {
-      // Store tokens
       localStorage.setItem('accessToken', data.tokens.accessToken);
       localStorage.setItem('refreshToken', data.tokens.refreshToken);
-      
-      // Update the profile cache
       queryClient.setQueryData(authKeys.profile(), data.user);
     },
   });
 }
 
-// Hook for register mutation
 export function useRegister() {
   const queryClient = useQueryClient();
 
@@ -90,17 +81,13 @@ export function useRegister() {
       return response.data;
     },
     onSuccess: (data) => {
-      // Store tokens
       localStorage.setItem('accessToken', data.tokens.accessToken);
       localStorage.setItem('refreshToken', data.tokens.refreshToken);
-      
-      // Update the profile cache
       queryClient.setQueryData(authKeys.profile(), data.user);
     },
   });
 }
 
-// Hook for logout mutation
 export function useLogout() {
   const queryClient = useQueryClient();
 
@@ -113,18 +100,14 @@ export function useLogout() {
       }
     },
     onSuccess: () => {
-      // Clear tokens
       localStorage.removeItem('accessToken');
       localStorage.removeItem('refreshToken');
-      
-      // Clear all auth queries
       queryClient.setQueryData(authKeys.profile(), null);
       queryClient.removeQueries({ queryKey: authKeys.all });
     },
   });
 }
 
-// Hook for logout all devices mutation
 export function useLogoutAll() {
   const queryClient = useQueryClient();
 
@@ -133,18 +116,14 @@ export function useLogoutAll() {
       await apiClient.logoutAll();
     },
     onSuccess: () => {
-      // Clear tokens
       localStorage.removeItem('accessToken');
       localStorage.removeItem('refreshToken');
-      
-      // Clear all auth queries
       queryClient.setQueryData(authKeys.profile(), null);
       queryClient.removeQueries({ queryKey: authKeys.all });
     },
   });
 }
 
-// Hook for token refresh mutation
 export function useRefreshToken() {
   const queryClient = useQueryClient();
 
@@ -158,13 +137,11 @@ export function useRefreshToken() {
     },
     onSuccess: (data) => {
       localStorage.setItem('accessToken', data.accessToken);
-      // Invalidate profile to refetch with new token
       queryClient.invalidateQueries({ queryKey: authKeys.profile() });
     },
   });
 }
 
-// Combined hook for easier access to all auth functionality
 export function useAuthMutations() {
   const login = useLogin();
   const register = useRegister();

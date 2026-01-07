@@ -169,4 +169,3 @@ export default function RegisterForm({ onToggleMode }: RegisterFormProps) {
     </div>
   );
 }
-
