@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useProfile } from '@/hooks/useAuth';
 import LoginForm from '@/components/LoginForm';
 import RegisterForm from '@/components/RegisterForm';
@@ -12,15 +12,6 @@ import AuthLayout from '@/components/AuthLayout';
 export default function Home() {
   const { data: user, isLoading, error, refetch } = useProfile();
   const [isLoginMode, setIsLoginMode] = useState(true);
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  if (!mounted) {
-    return <LoadingSpinner text="Initializing..." />;
-  }
 
   if (error && !user) {
     return <ErrorFallback error={error as Error} onRetry={() => refetch()} />;

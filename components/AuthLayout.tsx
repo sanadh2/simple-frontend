@@ -1,6 +1,7 @@
 'use client';
 
 import { ReactNode } from 'react';
+import { Lock, Heart } from 'lucide-react';
 
 interface AuthLayoutProps {
   children: ReactNode;
@@ -17,20 +18,8 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
 
       <main className="relative flex-1 flex flex-col items-center justify-center p-4">
         <div className="mb-8 text-center animate-in fade-in slide-in-from-top-4 duration-500">
-          <div className="inline-flex items-center justify-center w-16 h-16 mb-4 rounded-2xl bg-gradient-to-br from-blue-600 to-purple-600 shadow-lg">
-            <svg
-              className="w-8 h-8 text-white"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
-              />
-            </svg>
+          <div className="inline-flex items-center justify-center w-16 h-16 mb-4 rounded-2xl bg-linear-to-br from-blue-600 to-purple-600 shadow-lg">
+            <Lock className="w-8 h-8 text-white" />
           </div>
           <h1 className="text-3xl font-bold text-zinc-900 dark:text-white">
             SecureAuth
@@ -45,9 +34,9 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
         </div>
 
         <footer className="mt-8 text-center text-sm text-zinc-600 dark:text-zinc-400 animate-in fade-in duration-1000 delay-300">
-          <p>
+          <p className="flex items-center justify-center gap-1">
             Built with{' '}
-            <span className="text-red-500 animate-pulse">♥</span>
+            <Heart className="w-4 h-4 text-red-500 fill-red-500 animate-pulse" />
             {' '}using Next.js & TanStack Query
           </p>
         </footer>

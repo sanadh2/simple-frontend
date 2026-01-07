@@ -113,9 +113,19 @@ export function useLogoutAll() {
 
   return useMutation({
     mutationFn: async () => {
-      await apiClient.logoutAll();
+      try {
+        await apiClient.logoutAll();
+      } catch (error) {
+        console.error('Logout all error:', error);
+      }
     },
     onSuccess: () => {
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('refreshToken');
+      queryClient.setQueryData(authKeys.profile(), null);
+      queryClient.removeQueries({ queryKey: authKeys.all });
+    },
+    onError: () => {
       localStorage.removeItem('accessToken');
       localStorage.removeItem('refreshToken');
       queryClient.setQueryData(authKeys.profile(), null);
