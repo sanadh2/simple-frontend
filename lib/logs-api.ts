@@ -1,3 +1,5 @@
+import { fetchWithAuth } from './fetchWithAuth';
+
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 
 export interface Log {
@@ -34,7 +36,7 @@ export interface LogTrend {
   }>;
 }
 
-interface LogFilters {
+export interface LogFilters {
   page?: number;
   limit?: number;
   level?: string;
@@ -46,19 +48,6 @@ interface LogFilters {
 }
 
 class LogsApiClient {
-  private getAuthHeaders(): HeadersInit {
-    const token = localStorage.getItem('accessToken');
-    const headers: HeadersInit = {
-      'Content-Type': 'application/json',
-    };
-
-    if (token) {
-      headers['Authorization'] = `Bearer ${token}`;
-    }
-
-    return headers;
-  }
-
   async getLogs(filters: LogFilters = {}): Promise<PaginatedLogs> {
     const params = new URLSearchParams();
     
@@ -68,15 +57,13 @@ class LogsApiClient {
       }
     });
 
-    const response = await fetch(
+    const response = await fetchWithAuth(
       `${API_BASE_URL}/api/logs?${params.toString()}`,
-      {
-        headers: this.getAuthHeaders(),
-      }
+      { method: 'GET' }
     );
 
     if (!response.ok) {
-      const error: any = new Error('Failed to fetch logs');
+      const error = new Error('Failed to fetch logs') as Error & { status: number };
       error.status = response.status;
       throw error;
     }
@@ -86,15 +73,13 @@ class LogsApiClient {
   }
 
   async getLogsByCorrelationId(correlationId: string): Promise<Log[]> {
-    const response = await fetch(
+    const response = await fetchWithAuth(
       `${API_BASE_URL}/api/logs/correlation/${correlationId}`,
-      {
-        headers: this.getAuthHeaders(),
-      }
+      { method: 'GET' }
     );
 
     if (!response.ok) {
-      const error: any = new Error('Failed to fetch logs');
+      const error = new Error('Failed to fetch logs') as Error & { status: number };
       error.status = response.status;
       throw error;
     }
@@ -104,12 +89,13 @@ class LogsApiClient {
   }
 
   async getLogStatistics(): Promise<LogStatistics> {
-    const response = await fetch(`${API_BASE_URL}/api/logs/statistics`, {
-      headers: this.getAuthHeaders(),
-    });
+    const response = await fetchWithAuth(
+      `${API_BASE_URL}/api/logs/statistics`,
+      { method: 'GET' }
+    );
 
     if (!response.ok) {
-      const error: any = new Error('Failed to fetch statistics');
+      const error = new Error('Failed to fetch statistics') as Error & { status: number };
       error.status = response.status;
       throw error;
     }
@@ -119,15 +105,13 @@ class LogsApiClient {
   }
 
   async getRecentErrors(limit: number = 20): Promise<Log[]> {
-    const response = await fetch(
+    const response = await fetchWithAuth(
       `${API_BASE_URL}/api/logs/errors?limit=${limit}`,
-      {
-        headers: this.getAuthHeaders(),
-      }
+      { method: 'GET' }
     );
 
     if (!response.ok) {
-      const error: any = new Error('Failed to fetch errors');
+      const error = new Error('Failed to fetch errors') as Error & { status: number };
       error.status = response.status;
       throw error;
     }
@@ -137,15 +121,13 @@ class LogsApiClient {
   }
 
   async getLogTrends(days: number = 7): Promise<LogTrend[]> {
-    const response = await fetch(
+    const response = await fetchWithAuth(
       `${API_BASE_URL}/api/logs/trends?days=${days}`,
-      {
-        headers: this.getAuthHeaders(),
-      }
+      { method: 'GET' }
     );
 
     if (!response.ok) {
-      const error: any = new Error('Failed to fetch trends');
+      const error = new Error('Failed to fetch trends') as Error & { status: number };
       error.status = response.status;
       throw error;
     }
@@ -155,16 +137,13 @@ class LogsApiClient {
   }
 
   async clearOldLogs(days: number = 30): Promise<{ deletedCount: number }> {
-    const response = await fetch(
+    const response = await fetchWithAuth(
       `${API_BASE_URL}/api/logs/clear?days=${days}`,
-      {
-        method: 'DELETE',
-        headers: this.getAuthHeaders(),
-      }
+      { method: 'DELETE' }
     );
 
     if (!response.ok) {
-      const error: any = new Error('Failed to clear logs');
+      const error = new Error('Failed to clear logs') as Error & { status: number };
       error.status = response.status;
       throw error;
     }
@@ -175,4 +154,3 @@ class LogsApiClient {
 }
 
 export const logsApiClient = new LogsApiClient();
-

@@ -26,7 +26,8 @@ export async function loginAction(
     if (response.success && response.data) {
       const { tokens } = response.data;
       
-      await setAuthCookies(tokens.accessToken, tokens.refreshToken);
+      // Only set access token cookie - refresh token is set by backend
+      await setAuthCookies(tokens.accessToken);
 
       revalidatePath('/');
 
@@ -62,7 +63,7 @@ export async function registerAction(
     if (response.success && response.data) {
       const { tokens } = response.data;
       
-      await setAuthCookies(tokens.accessToken, tokens.refreshToken);
+      await setAuthCookies(tokens.accessToken);
 
       revalidatePath('/');
 
@@ -134,13 +135,7 @@ export async function refreshTokenAction(): Promise<ActionResponse> {
     if (response.success && response.data) {
       const { accessToken } = response.data;
       
-      const cookieStore = await import('next/headers').then(m => m.cookies());
-      const cookies = await cookieStore;
-      const refreshToken = cookies.get('refreshToken')?.value;
-      
-      if (refreshToken) {
-        await setAuthCookies(accessToken, refreshToken);
-      }
+      await setAuthCookies(accessToken);
 
       revalidatePath('/');
 

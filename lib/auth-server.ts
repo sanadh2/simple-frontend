@@ -133,7 +133,7 @@ export async function isAuthenticated(): Promise<boolean> {
   return user !== null;
 }
 
-export async function setAuthCookies(accessToken: string, refreshToken: string) {
+export async function setAuthCookies(accessToken: string) {
   const cookieStore = await cookies();
   
   cookieStore.set('accessToken', accessToken, {
@@ -143,20 +143,11 @@ export async function setAuthCookies(accessToken: string, refreshToken: string) 
     maxAge: 15 * 60,
     path: '/',
   });
-
-  cookieStore.set('refreshToken', refreshToken, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'strict',
-    maxAge: 7 * 24 * 60 * 60,
-    path: '/',
-  });
 }
 
 export async function clearAuthCookies() {
   const cookieStore = await cookies();
   cookieStore.delete('accessToken');
-  cookieStore.delete('refreshToken');
 }
 
 export async function getAccessToken(): Promise<string | null> {

@@ -1,12 +1,12 @@
 'use client';
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { logsApiClient } from '@/lib/logs-api';
+import { logsApiClient, type LogFilters } from '@/lib/logs-api';
 
 export const logsKeys = {
   all: ['logs'] as const,
   lists: () => [...logsKeys.all, 'list'] as const,
-  list: (filters: Record<string, unknown>) => [...logsKeys.lists(), filters] as const,
+  list: (filters: LogFilters) => [...logsKeys.lists(), filters] as const,
   correlation: (id: string) => [...logsKeys.all, 'correlation', id] as const,
   statistics: () => [...logsKeys.all, 'statistics'] as const,
   errors: (limit: number) => [...logsKeys.all, 'errors', limit] as const,

@@ -1,6 +1,8 @@
+import { fetchWithAuth } from './fetchWithAuth';
+
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 
-export interface ApiResponse<T = any> {
+export interface ApiResponse<T = unknown> {
   success: boolean;
   message: string;
   data?: T;
@@ -8,7 +10,6 @@ export interface ApiResponse<T = any> {
 
 export interface AuthTokens {
   accessToken: string;
-  refreshToken: string;
 }
 
 export interface User {
@@ -28,23 +29,10 @@ class ApiClient {
     this.baseURL = baseURL;
   }
 
-  private getAuthHeaders(): HeadersInit {
-    const token = localStorage.getItem('accessToken');
-    const headers: HeadersInit = {
-      'Content-Type': 'application/json',
-    };
-
-    if (token) {
-      headers['Authorization'] = `Bearer ${token}`;
-    }
-
-    return headers;
-  }
-
   private async handleResponse<T>(response: Response): Promise<ApiResponse<T>> {
     if (!response.ok) {
       const error = await response.json();
-      const errorWithStatus: any = new Error(error.message || 'An error occurred');
+      const errorWithStatus = new Error(error.message || 'An error occurred') as Error & { status: number };
       errorWithStatus.status = response.status;
       throw errorWithStatus;
     }
@@ -57,24 +45,8 @@ class ApiClient {
     options: RequestInit = {}
   ): Promise<ApiResponse<T>> {
     const url = `${this.baseURL}${endpoint}`;
-    const config: RequestInit = {
-      ...options,
-      headers: {
-        ...this.getAuthHeaders(),
-        ...options.headers,
-      },
-      credentials: 'include',
-    };
-
-    try {
-      const response = await fetch(url, config);
-      return this.handleResponse<T>(response);
-    } catch (error) {
-      if (error instanceof Error) {
-        throw error;
-      }
-      throw new Error('Network error occurred');
-    }
+    const response = await fetchWithAuth(url, options);
+    return this.handleResponse<T>(response);
   }
 
   async register(email: string, password: string, firstName: string, lastName: string): Promise<ApiResponse<{ user: User; tokens: AuthTokens }>> {
@@ -92,10 +64,9 @@ class ApiClient {
   }
 
   async logout(): Promise<ApiResponse> {
-    const refreshToken = localStorage.getItem('refreshToken');
     return this.request('/api/auth/logout', {
       method: 'POST',
-      body: JSON.stringify({ refreshToken }),
+      body: JSON.stringify({}),
     });
   }
 
@@ -106,10 +77,9 @@ class ApiClient {
   }
 
   async refreshToken(): Promise<ApiResponse<{ accessToken: string }>> {
-    const refreshToken = localStorage.getItem('refreshToken');
     return this.request('/api/auth/refresh', {
       method: 'POST',
-      body: JSON.stringify({ refreshToken }),
+      body: JSON.stringify({}),
     });
   }
 

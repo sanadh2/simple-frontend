@@ -21,17 +21,16 @@ export function useProfile() {
         const response = await apiClient.getProfile();
         return response.success && response.data ? response.data.user : null;
       } catch (error) {
-        try {
-          const refreshResponse = await apiClient.refreshToken();
-          if (refreshResponse.success && refreshResponse.data) {
-            localStorage.setItem('accessToken', refreshResponse.data.accessToken);
-            const profileResponse = await apiClient.getProfile();
-            return profileResponse.success && profileResponse.data ? profileResponse.data.user : null;
-          }
-        } catch {
-          localStorage.removeItem('accessToken');
-          localStorage.removeItem('refreshToken');
+      try {
+        const refreshResponse = await apiClient.refreshToken();
+        if (refreshResponse.success && refreshResponse.data) {
+          localStorage.setItem('accessToken', refreshResponse.data.accessToken);
+          const profileResponse = await apiClient.getProfile();
+          return profileResponse.success && profileResponse.data ? profileResponse.data.user : null;
         }
+      } catch {
+        localStorage.removeItem('accessToken');
+      }
         return null;
       }
     },
@@ -53,7 +52,6 @@ export function useLogin() {
     },
     onSuccess: (data) => {
       localStorage.setItem('accessToken', data.tokens.accessToken);
-      localStorage.setItem('refreshToken', data.tokens.refreshToken);
       queryClient.setQueryData(authKeys.profile(), data.user);
     },
   });
@@ -82,7 +80,6 @@ export function useRegister() {
     },
     onSuccess: (data) => {
       localStorage.setItem('accessToken', data.tokens.accessToken);
-      localStorage.setItem('refreshToken', data.tokens.refreshToken);
       queryClient.setQueryData(authKeys.profile(), data.user);
     },
   });
@@ -101,7 +98,7 @@ export function useLogout() {
     },
     onSuccess: () => {
       localStorage.removeItem('accessToken');
-      localStorage.removeItem('refreshToken');
+      // Refresh token cookie is cleared by server
       queryClient.setQueryData(authKeys.profile(), null);
       queryClient.removeQueries({ queryKey: authKeys.all });
     },
@@ -121,13 +118,11 @@ export function useLogoutAll() {
     },
     onSuccess: () => {
       localStorage.removeItem('accessToken');
-      localStorage.removeItem('refreshToken');
       queryClient.setQueryData(authKeys.profile(), null);
       queryClient.removeQueries({ queryKey: authKeys.all });
     },
     onError: () => {
       localStorage.removeItem('accessToken');
-      localStorage.removeItem('refreshToken');
       queryClient.setQueryData(authKeys.profile(), null);
       queryClient.removeQueries({ queryKey: authKeys.all });
     },
