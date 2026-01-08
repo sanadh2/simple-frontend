@@ -18,7 +18,7 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
 
       <main className="relative flex-1 flex flex-col items-center justify-center p-4">
         <div className="mb-8 text-center animate-in fade-in slide-in-from-top-4 duration-500">
-          <div className="inline-flex items-center justify-center w-16 h-16 mb-4 rounded-2xl bg-linear-to-br from-blue-600 to-purple-600 shadow-lg">
+          <div className="inline-flex items-center justify-center w-16 h-16 mb-4 rounded-2xl bg-linear-to-br from-blue-600 to-purple-600">
             <Lock className="w-8 h-8 text-white" />
           </div>
           <h1 className="text-3xl font-bold text-zinc-900 dark:text-white">

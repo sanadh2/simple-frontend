@@ -39,13 +39,13 @@ export default function UserProfile({ user }: UserProfileProps) {
 
   return (
     <div className="w-full space-y-6">
-      <div className="relative overflow-hidden bg-white dark:bg-zinc-900 rounded-2xl shadow-xl">
+      <div className="relative overflow-hidden bg-white dark:bg-zinc-900 rounded-2xl">
         <div className="absolute inset-0 bg-linear-to-br from-blue-500 via-purple-500 to-pink-500 opacity-10"></div>
         
         <div className="relative p-8">
           <div className="flex items-start justify-between">
             <div className="flex items-center space-x-4">
-              <div className="flex items-center justify-center w-20 h-20 rounded-full bg-linear-to-br from-blue-600 to-purple-600 text-white text-2xl font-bold shadow-lg">
+              <div className="flex items-center justify-center w-20 h-20 rounded-full bg-linear-to-br from-blue-600 to-purple-600 text-white text-2xl font-bold">
                 {user.firstName.charAt(0)}{user.lastName.charAt(0)}
               </div>
               
@@ -83,7 +83,7 @@ export default function UserProfile({ user }: UserProfileProps) {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-white dark:bg-zinc-900 rounded-2xl shadow-xl p-6 space-y-4">
+        <div className="bg-white dark:bg-zinc-900 rounded-2xl p-6 space-y-4">
           <h3 className="text-lg font-semibold text-zinc-900 dark:text-white flex items-center">
             <UserCircle className="w-5 h-5 mr-2 text-blue-600" />
             Account Details
@@ -125,7 +125,7 @@ export default function UserProfile({ user }: UserProfileProps) {
           </div>
         </div>
 
-        <div className="bg-white dark:bg-zinc-900 rounded-2xl shadow-xl p-6 space-y-4">
+        <div className="bg-white dark:bg-zinc-900 rounded-2xl p-6 space-y-4">
           <h3 className="text-lg font-semibold text-zinc-900 dark:text-white flex items-center">
             <CheckCircle2 className="w-5 h-5 mr-2 text-green-600" />
             Connection Status
@@ -165,7 +165,7 @@ export default function UserProfile({ user }: UserProfileProps) {
         </div>
       </div>
 
-      <div className="bg-white dark:bg-zinc-900 rounded-2xl shadow-xl p-6">
+      <div className="bg-white dark:bg-zinc-900 rounded-2xl p-6">
         <h3 className="text-lg font-semibold text-zinc-900 dark:text-white mb-4">Quick Actions</h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <Button variant="outline" className="flex flex-col items-center justify-center h-auto p-4">

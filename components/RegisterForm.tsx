@@ -42,7 +42,7 @@ export default function RegisterForm({ onToggleMode }: RegisterFormProps) {
   const displayError = localError || (error instanceof Error ? error.message : null);
 
   return (
-    <div className="w-full max-w-md p-8 space-y-6 bg-white rounded-lg shadow-lg dark:bg-zinc-900">
+    <div className="w-full max-w-md p-8 space-y-6 bg-white rounded-lg dark:bg-zinc-900">
       <div>
         <h2 className="text-3xl font-bold text-center text-zinc-900 dark:text-white">
           Create account
