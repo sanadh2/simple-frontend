@@ -5,6 +5,7 @@ This guide explains how to use TanStack Query in the authentication app.
 ## Overview
 
 TanStack Query (formerly React Query) is integrated to handle all server state management, providing:
+
 - Automatic caching and background updates
 - Loading and error states
 - Request deduplication
@@ -19,15 +20,15 @@ The query client is configured in `lib/queryClient.ts`:
 
 ```typescript
 export const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: 1000 * 60 * 5, // 5 minutes
-      gcTime: 1000 * 60 * 10,   // 10 minutes
-      retry: 1,
-      refetchOnWindowFocus: false,
-    },
-  },
-});
+	defaultOptions: {
+		queries: {
+			staleTime: 1000 * 60 * 5, // 5 minutes
+			gcTime: 1000 * 60 * 10, // 10 minutes
+			retry: 1,
+			refetchOnWindowFocus: false,
+		},
+	},
+})
 ```
 
 ### Provider Setup
@@ -61,6 +62,7 @@ function MyComponent() {
 ```
 
 **Features:**
+
 - Automatically fetches user profile on mount
 - Attempts token refresh if profile fetch fails
 - Caches user data to prevent unnecessary requests
@@ -79,9 +81,9 @@ function LoginForm() {
   const handleSubmit = (e) => {
     e.preventDefault();
     reset(); // Clear previous errors
-    login({ 
-      email: 'user@example.com', 
-      password: 'password123' 
+    login({
+      email: 'user@example.com',
+      password: 'password123'
     });
   };
 
@@ -97,6 +99,7 @@ function LoginForm() {
 ```
 
 **What it does:**
+
 - Sends login request to backend
 - Stores access and refresh tokens in localStorage
 - Updates profile query cache with user data
@@ -134,6 +137,7 @@ function RegisterForm() {
 ```
 
 **What it does:**
+
 - Sends registration request to backend
 - Stores tokens in localStorage on success
 - Updates profile query cache
@@ -158,6 +162,7 @@ function LogoutButton() {
 ```
 
 **What it does:**
+
 - Sends logout request to backend
 - Removes tokens from localStorage
 - Clears all auth-related query cache
@@ -207,27 +212,27 @@ Query keys are centralized in `hooks/useAuth.ts`:
 
 ```typescript
 export const authKeys = {
-  all: ['auth'] as const,
-  profile: () => [...authKeys.all, 'profile'] as const,
-};
+	all: ["auth"] as const,
+	profile: () => [...authKeys.all, "profile"] as const,
+}
 ```
 
 This allows for easy query invalidation and refetching:
 
 ```typescript
-import { useQueryClient } from '@tanstack/react-query';
-import { authKeys } from '@/hooks/useAuth';
+import { useQueryClient } from "@tanstack/react-query"
+import { authKeys } from "@/hooks/useAuth"
 
 function MyComponent() {
-  const queryClient = useQueryClient();
+	const queryClient = useQueryClient()
 
-  const handleAction = () => {
-    // Invalidate and refetch profile
-    queryClient.invalidateQueries({ queryKey: authKeys.profile() });
-    
-    // Or clear all auth queries
-    queryClient.removeQueries({ queryKey: authKeys.all });
-  };
+	const handleAction = () => {
+		// Invalidate and refetch profile
+		queryClient.invalidateQueries({ queryKey: authKeys.profile() })
+
+		// Or clear all auth queries
+		queryClient.removeQueries({ queryKey: authKeys.all })
+	}
 }
 ```
 
@@ -264,20 +269,20 @@ function App() {
 
 ```typescript
 function LoginForm() {
-  const { mutate: login, error, reset } = useLogin();
+	const { mutate: login, error, reset } = useLogin()
 
-  useEffect(() => {
-    if (error) {
-      // Show toast notification
-      toast.error(error.message);
-      
-      // Clear error after 5 seconds
-      const timer = setTimeout(reset, 5000);
-      return () => clearTimeout(timer);
-    }
-  }, [error, reset]);
+	useEffect(() => {
+		if (error) {
+			// Show toast notification
+			toast.error(error.message)
 
-  // ...
+			// Clear error after 5 seconds
+			const timer = setTimeout(reset, 5000)
+			return () => clearTimeout(timer)
+		}
+	}, [error, reset])
+
+	// ...
 }
 ```
 
@@ -311,6 +316,7 @@ function MyComponent() {
 The DevTools are automatically included in development mode. Look for the React Query icon in the bottom-left corner of your app.
 
 Features:
+
 - View all queries and their state
 - See cached data
 - Manually refetch queries
@@ -335,16 +341,19 @@ Features:
 ## Troubleshooting
 
 ### Query not refetching
+
 - Check if `staleTime` is set too high
 - Use `refetch()` to manually trigger
 - Use `invalidateQueries()` to mark data as stale
 
 ### Mutations not updating UI
+
 - Ensure `onSuccess` callback updates query cache
 - Use `setQueryData` to manually update cache
 - Use `invalidateQueries` to refetch related data
 
 ### Multiple network requests
+
 - Check if query keys are consistent
 - Use `enabled` option to prevent unnecessary queries
 - Review component mounting behavior
@@ -354,4 +363,3 @@ Features:
 - [TanStack Query Docs](https://tanstack.com/query/latest/docs/react/overview)
 - [Quick Start Guide](https://tanstack.com/query/latest/docs/react/quick-start)
 - [DevTools Guide](https://tanstack.com/query/latest/docs/react/devtools)
-

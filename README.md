@@ -45,16 +45,19 @@ client/
 ## Setup
 
 1. Install dependencies:
+
 ```bash
 npm install
 ```
 
 2. Create `.env.local` file:
+
 ```env
 NEXT_PUBLIC_API_URL=http://localhost:3000
 ```
 
 3. Start the development server:
+
 ```bash
 npm run dev
 ```
@@ -66,40 +69,46 @@ The app will run on http://localhost:3001
 ### Query Hooks
 
 **`useProfile()`** - Fetch current user profile
+
 ```typescript
-const { data: user, isLoading, error } = useProfile();
+const { data: user, isLoading, error } = useProfile()
 ```
 
 ### Mutation Hooks
 
 **`useLogin()`** - Login mutation
+
 ```typescript
-const { mutate: login, isPending, error } = useLogin();
-login({ email, password });
+const { mutate: login, isPending, error } = useLogin()
+login({ email, password })
 ```
 
 **`useRegister()`** - Registration mutation
+
 ```typescript
-const { mutate: register, isPending, error } = useRegister();
-register({ email, password, firstName, lastName });
+const { mutate: register, isPending, error } = useRegister()
+register({ email, password, firstName, lastName })
 ```
 
 **`useLogout()`** - Logout mutation
+
 ```typescript
-const { mutate: logout } = useLogout();
-logout();
+const { mutate: logout } = useLogout()
+logout()
 ```
 
 **`useLogoutAll()`** - Logout from all devices
+
 ```typescript
-const { mutate: logoutAll } = useLogoutAll();
-logoutAll();
+const { mutate: logoutAll } = useLogoutAll()
+logoutAll()
 ```
 
 **`useRefreshToken()`** - Refresh access token
+
 ```typescript
-const { mutate: refreshToken } = useRefreshToken();
-refreshToken();
+const { mutate: refreshToken } = useRefreshToken()
+refreshToken()
 ```
 
 ### Benefits of TanStack Query
@@ -151,6 +160,7 @@ The query client is configured with sensible defaults in `lib/queryClient.ts`:
 ## Development Tools
 
 Open the app and look for the React Query DevTools icon in the bottom corner. Click it to:
+
 - See all active queries and their state
 - Manually refetch queries
 - Invalidate cached data
@@ -164,12 +174,14 @@ Open the app and look for the React Query DevTools icon in the bottom corner. Cl
 ## API Integration
 
 The app connects to the Express backend API. All API calls are handled through:
+
 - `lib/api.ts` - API client with typed methods
 - `hooks/useAuth.ts` - React Query hooks for auth operations
 
 ## Styling
 
 This app uses Tailwind CSS with a custom configuration:
+
 - Responsive design (mobile-first)
 - Dark mode support
 - Custom color palette

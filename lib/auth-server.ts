@@ -1,161 +1,166 @@
-import 'server-only';
-import { cookies } from 'next/headers';
-import { apiClient, User, ApiResponse, AuthTokens } from '@/lib/api';
+import "server-only"
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+import { cookies } from "next/headers"
+
+import { ApiResponse, AuthTokens, User } from "@/lib/api"
+
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"
 
 class ServerApiClient {
-  private baseURL: string;
+	private baseURL: string
 
-  constructor(baseURL: string) {
-    this.baseURL = baseURL;
-  }
+	constructor(baseURL: string) {
+		this.baseURL = baseURL
+	}
 
-  private async getAuthHeaders(): Promise<HeadersInit> {
-    const cookieStore = await cookies();
-    const accessToken = cookieStore.get('accessToken')?.value;
-    
-    const headers: HeadersInit = {
-      'Content-Type': 'application/json',
-    };
+	private async getAuthHeaders(): Promise<HeadersInit> {
+		const cookieStore = await cookies()
+		const accessToken = cookieStore.get("accessToken")?.value
 
-    if (accessToken) {
-      headers['Authorization'] = `Bearer ${accessToken}`;
-    }
+		const headers: HeadersInit = {
+			"Content-Type": "application/json",
+		}
 
-    return headers;
-  }
+		if (accessToken) {
+			headers["Authorization"] = `Bearer ${accessToken}`
+		}
 
-  private async handleResponse<T>(response: Response): Promise<ApiResponse<T>> {
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.message || 'An error occurred');
-    }
+		return headers
+	}
 
-    return response.json();
-  }
+	private async handleResponse<T>(response: Response): Promise<ApiResponse<T>> {
+		if (!response.ok) {
+			const error = await response.json()
+			throw new Error(error.message || "An error occurred")
+		}
 
-  private async request<T>(
-    endpoint: string,
-    options: RequestInit = {}
-  ): Promise<ApiResponse<T>> {
-    const url = `${this.baseURL}${endpoint}`;
-    const headers = await this.getAuthHeaders();
-    
-    const config: RequestInit = {
-      ...options,
-      headers: {
-        ...headers,
-        ...options.headers,
-      },
-      credentials: 'include',
-      cache: 'no-store',
-    };
+		return response.json()
+	}
 
-    try {
-      const response = await fetch(url, config);
-      return this.handleResponse<T>(response);
-    } catch (error) {
-      if (error instanceof Error) {
-        throw error;
-      }
-      throw new Error('Network error occurred');
-    }
-  }
+	private async request<T>(
+		endpoint: string,
+		options: RequestInit = {}
+	): Promise<ApiResponse<T>> {
+		const url = `${this.baseURL}${endpoint}`
+		const headers = await this.getAuthHeaders()
 
-  async getProfile(): Promise<ApiResponse<{ user: User }>> {
-    return this.request('/api/auth/me', {
-      method: 'GET',
-    });
-  }
+		const config: RequestInit = {
+			...options,
+			headers: {
+				...headers,
+				...options.headers,
+			},
+			credentials: "include",
+			cache: "no-store",
+		}
 
-  async login(email: string, password: string): Promise<ApiResponse<{ user: User; tokens: AuthTokens }>> {
-    return this.request('/api/auth/login', {
-      method: 'POST',
-      body: JSON.stringify({ email, password }),
-    });
-  }
+		try {
+			const response = await fetch(url, config)
+			return this.handleResponse<T>(response)
+		} catch (error) {
+			if (error instanceof Error) {
+				throw error
+			}
+			throw new Error("Network error occurred")
+		}
+	}
 
-  async register(
-    email: string,
-    password: string,
-    firstName: string,
-    lastName: string
-  ): Promise<ApiResponse<{ user: User; tokens: AuthTokens }>> {
-    return this.request('/api/auth/register', {
-      method: 'POST',
-      body: JSON.stringify({ email, password, firstName, lastName }),
-    });
-  }
+	async getProfile(): Promise<ApiResponse<{ user: User }>> {
+		return this.request("/api/auth/me", {
+			method: "GET",
+		})
+	}
 
-  async logout(): Promise<ApiResponse> {
-    const cookieStore = await cookies();
-    const refreshToken = cookieStore.get('refreshToken')?.value;
-    
-    return this.request('/api/auth/logout', {
-      method: 'POST',
-      body: JSON.stringify({ refreshToken }),
-    });
-  }
+	async login(
+		email: string,
+		password: string
+	): Promise<ApiResponse<{ user: User; tokens: AuthTokens }>> {
+		return this.request("/api/auth/login", {
+			method: "POST",
+			body: JSON.stringify({ email, password }),
+		})
+	}
 
-  async refreshToken(): Promise<ApiResponse<{ accessToken: string }>> {
-    const cookieStore = await cookies();
-    const refreshToken = cookieStore.get('refreshToken')?.value;
-    
-    return this.request('/api/auth/refresh', {
-      method: 'POST',
-      body: JSON.stringify({ refreshToken }),
-    });
-  }
+	async register(
+		email: string,
+		password: string,
+		firstName: string,
+		lastName: string
+	): Promise<ApiResponse<{ user: User; tokens: AuthTokens }>> {
+		return this.request("/api/auth/register", {
+			method: "POST",
+			body: JSON.stringify({ email, password, firstName, lastName }),
+		})
+	}
+
+	async logout(): Promise<ApiResponse> {
+		const cookieStore = await cookies()
+		const refreshToken = cookieStore.get("refreshToken")?.value
+
+		return this.request("/api/auth/logout", {
+			method: "POST",
+			body: JSON.stringify({ refreshToken }),
+		})
+	}
+
+	async refreshToken(): Promise<ApiResponse<{ accessToken: string }>> {
+		const cookieStore = await cookies()
+		const refreshToken = cookieStore.get("refreshToken")?.value
+
+		return this.request("/api/auth/refresh", {
+			method: "POST",
+			body: JSON.stringify({ refreshToken }),
+		})
+	}
 }
 
-export const serverApiClient = new ServerApiClient(API_BASE_URL);
+export const serverApiClient = new ServerApiClient(API_BASE_URL)
 
 export async function getCurrentUser(): Promise<User | null> {
-  try {
-    const cookieStore = await cookies();
-    const accessToken = cookieStore.get('accessToken')?.value;
-    
-    if (!accessToken) {
-      return null;
-    }
+	try {
+		const cookieStore = await cookies()
+		const accessToken = cookieStore.get("accessToken")?.value
 
-    const response = await serverApiClient.getProfile();
-    return response.success && response.data ? response.data.user : null;
-  } catch (error) {
-    console.error('Failed to get current user:', error);
-    return null;
-  }
+		if (!accessToken) {
+			return null
+		}
+
+		const response = await serverApiClient.getProfile()
+		return response.success && response.data ? response.data.user : null
+	} catch (error) {
+		console.error("Failed to get current user:", error)
+		return null
+	}
 }
 
 export async function isAuthenticated(): Promise<boolean> {
-  const user = await getCurrentUser();
-  return user !== null;
+	const user = await getCurrentUser()
+	return user !== null
 }
 
 export async function setAuthCookies(accessToken: string) {
-  const cookieStore = await cookies();
-  
-  cookieStore.set('accessToken', accessToken, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'strict',
-    maxAge: 15 * 60,
-    path: '/',
-  });
+	const cookieStore = await cookies()
+
+	cookieStore.set("accessToken", accessToken, {
+		httpOnly: true,
+		secure: process.env.NODE_ENV === "production",
+		sameSite: "strict",
+		maxAge: 15 * 60,
+		path: "/",
+	})
 }
 
 export async function clearAuthCookies() {
-  const cookieStore = await cookies();
-  cookieStore.delete('accessToken');
+	const cookieStore = await cookies()
+	cookieStore.delete("accessToken")
 }
 
 export async function getAccessToken(): Promise<string | null> {
-  const cookieStore = await cookies();
-  return cookieStore.get('accessToken')?.value || null;
+	const cookieStore = await cookies()
+	return cookieStore.get("accessToken")?.value || null
 }
 
 export async function getRefreshToken(): Promise<string | null> {
-  const cookieStore = await cookies();
-  return cookieStore.get('refreshToken')?.value || null;
+	const cookieStore = await cookies()
+	return cookieStore.get("refreshToken")?.value || null
 }

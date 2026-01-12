@@ -32,25 +32,25 @@ Server-only utilities that can ONLY be imported in Server Components or Server A
 
 ```typescript
 // Get current user (server-side)
-const user = await getCurrentUser();
+const user = await getCurrentUser()
 
 // Check if authenticated
-const isAuth = await isAuthenticated();
+const isAuth = await isAuthenticated()
 
 // Cookie management
-await setAuthCookies(accessToken, refreshToken);
-await clearAuthCookies();
-const token = await getAccessToken();
+await setAuthCookies(accessToken, refreshToken)
+await clearAuthCookies()
+const token = await getAccessToken()
 ```
 
 **Server API Client:**
 
 ```typescript
-import { serverApiClient } from '@/lib/auth-server';
+import { serverApiClient } from "@/lib/auth-server"
 
 // Use in Server Components or Server Actions
-const response = await serverApiClient.getProfile();
-const loginResponse = await serverApiClient.login(email, password);
+const response = await serverApiClient.getProfile()
+const loginResponse = await serverApiClient.login(email, password)
 ```
 
 ### 2. `actions/auth-actions.ts`
@@ -60,25 +60,25 @@ Next.js Server Actions that can be called from Client Components.
 **Available Actions:**
 
 ```typescript
-'use server';
+"use server"
 
 // Login
-const result = await loginAction(email, password);
+const result = await loginAction(email, password)
 
 // Register
-const result = await registerAction(email, password, firstName, lastName);
+const result = await registerAction(email, password, firstName, lastName)
 
 // Logout
-await logoutAction();
+await logoutAction()
 
 // Get profile
-const result = await getProfileAction();
+const result = await getProfileAction()
 
 // Refresh token
-const result = await refreshTokenAction();
+const result = await refreshTokenAction()
 
 // Check auth status
-const result = await checkAuthAction();
+const result = await checkAuthAction()
 ```
 
 ### 3. `hooks/useServerAuth.ts`
@@ -89,16 +89,16 @@ Client-side hooks that use Server Actions (alternative to `useAuth.ts`).
 
 ```typescript
 // Login with Server Actions
-const { mutate: login } = useServerLogin();
+const { mutate: login } = useServerLogin()
 
 // Register with Server Actions
-const { mutate: register } = useServerRegister();
+const { mutate: register } = useServerRegister()
 
 // Logout with Server Actions
-const { mutate: logout } = useServerLogout();
+const { mutate: logout } = useServerLogout()
 
 // Refresh token with Server Actions
-const { mutate: refreshToken } = useServerRefreshToken();
+const { mutate: refreshToken } = useServerRefreshToken()
 ```
 
 ## Usage Examples
@@ -201,7 +201,7 @@ import { loginAction } from '@/actions/auth-actions';
 export default function DirectLoginForm() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    
+
     const formData = new FormData(e.currentTarget);
     const email = formData.get('email') as string;
     const password = formData.get('password') as string;
@@ -229,20 +229,17 @@ export default function DirectLoginForm() {
 
 ```typescript
 // app/api/user/route.ts
-import { getCurrentUser } from '@/lib/auth-server';
-import { NextResponse } from 'next/server';
+import { getCurrentUser } from "@/lib/auth-server"
+import { NextResponse } from "next/server"
 
 export async function GET() {
-  const user = await getCurrentUser();
+	const user = await getCurrentUser()
 
-  if (!user) {
-    return NextResponse.json(
-      { error: 'Unauthorized' },
-      { status: 401 }
-    );
-  }
+	if (!user) {
+		return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+	}
 
-  return NextResponse.json({ user });
+	return NextResponse.json({ user })
 }
 ```
 
@@ -250,28 +247,29 @@ export async function GET() {
 
 ```typescript
 // middleware.ts
-import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
+import { NextResponse } from "next/server"
+import type { NextRequest } from "next/server"
 
 export async function middleware(request: NextRequest) {
-  const accessToken = request.cookies.get('accessToken')?.value;
+	const accessToken = request.cookies.get("accessToken")?.value
 
-  // Redirect to login if not authenticated
-  if (!accessToken && request.nextUrl.pathname.startsWith('/dashboard')) {
-    return NextResponse.redirect(new URL('/login', request.url));
-  }
+	// Redirect to login if not authenticated
+	if (!accessToken && request.nextUrl.pathname.startsWith("/dashboard")) {
+		return NextResponse.redirect(new URL("/login", request.url))
+	}
 
-  return NextResponse.next();
+	return NextResponse.next()
 }
 
 export const config = {
-  matcher: ['/dashboard/:path*', '/profile/:path*'],
-};
+	matcher: ["/dashboard/:path*", "/profile/:path*"],
+}
 ```
 
 ## Client vs Server Auth: When to Use What?
 
 ### Use Client-Side Auth (`useAuth.ts`) When:
+
 - ✅ Building a pure SPA (Single Page Application)
 - ✅ Need to support older browsers
 - ✅ Want more control over token storage
@@ -279,6 +277,7 @@ export const config = {
 - ✅ Don't need SSR for authenticated pages
 
 ### Use Server-Side Auth (`auth-server.ts` + actions) When:
+
 - ✅ Building with Next.js App Router
 - ✅ Need Server-Side Rendering (SSR) for protected pages
 - ✅ Want more secure cookie-based auth
@@ -289,12 +288,14 @@ export const config = {
 ## Security: Cookies vs localStorage
 
 ### Server-Side (Cookies) ✅ More Secure
+
 - **HTTP-only cookies** - JavaScript can't access tokens
 - **Secure flag** - Only sent over HTTPS in production
 - **SameSite** - CSRF protection
 - **Server-side validation** - Tokens validated on server
 
 ### Client-Side (localStorage) ⚠️ Less Secure
+
 - **XSS vulnerable** - JavaScript can access tokens
 - **Manual management** - Developer must handle security
 - **Client-side validation** - Tokens validated on client
@@ -304,24 +305,27 @@ export const config = {
 ### Switching from Client to Server Auth
 
 **Before (Client-side):**
-```typescript
-import { useLogin } from '@/hooks/useAuth';
 
-const { mutate: login } = useLogin();
-login({ email, password });
+```typescript
+import { useLogin } from "@/hooks/useAuth"
+
+const { mutate: login } = useLogin()
+login({ email, password })
 ```
 
 **After (Server-side):**
-```typescript
-import { useServerLogin } from '@/hooks/useServerAuth';
 
-const { mutate: login } = useServerLogin();
-login({ email, password });
+```typescript
+import { useServerLogin } from "@/hooks/useServerAuth"
+
+const { mutate: login } = useServerLogin()
+login({ email, password })
 ```
 
 ### Using Both Approaches
 
 You can use both! For example:
+
 - Server-side for initial page load
 - Client-side for subsequent interactions
 
@@ -341,10 +345,10 @@ import { useProfile } from '@/hooks/useAuth';
 
 function ClientComponent({ initialUser }) {
   const { data: user } = useProfile();
-  
+
   // Use server data initially, then client data
   const currentUser = user || initialUser;
-  
+
   return <div>{currentUser?.email}</div>;
 }
 ```
@@ -363,16 +367,19 @@ function ClientComponent({ initialUser }) {
 ## Troubleshooting
 
 ### Cookies not working
+
 - Check `sameSite` and `secure` settings
 - Ensure frontend and backend on same domain (or CORS configured)
 - Check browser dev tools → Application → Cookies
 
 ### Server Actions not found
+
 - Ensure `'use server'` directive at top of file
 - Check Next.js version (Server Actions require Next.js 13.4+)
 - Verify file is in `actions/` directory
 
 ### "server-only" errors
+
 - Don't import server-only files in Client Components
 - Use Server Actions to call server functions from client
 
@@ -381,4 +388,3 @@ function ClientComponent({ initialUser }) {
 - [Next.js Server Actions](https://nextjs.org/docs/app/building-your-application/data-fetching/server-actions)
 - [Next.js Authentication](https://nextjs.org/docs/app/building-your-application/authentication)
 - [Server-only Package](https://www.npmjs.com/package/server-only)
-
