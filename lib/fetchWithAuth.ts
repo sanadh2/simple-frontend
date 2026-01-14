@@ -4,9 +4,9 @@ interface FetchOptions extends RequestInit {
 }
 
 let isRefreshing = false
-let refreshPromise: Promise<string | null> | null = null
+let refreshPromise: Promise<boolean> | null = null
 
-async function refreshAccessToken(): Promise<string | null> {
+async function refreshAccessToken(): Promise<boolean> {
 	if (isRefreshing && refreshPromise) {
 		return refreshPromise
 	}
@@ -31,21 +31,15 @@ async function refreshAccessToken(): Promise<string | null> {
 
 			const result = await response.json()
 
-			if (result.success && result.data?.accessToken) {
-				localStorage.setItem("accessToken", result.data.accessToken)
-				return result.data.accessToken
-			}
-
-			return null
+			return result.success === true
 		} catch (error) {
 			console.error("Token refresh error:", error)
-			localStorage.removeItem("accessToken")
 
 			if (typeof window !== "undefined") {
 				window.location.href = "/"
 			}
 
-			return null
+			return false
 		} finally {
 			isRefreshing = false
 			refreshPromise = null
@@ -61,15 +55,9 @@ export async function fetchWithAuth(
 ): Promise<Response> {
 	const { skipAuth = false, skipRetry = false, ...fetchOptions } = options
 
-	const accessToken = !skipAuth ? localStorage.getItem("accessToken") : null
-
 	const headers: Record<string, string> = {
 		"Content-Type": "application/json",
 		...(fetchOptions.headers as Record<string, string>),
-	}
-
-	if (accessToken) {
-		headers["Authorization"] = `Bearer ${accessToken}`
 	}
 
 	const response = await fetch(url, {
@@ -79,11 +67,9 @@ export async function fetchWithAuth(
 	})
 
 	if (response.status === 401 && !skipRetry && !skipAuth) {
-		const newAccessToken = await refreshAccessToken()
+		const refreshed = await refreshAccessToken()
 
-		if (newAccessToken) {
-			headers["Authorization"] = `Bearer ${newAccessToken}`
-
+		if (refreshed) {
 			return fetch(url, {
 				...fetchOptions,
 				headers,

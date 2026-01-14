@@ -15,9 +15,6 @@ export function useProfile() {
 		queryFn: async () => {
 			if (typeof window === "undefined") return null
 
-			const token = localStorage.getItem("accessToken")
-			if (!token) return null
-
 			try {
 				const response = await apiClient.getProfile()
 				return response.success && response.data ? response.data.user : null
@@ -25,17 +22,13 @@ export function useProfile() {
 				try {
 					const refreshResponse = await apiClient.refreshToken()
 					if (refreshResponse.success && refreshResponse.data) {
-						localStorage.setItem(
-							"accessToken",
-							refreshResponse.data.accessToken
-						)
 						const profileResponse = await apiClient.getProfile()
 						return profileResponse.success && profileResponse.data
 							? profileResponse.data.user
 							: null
 					}
 				} catch {
-					localStorage.removeItem("accessToken")
+					// Token refresh failed, user will be redirected
 				}
 				return null
 			}
@@ -63,7 +56,6 @@ export function useLogin() {
 			return response.data
 		},
 		onSuccess: (data) => {
-			localStorage.setItem("accessToken", data.tokens.accessToken)
 			queryClient.setQueryData(authKeys.profile(), data.user)
 		},
 	})
@@ -96,7 +88,6 @@ export function useRegister() {
 			return response.data
 		},
 		onSuccess: (data) => {
-			localStorage.setItem("accessToken", data.tokens.accessToken)
 			queryClient.setQueryData(authKeys.profile(), data.user)
 		},
 	})
@@ -114,8 +105,6 @@ export function useLogout() {
 			}
 		},
 		onSuccess: () => {
-			localStorage.removeItem("accessToken")
-			// Refresh token cookie is cleared by server
 			queryClient.setQueryData(authKeys.profile(), null)
 			queryClient.removeQueries({ queryKey: authKeys.all })
 		},
@@ -134,12 +123,10 @@ export function useLogoutAll() {
 			}
 		},
 		onSuccess: () => {
-			localStorage.removeItem("accessToken")
 			queryClient.setQueryData(authKeys.profile(), null)
 			queryClient.removeQueries({ queryKey: authKeys.all })
 		},
 		onError: () => {
-			localStorage.removeItem("accessToken")
 			queryClient.setQueryData(authKeys.profile(), null)
 			queryClient.removeQueries({ queryKey: authKeys.all })
 		},
@@ -157,8 +144,7 @@ export function useRefreshToken() {
 			}
 			return response.data
 		},
-		onSuccess: (data) => {
-			localStorage.setItem("accessToken", data.accessToken)
+		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: authKeys.profile() })
 		},
 	})

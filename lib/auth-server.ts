@@ -138,16 +138,9 @@ export async function isAuthenticated(): Promise<boolean> {
 	return user !== null
 }
 
-export async function setAuthCookies(accessToken: string) {
-	const cookieStore = await cookies()
-
-	cookieStore.set("accessToken", accessToken, {
-		httpOnly: true,
-		secure: process.env.NODE_ENV === "production",
-		sameSite: "strict",
-		maxAge: 15 * 60,
-		path: "/",
-	})
+export async function setAuthCookies(_accessToken: string) {
+	// Access token is now set by the backend as a cookie
+	// This function is kept for compatibility but does nothing
 }
 
 export async function clearAuthCookies() {

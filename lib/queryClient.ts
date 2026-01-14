@@ -2,9 +2,6 @@ import { QueryClient } from "@tanstack/react-query"
 
 const handleUnauthorized = () => {
 	if (typeof window !== "undefined") {
-		localStorage.removeItem("accessToken")
-		localStorage.removeItem("refreshToken")
-
 		if (window.location.pathname !== "/") {
 			window.location.href = "/"
 		}
