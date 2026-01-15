@@ -1,3 +1,5 @@
+import { env } from "@/env"
+
 interface FetchOptions extends RequestInit {
 	skipAuth?: boolean
 	skipRetry?: boolean
@@ -14,10 +16,7 @@ async function refreshAccessToken(): Promise<boolean> {
 	isRefreshing = true
 	refreshPromise = (async () => {
 		try {
-			const API_BASE_URL =
-				process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"
-
-			const response = await fetch(`${API_BASE_URL}/api/auth/refresh`, {
+			const response = await fetch(`${env.NEXT_PUBLIC_API_URL}/api/auth/refresh`, {
 				method: "POST",
 				credentials: "include",
 				headers: {
@@ -34,11 +33,6 @@ async function refreshAccessToken(): Promise<boolean> {
 			return result.success === true
 		} catch (error) {
 			console.error("Token refresh error:", error)
-
-			if (typeof window !== "undefined") {
-				window.location.href = "/"
-			}
-
 			return false
 		} finally {
 			isRefreshing = false
@@ -67,14 +61,18 @@ export async function fetchWithAuth(
 	})
 
 	if (response.status === 401 && !skipRetry && !skipAuth) {
-		const refreshed = await refreshAccessToken()
+		const isLogoutRequest = url.includes("/api/auth/logout") || url.includes("/api/auth/logout-all")
+		
+		if (!isLogoutRequest) {
+			const refreshed = await refreshAccessToken()
 
-		if (refreshed) {
-			return fetch(url, {
-				...fetchOptions,
-				headers,
-				credentials: "include",
-			})
+			if (refreshed) {
+				return fetch(url, {
+					...fetchOptions,
+					headers,
+					credentials: "include",
+				})
+			}
 		}
 	}
 

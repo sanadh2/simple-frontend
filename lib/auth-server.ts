@@ -3,8 +3,9 @@ import "server-only"
 import { cookies } from "next/headers"
 
 import { ApiResponse, AuthTokens, User } from "@/lib/api"
+import { env } from "@/env"
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"
+const API_BASE_URL = env.NEXT_PUBLIC_API_URL
 
 class ServerApiClient {
 	private baseURL: string

@@ -16,7 +16,17 @@ export function useProfile() {
 			try {
 				const response = await apiClient.getProfile()
 				return response.success && response.data ? response.data.user : null
-			} catch {
+			} catch (error) {
+				// Check if it's a 401 (unauthorized) - don't try to refresh if user is logged out
+				const isUnauthorized = error instanceof Error && "status" in error && error.status === 401
+				
+				if (isUnauthorized) {
+					// User is not authenticated, return null without trying to refresh
+					// This prevents unnecessary token refresh attempts that could trigger redirects
+					return null
+				}
+
+				// For other errors, try to refresh token
 				try {
 					const refreshResponse = await apiClient.refreshToken()
 					if (refreshResponse.success && refreshResponse.data) {
@@ -26,7 +36,7 @@ export function useProfile() {
 							: null
 					}
 				} catch {
-					// Token refresh failed, user will be redirected
+					// Token refresh failed, return null (component will handle showing login form)
 				}
 				return null
 			}
@@ -103,8 +113,11 @@ export function useLogout() {
 			}
 		},
 		onSuccess: () => {
+			// Clear auth data immediately
 			queryClient.setQueryData(authKeys.profile(), null)
 			queryClient.removeQueries({ queryKey: authKeys.all })
+			// Cancel any in-flight queries to prevent them from triggering redirects
+			queryClient.cancelQueries({ queryKey: authKeys.profile() })
 		},
 	})
 }
@@ -121,12 +134,17 @@ export function useLogoutAll() {
 			}
 		},
 		onSuccess: () => {
+			// Clear auth data immediately
 			queryClient.setQueryData(authKeys.profile(), null)
 			queryClient.removeQueries({ queryKey: authKeys.all })
+			// Cancel any in-flight queries to prevent them from triggering redirects
+			queryClient.cancelQueries({ queryKey: authKeys.profile() })
 		},
 		onError: () => {
+			// Clear auth data even on error
 			queryClient.setQueryData(authKeys.profile(), null)
 			queryClient.removeQueries({ queryKey: authKeys.all })
+			queryClient.cancelQueries({ queryKey: authKeys.profile() })
 		},
 	})
 }

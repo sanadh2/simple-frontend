@@ -1,3 +1,5 @@
+import { env } from "@/env"
+
 export function getCookie(name: string): string | null {
 	if (typeof document === "undefined") return null
 
@@ -24,7 +26,7 @@ export function setCookie(
 	const {
 		maxAge = 15 * 60,
 		path = "/",
-		secure = process.env.NODE_ENV === "production",
+		secure = env.NODE_ENV === "production",
 		sameSite = "strict",
 	} = options
 
