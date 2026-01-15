@@ -28,6 +28,11 @@ class ServerApiClient {
 		return headers
 	}
 
+	private async getCookieHeader(): Promise<string> {
+		const cookieStore = await cookies()
+		return cookieStore.toString();
+	}
+
 	private async handleResponse<T>(response: Response): Promise<ApiResponse<T>> {
 		if (!response.ok) {
 			const error = await response.json()
@@ -43,11 +48,13 @@ class ServerApiClient {
 	): Promise<ApiResponse<T>> {
 		const url = `${this.baseURL}${endpoint}`
 		const headers = await this.getAuthHeaders()
+		const cookieHeader = await this.getCookieHeader()
 
 		const config: RequestInit = {
 			...options,
 			headers: {
 				...headers,
+				...(cookieHeader ? { Cookie: cookieHeader } : {}),
 				...options.headers,
 			},
 			credentials: "include",
@@ -135,6 +142,7 @@ export async function getCurrentUser(): Promise<User | null> {
 
 export async function isAuthenticated(): Promise<boolean> {
 	const user = await getCurrentUser()
+	console.log("user", user)
 	return user !== null
 }
 

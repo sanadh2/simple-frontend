@@ -13,8 +13,6 @@ export function useProfile() {
 	return useQuery({
 		queryKey: authKeys.profile(),
 		queryFn: async () => {
-			if (typeof window === "undefined") return null
-
 			try {
 				const response = await apiClient.getProfile()
 				return response.success && response.data ? response.data.user : null
