@@ -43,7 +43,9 @@ export interface BookmarkFilters {
 }
 
 class BookmarksApiClient {
-	async createBookmark(data: CreateBookmarkDTO): Promise<Bookmark> {
+	async createBookmark(
+		data: CreateBookmarkDTO
+	): Promise<{ bookmark: Bookmark; jobId?: string }> {
 		const response = await fetchWithAuth(`${API_BASE_URL}/api/bookmarks`, {
 			method: "POST",
 			body: JSON.stringify(data),
@@ -58,7 +60,11 @@ class BookmarksApiClient {
 		}
 
 		const result = await response.json()
-		return result.data
+		// Handle both old format (just bookmark) and new format (bookmark + jobId)
+		if (result.data.bookmark) {
+			return result.data
+		}
+		return { bookmark: result.data, jobId: result.data.jobId }
 	}
 
 	async getBookmarks(
