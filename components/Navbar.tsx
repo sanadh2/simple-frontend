@@ -96,14 +96,14 @@ export default function Navbar() {
 								</Button>
 								<Link href="/profile">
 									<div className="flex items-center space-x-2 px-3 py-1.5  bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors cursor-pointer">
-										<div className="flex h-8 w-8 items-center justify-center  bg-linear-to-br from-blue-600 to-purple-600 text-white text-sm font-semibold">
-											{user.firstName.charAt(0)}
-											{user.lastName.charAt(0)}
-										</div>
-										<div className="hidden lg:block">
-											<p className="text-sm font-medium text-zinc-900 dark:text-white">
-												{user.firstName} {user.lastName}
-											</p>
+									<div className="flex h-8 w-8 items-center justify-center  bg-linear-to-br from-blue-600 to-purple-600 text-white text-sm font-semibold">
+										{user.first_name.charAt(0)}
+										{user.last_name.charAt(0)}
+									</div>
+									<div className="hidden lg:block">
+										<p className="text-sm font-medium text-zinc-900 dark:text-white">
+											{user.first_name} {user.last_name}
+										</p>
 											<p className="text-xs text-zinc-600 dark:text-zinc-400 truncate max-w-[120px]">
 												{user.email}
 											</p>
@@ -212,12 +212,12 @@ export default function Navbar() {
 								className="flex items-center space-x-3 px-4 py-2  hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
 							>
 								<div className="flex h-10 w-10 items-center justify-center  bg-linear-to-br from-blue-600 to-purple-600 text-white text-sm font-semibold">
-									{user.firstName.charAt(0)}
-									{user.lastName.charAt(0)}
+									{user.first_name.charAt(0)}
+									{user.last_name.charAt(0)}
 								</div>
 								<div className="flex-1 min-w-0">
 									<p className="text-sm font-medium text-zinc-900 dark:text-white truncate">
-										{user.firstName} {user.lastName}
+										{user.first_name} {user.last_name}
 									</p>
 									<p className="text-xs text-zinc-600 dark:text-zinc-400 truncate">
 										{user.email}

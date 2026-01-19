@@ -92,12 +92,12 @@ class ServerApiClient {
 	async register(
 		email: string,
 		password: string,
-		firstName: string,
-		lastName: string
+		first_name: string,
+		last_name: string
 	): Promise<ApiResponse<{ user: User; tokens: AuthTokens }>> {
 		return this.request("/api/auth/register", {
 			method: "POST",
-			body: JSON.stringify({ email, password, firstName, lastName }),
+			body: JSON.stringify({ email, password, first_name, last_name }),
 		})
 	}
 

@@ -55,15 +55,15 @@ export async function loginAction(
 export async function registerAction(
 	email: string,
 	password: string,
-	firstName: string,
-	lastName: string
+	first_name: string,
+	last_name: string
 ): Promise<ActionResponse> {
 	try {
 		const response = await serverApiClient.register(
 			email,
 			password,
-			firstName,
-			lastName
+			first_name,
+			last_name
 		)
 
 		if (response.success && response.data) {

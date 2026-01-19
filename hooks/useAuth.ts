@@ -84,19 +84,19 @@ export function useRegister() {
 		mutationFn: async ({
 			email,
 			password,
-			firstName,
-			lastName,
+			first_name,
+			last_name,
 		}: {
 			email: string
 			password: string
-			firstName: string
-			lastName: string
+			first_name: string
+			last_name: string
 		}) => {
 			const response = await apiClient.register(
 				email,
 				password,
-				firstName,
-				lastName
+				first_name,
+				last_name
 			)
 			if (!response.success || !response.data) {
 				throw new Error(response.message || "Registration failed")
@@ -206,8 +206,8 @@ export function useUpdateProfile() {
 
 	return useMutation({
 		mutationFn: async (data: {
-			firstName?: string
-			lastName?: string
+			first_name?: string
+			last_name?: string
 			currentRole?: string | null
 			yearsOfExperience?: number | null
 		}) => {

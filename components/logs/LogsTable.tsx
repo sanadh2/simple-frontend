@@ -70,7 +70,7 @@ export function LogsTable({ logs, onCorrelationClick }: LogsTableProps) {
 
 								return (
 									<tr
-										key={`${log.correlationId}-${index}`}
+										key={`${log.correlation_id}-${index}`}
 										className="hover:bg-gray-50 transition-colors"
 									>
 										<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
@@ -98,17 +98,17 @@ export function LogsTable({ logs, onCorrelationClick }: LogsTableProps) {
 										</td>
 										<td className="px-6 py-4 whitespace-nowrap text-sm">
 											<button
-												onClick={() => onCorrelationClick?.(log.correlationId)}
+												onClick={() => onCorrelationClick?.(log.correlation_id)}
 												className="font-mono text-xs text-blue-600 hover:text-blue-800 hover:underline flex items-center gap-1"
 											>
-												{log.correlationId.slice(0, 8)}...
+												{log.correlation_id.slice(0, 8)}...
 												<ExternalLink className="w-3 h-3" />
 											</button>
 										</td>
 										<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-											{log.userId ? (
+											{log.user_id ? (
 												<span className="font-mono text-xs">
-													{log.userId.slice(0, 8)}...
+													{log.user_id.slice(0, 8)}...
 												</span>
 											) : (
 												<span className="text-gray-400">-</span>
@@ -136,7 +136,7 @@ export function LogsTable({ logs, onCorrelationClick }: LogsTableProps) {
 					log={selectedLog}
 					onClose={() => setSelectedLog(null)}
 					onTraceRequest={() => {
-						onCorrelationClick?.(selectedLog.correlationId)
+						onCorrelationClick?.(selectedLog.correlation_id)
 						setSelectedLog(null)
 					}}
 				/>

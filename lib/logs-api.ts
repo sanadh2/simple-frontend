@@ -5,9 +5,9 @@ const API_BASE_URL = env.NEXT_PUBLIC_API_URL
 export interface Log {
 	timestamp: string
 	level: "info" | "warn" | "error" | "debug"
-	correlationId: string
+	correlation_id: string
 	message: string
-	userId?: string
+	user_id?: string
 	meta?: Record<string, unknown>
 }
 

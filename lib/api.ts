@@ -16,12 +16,12 @@ export interface AuthTokens {
 export interface User {
 	id: string
 	email: string
-	firstName: string
-	lastName: string
-	isEmailVerified: boolean
-	profilePicture?: string
-	currentRole?: string
-	yearsOfExperience?: number
+	first_name: string
+	last_name: string
+	is_email_verified: boolean
+	profile_picture?: string
+	current_role?: string
+	years_of_experience?: number
 	createdAt?: string
 	updatedAt?: string
 }
@@ -58,12 +58,12 @@ class ApiClient {
 	async register(
 		email: string,
 		password: string,
-		firstName: string,
-		lastName: string
+		first_name: string,
+		last_name: string
 	): Promise<ApiResponse<{ user: User; tokens: AuthTokens }>> {
 		return this.request("/api/auth/register", {
 			method: "POST",
-			body: JSON.stringify({ email, password, firstName, lastName }),
+			body: JSON.stringify({ email, password, first_name, last_name }),
 		})
 	}
 
@@ -113,8 +113,8 @@ class ApiClient {
 	}
 
 	async updateProfile(data: {
-		firstName?: string
-		lastName?: string
+		first_name?: string
+		last_name?: string
 		currentRole?: string | null
 		yearsOfExperience?: number | null
 	}): Promise<ApiResponse<{ user: User }>> {

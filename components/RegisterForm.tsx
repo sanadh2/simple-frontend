@@ -13,8 +13,8 @@ export default function RegisterForm({ onToggleMode }: RegisterFormProps) {
 	const [email, setEmail] = useState("")
 	const [password, setPassword] = useState("")
 	const [confirmPassword, setConfirmPassword] = useState("")
-	const [firstName, setFirstName] = useState("")
-	const [lastName, setLastName] = useState("")
+	const [first_name, setfirst_name] = useState("")
+	const [last_name, setlast_name] = useState("")
 	const [otp, setOtp] = useState("")
 	const [showOTP, setShowOTP] = useState(false)
 	const [localError, setLocalError] = useState("")
@@ -39,8 +39,8 @@ export default function RegisterForm({ onToggleMode }: RegisterFormProps) {
 						setEmail("")
 						setPassword("")
 						setConfirmPassword("")
-						setFirstName("")
-						setLastName("")
+						setfirst_name("")
+						setlast_name("")
 						setOtp("")
 						setShowOTP(false)
 						onToggleMode()
@@ -53,7 +53,7 @@ export default function RegisterForm({ onToggleMode }: RegisterFormProps) {
 			return
 		}
 
-		if (!firstName.trim() || !lastName.trim()) {
+		if (!first_name.trim() || !last_name.trim()) {
 			setLocalError("First name and last name are required")
 			return
 		}
@@ -69,7 +69,7 @@ export default function RegisterForm({ onToggleMode }: RegisterFormProps) {
 		}
 
 		register(
-			{ email, password, firstName, lastName },
+			{ email, password, first_name, last_name },
 			{
 				onSuccess: () => {
 					setShowOTP(true)
@@ -152,19 +152,19 @@ export default function RegisterForm({ onToggleMode }: RegisterFormProps) {
 						<div className="grid grid-cols-2 gap-4">
 							<div>
 								<label
-									htmlFor="firstName"
+									htmlFor="first_name"
 									className="block text-sm font-medium text-zinc-700 dark:text-zinc-300"
 								>
 									First name
 								</label>
 								<input
-									id="firstName"
-									name="firstName"
+									id="first_name"
+									name="first_name"
 									type="text"
 									autoComplete="given-name"
 									required
-									value={firstName}
-									onChange={(e) => setFirstName(e.target.value)}
+									value={first_name}
+									onChange={(e) => setfirst_name(e.target.value)}
 									className="mt-1 block w-full px-3 py-2 border border-zinc-300   focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-zinc-800 dark:border-zinc-700 dark:text-white"
 									placeholder="John"
 								/>
@@ -172,19 +172,19 @@ export default function RegisterForm({ onToggleMode }: RegisterFormProps) {
 
 							<div>
 								<label
-									htmlFor="lastName"
+									htmlFor="last_name"
 									className="block text-sm font-medium text-zinc-700 dark:text-zinc-300"
 								>
 									Last name
 								</label>
 								<input
-									id="lastName"
-									name="lastName"
+									id="last_name"
+									name="last_name"
 									type="text"
 									autoComplete="family-name"
 									required
-									value={lastName}
-									onChange={(e) => setLastName(e.target.value)}
+									value={last_name}
+									onChange={(e) => setlast_name(e.target.value)}
 									className="mt-1 block w-full px-3 py-2 border border-zinc-300   focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-zinc-800 dark:border-zinc-700 dark:text-white"
 									placeholder="Doe"
 								/>

@@ -76,13 +76,13 @@ export function LogDetailModal({
 							</label>
 							<div className="flex items-center gap-2">
 								<p className="text-sm font-mono flex-1 truncate">
-									{log.correlationId}
+									{log.correlation_id}
 								</p>
 								<Button
 									variant="ghost"
 									size="sm"
 									onClick={() =>
-										copyToClipboard(log.correlationId, "correlationId")
+										copyToClipboard(log.correlation_id, "correlationId")
 									}
 								>
 									{copiedField === "correlationId" ? (
@@ -94,7 +94,7 @@ export function LogDetailModal({
 							</div>
 						</div>
 
-						{log.userId && (
+						{log.user_id && (
 							<div className="space-y-1">
 								<label className="text-sm font-medium text-gray-500 flex items-center gap-2">
 									<User className="w-4 h-4" />
@@ -102,12 +102,12 @@ export function LogDetailModal({
 								</label>
 								<div className="flex items-center gap-2">
 									<p className="text-sm font-mono flex-1 truncate">
-										{log.userId}
+										{log.user_id}
 									</p>
 									<Button
 										variant="ghost"
 										size="sm"
-										onClick={() => copyToClipboard(log.userId!, "userId")}
+										onClick={() => copyToClipboard(log.user_id!, "userId")}
 									>
 										{copiedField === "userId" ? (
 											<Check className="w-4 h-4 text-green-600" />

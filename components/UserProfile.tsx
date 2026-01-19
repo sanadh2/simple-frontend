@@ -44,10 +44,10 @@ export default function UserProfile({ user }: UserProfileProps) {
 	const [selectedFile, setSelectedFile] = useState<File | null>(null)
 	const [isEditing, setIsEditing] = useState(false)
 	const [formData, setFormData] = useState({
-		firstName: user.firstName,
-		lastName: user.lastName,
-		currentRole: user.currentRole || "",
-		yearsOfExperience: user.yearsOfExperience?.toString() || "",
+		first_name: user.first_name,
+		last_name: user.last_name,
+		currentRole: user.current_role || "",
+		yearsOfExperience: user.years_of_experience?.toString() || "",
 	})
 	const uploadRef = useRef<ProfilePictureUploadRef>(null)
 	const { mutate: logout, isPending: isLoggingOut } = useLogout()
@@ -104,10 +104,10 @@ export default function UserProfile({ user }: UserProfileProps) {
 
 	const handleEdit = () => {
 		setFormData({
-			firstName: user.firstName,
-			lastName: user.lastName,
-			currentRole: user.currentRole || "",
-			yearsOfExperience: user.yearsOfExperience?.toString() || "",
+			first_name: user.first_name,
+			last_name: user.last_name,
+			currentRole: user.current_role || "",
+			yearsOfExperience: user.years_of_experience?.toString() || "",
 		})
 		setIsEditing(true)
 	}
@@ -115,17 +115,17 @@ export default function UserProfile({ user }: UserProfileProps) {
 	const handleCancelEdit = () => {
 		setIsEditing(false)
 		setFormData({
-			firstName: user.firstName,
-			lastName: user.lastName,
-			currentRole: user.currentRole || "",
-			yearsOfExperience: user.yearsOfExperience?.toString() || "",
+			first_name: user.first_name,
+			last_name: user.last_name,
+			currentRole: user.current_role || "",
+			yearsOfExperience: user.years_of_experience?.toString() || "",
 		})
 	}
 
 	const handleSave = () => {
 		updateProfile({
-			firstName: formData.firstName,
-			lastName: formData.lastName,
+			first_name: formData.first_name,
+			last_name: formData.last_name,
 			currentRole: formData.currentRole || null,
 			yearsOfExperience: formData.yearsOfExperience
 				? parseFloat(formData.yearsOfExperience)
@@ -156,7 +156,7 @@ export default function UserProfile({ user }: UserProfileProps) {
 									<div className="relative w-20 h-20  overflow-hidden border-4 border-gray-200 dark:border-gray-700">
 										<Image
 											src={profilePictureUrl}
-											alt={`${user.firstName} ${user.lastName}`}
+											alt={`${user.first_name} ${user.last_name}`}
 											fill
 											sizes="80px"
 											className="object-cover"
@@ -168,8 +168,8 @@ export default function UserProfile({ user }: UserProfileProps) {
 									</div>
 								) : (
 									<div className="flex items-center justify-center w-20 h-20  bg-linear-to-br from-blue-600 to-purple-600 text-white text-2xl font-bold">
-										{user.firstName.charAt(0)}
-										{user.lastName.charAt(0)}
+										{user.first_name.charAt(0)}
+										{user.last_name.charAt(0)}
 									</div>
 								)}
 								<button
@@ -188,18 +188,18 @@ export default function UserProfile({ user }: UserProfileProps) {
 										<div className="flex gap-2">
 											<Input
 												type="text"
-												value={formData.firstName}
+												value={formData.first_name}
 												onChange={(e) =>
-													setFormData({ ...formData, firstName: e.target.value })
+													setFormData({ ...formData, first_name: e.target.value })
 												}
 												placeholder="First name"
 												className="w-32"
 											/>
 											<Input
 												type="text"
-												value={formData.lastName}
+												value={formData.last_name}
 												onChange={(e) =>
-													setFormData({ ...formData, lastName: e.target.value })
+													setFormData({ ...formData, last_name: e.target.value })
 												}
 												placeholder="Last name"
 												className="w-32"
@@ -209,14 +209,14 @@ export default function UserProfile({ user }: UserProfileProps) {
 								) : (
 									<>
 										<h2 className="text-3xl font-bold text-zinc-900 dark:text-white">
-											{user.firstName} {user.lastName}
+											{user.first_name} {user.last_name}
 										</h2>
 										<p className="text-sm text-zinc-600 dark:text-zinc-400 mt-1">
 											{user.email}
 										</p>
 									</>
 								)}
-								{user.isEmailVerified ? (
+								{user.is_email_verified ? (
 									<span className="inline-flex items-center mt-2 px-2.5 py-0.5  text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">
 										<BadgeCheck className="w-3 h-3 mr-1" />
 										Verified
