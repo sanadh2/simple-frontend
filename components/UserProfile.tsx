@@ -236,7 +236,7 @@ export default function UserProfile({ user }: UserProfileProps) {
 									<Button
 										onClick={handleSave}
 										disabled={isUpdatingProfile}
-										className="hover:scale-105 transition-transform"
+										className=""
 									>
 										<Save className="w-4 h-4 mr-1" />
 										Save
@@ -245,7 +245,7 @@ export default function UserProfile({ user }: UserProfileProps) {
 										onClick={handleCancelEdit}
 										variant="outline"
 										disabled={isUpdatingProfile}
-										className="hover:scale-105 transition-transform"
+										className=""
 									>
 										<X className="w-4 h-4 mr-1" />
 										Cancel
@@ -256,7 +256,7 @@ export default function UserProfile({ user }: UserProfileProps) {
 									<Button
 										onClick={handleEdit}
 										variant="outline"
-										className="hover:scale-105 transition-transform"
+										className=""
 									>
 										<Edit className="w-4 h-4 mr-1" />
 										Edit Profile
@@ -264,7 +264,7 @@ export default function UserProfile({ user }: UserProfileProps) {
 									<Button
 										onClick={() => setShowLogoutModal(true)}
 										variant="destructive"
-										className="hover:scale-105 transition-transform"
+										className=""
 									>
 										<LogOut className="w-4 h-4" />
 										Sign out
