@@ -19,6 +19,7 @@ export interface User {
 	firstName: string
 	lastName: string
 	isEmailVerified: boolean
+	profilePicture?: string
 	createdAt?: string
 	updatedAt?: string
 }
@@ -73,10 +74,14 @@ class ApiClient {
 			| { requiresVerification: true; email: string }
 		>
 	> {
-		return this.request("/api/auth/login", {
+		const response = await this.request<
+			| { user: User; tokens: AuthTokens }
+			| { requiresVerification: true; email: string }
+		>("/api/auth/login", {
 			method: "POST",
 			body: JSON.stringify({ email, password }),
 		})
+		return response
 	}
 
 	async logout(): Promise<ApiResponse> {
@@ -126,6 +131,31 @@ class ApiClient {
 			method: "POST",
 			body: JSON.stringify({ email, otp }),
 		})
+	}
+
+	async verifyEmailAfterRegistration(
+		email: string,
+		otp: string
+	): Promise<ApiResponse> {
+		return this.request("/api/auth/verify-email-registration", {
+			method: "POST",
+			body: JSON.stringify({ email, otp }),
+		})
+	}
+
+	async uploadProfilePicture(
+		file: File
+	): Promise<ApiResponse<{ user: User }>> {
+		const formData = new FormData()
+		formData.append("profilePicture", file)
+
+		const url = `${this.baseURL}/api/auth/upload-profile-picture`
+		const response = await fetchWithAuth(url, {
+			method: "POST",
+			body: formData,
+		})
+
+		return this.handleResponse<{ user: User }>(response)
 	}
 }
 

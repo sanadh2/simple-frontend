@@ -16,6 +16,7 @@ import { Label } from "@/components/ui/label"
 import {
 	useSendVerificationOTP,
 	useVerifyEmail,
+	useVerifyEmailAfterRegistration,
 	useVerifyEmailAndLogin,
 } from "@/hooks/useEmailVerification"
 import { useProfile } from "@/hooks/useAuth"
@@ -25,6 +26,7 @@ interface EmailVerificationModalProps {
 	onVerified: () => void
 	email?: string | null
 	isLoginFlow?: boolean
+	isRegistrationFlow?: boolean
 }
 
 export function EmailVerificationModal({
@@ -32,19 +34,23 @@ export function EmailVerificationModal({
 	onVerified,
 	email: propEmail,
 	isLoginFlow = false,
+	isRegistrationFlow = false,
 }: EmailVerificationModalProps) {
 	const { data: user } = useProfile()
 	const [otp, setOtp] = useState("")
 	const sendOTP = useSendVerificationOTP()
 	const verifyEmail = useVerifyEmail()
+	const verifyEmailAfterRegistration = useVerifyEmailAfterRegistration()
 	const verifyEmailAndLogin = useVerifyEmailAndLogin()
 
 	const email = propEmail || user?.email || ""
 
 	const handleSendOTP = () => {
-		if (isLoginFlow) {
-			toast.info("Please try logging in again", {
-				description: "Enter your password again to receive a new verification code.",
+		if (isLoginFlow || isRegistrationFlow) {
+			toast.info("Please try again", {
+				description: isLoginFlow
+					? "Enter your password again to receive a new verification code."
+					: "Please sign up again to receive a new verification code.",
 			})
 			return
 		}
@@ -60,11 +66,17 @@ export function EmailVerificationModal({
 		try {
 			if (isLoginFlow) {
 				await verifyEmailAndLogin.mutateAsync({ email, otp })
+				setOtp("")
+				onVerified()
+			} else if (isRegistrationFlow) {
+				await verifyEmailAfterRegistration.mutateAsync({ email, otp })
+				setOtp("")
+				onVerified()
 			} else {
 				await verifyEmail.mutateAsync(otp)
+				setOtp("")
+				onVerified()
 			}
-			setOtp("")
-			onVerified()
 		} catch (error) {
 			setOtp("")
 		}
@@ -108,11 +120,15 @@ export function EmailVerificationModal({
 						type="submit"
 						className="w-full"
 						disabled={
-							(verifyEmail.isPending || verifyEmailAndLogin.isPending) ||
+							(verifyEmail.isPending ||
+								verifyEmailAndLogin.isPending ||
+								verifyEmailAfterRegistration.isPending) ||
 							!otp.trim()
 						}
 					>
-						{verifyEmail.isPending || verifyEmailAndLogin.isPending
+						{verifyEmail.isPending ||
+						verifyEmailAndLogin.isPending ||
+						verifyEmailAfterRegistration.isPending
 							? "Verifying..."
 							: "Verify Email"}
 					</Button>

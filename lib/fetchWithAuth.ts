@@ -49,10 +49,14 @@ export async function fetchWithAuth(
 ): Promise<Response> {
 	const { skipAuth = false, skipRetry = false, ...fetchOptions } = options
 
-	const headers: Record<string, string> = {
-		"Content-Type": "application/json",
-		...(fetchOptions.headers as Record<string, string>),
-	}
+	// Don't set Content-Type for FormData - browser will set it with boundary
+	const isFormData = fetchOptions.body instanceof FormData
+	const headers: Record<string, string> = isFormData
+		? { ...(fetchOptions.headers as Record<string, string>) }
+		: {
+				"Content-Type": "application/json",
+				...(fetchOptions.headers as Record<string, string>),
+			}
 
 	const response = await fetch(url, {
 		...fetchOptions,
@@ -61,9 +65,16 @@ export async function fetchWithAuth(
 	})
 
 	if (response.status === 401 && !skipRetry && !skipAuth) {
-		const isLogoutRequest = url.includes("/api/auth/logout") || url.includes("/api/auth/logout-all")
-		
-		if (!isLogoutRequest) {
+		const isAuthRequest =
+			url.includes("/api/auth/login") ||
+			url.includes("/api/auth/register") ||
+			url.includes("/api/auth/logout") ||
+			url.includes("/api/auth/logout-all") ||
+			url.includes("/api/auth/verify-email") ||
+			url.includes("/api/auth/verify-email-login") ||
+			url.includes("/api/auth/verify-email-registration")
+
+		if (!isAuthRequest) {
 			const refreshed = await refreshAccessToken()
 
 			if (refreshed) {

@@ -7,8 +7,6 @@ import { apiClient } from "@/lib/api"
 import { authKeys } from "./useAuth"
 
 export function useSendVerificationOTP() {
-	const queryClient = useQueryClient()
-
 	return useMutation({
 		mutationFn: async () => {
 			const response = await apiClient.sendVerificationOTP()
@@ -47,6 +45,32 @@ export function useVerifyEmail() {
 			})
 			queryClient.invalidateQueries({ queryKey: authKeys.profile() })
 			queryClient.invalidateQueries({ queryKey: authKeys.all })
+		},
+		onError: (error: Error) => {
+			toast.error("Verification failed", {
+				description: error.message,
+			})
+		},
+	})
+}
+
+export function useVerifyEmailAfterRegistration() {
+	const queryClient = useQueryClient()
+
+	return useMutation({
+		mutationFn: async ({ email, otp }: { email: string; otp: string }) => {
+			const response = await apiClient.verifyEmailAfterRegistration(email, otp)
+			if (!response.success) {
+				throw new Error(response.message || "Failed to verify email")
+			}
+			return response
+		},
+		onSuccess: () => {
+			queryClient.setQueryData(authKeys.profile(), null)
+			queryClient.removeQueries({ queryKey: authKeys.all })
+			toast.success("Email verified!", {
+				description: "Please log in to continue.",
+			})
 		},
 		onError: (error: Error) => {
 			toast.error("Verification failed", {

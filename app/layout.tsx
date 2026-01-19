@@ -19,8 +19,12 @@ const geistMono = Geist_Mono({
 })
 
 export const metadata: Metadata = {
-	title: "Auth App",
-	description: "Full-stack authentication application",
+	title: "Job Application Tracker",
+	description: "Track and manage your job applications",
+	icons: {
+		icon: "/logo.svg",
+		apple: "/logo.svg",
+	},
 }
 
 export default function RootLayout({

@@ -7,6 +7,7 @@ import {
 	Menu,
 	Moon,
 	Sun,
+	UserCircle,
 	X,
 } from "lucide-react"
 import Link from "next/link"
@@ -29,6 +30,7 @@ export default function Navbar() {
 	const navLinks = [
 		{ href: "/", label: "Home", icon: Home },
 		{ href: "/logs", label: "Logs", icon: FileText },
+		{ href: "/profile", label: "Profile", icon: UserCircle },
 	]
 
 	const handleLogout = () => {
@@ -42,11 +44,15 @@ export default function Navbar() {
 				<div className="flex h-16 items-center justify-between">
 					<div className="flex items-center">
 						<Link href="/" className="flex items-center space-x-2">
-							<div className="flex h-8 w-8 items-center justify-center rounded-lg bg-linear-to-br from-blue-600 to-purple-600 text-white font-bold text-sm">
-								A
+							<div className="flex h-8 w-8 items-center justify-center rounded-lg overflow-hidden">
+								<img
+									src="/logo.svg"
+									alt="Job Application Tracker"
+									className="h-full w-full object-contain"
+								/>
 							</div>
 							<span className="text-xl font-bold text-zinc-900 dark:text-white hidden sm:inline-block">
-								Auth App
+								Job Application Tracker
 							</span>
 						</Link>
 					</div>
@@ -88,20 +94,22 @@ export default function Navbar() {
 										<Moon className="h-4 w-4" />
 									)}
 								</Button>
-								<div className="flex items-center space-x-2 px-3 py-1.5 rounded-lg bg-zinc-100 dark:bg-zinc-800">
-									<div className="flex h-8 w-8 items-center justify-center rounded-full bg-linear-to-br from-blue-600 to-purple-600 text-white text-sm font-semibold">
-										{user.firstName.charAt(0)}
-										{user.lastName.charAt(0)}
+								<Link href="/profile">
+									<div className="flex items-center space-x-2 px-3 py-1.5 rounded-lg bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors cursor-pointer">
+										<div className="flex h-8 w-8 items-center justify-center rounded-full bg-linear-to-br from-blue-600 to-purple-600 text-white text-sm font-semibold">
+											{user.firstName.charAt(0)}
+											{user.lastName.charAt(0)}
+										</div>
+										<div className="hidden lg:block">
+											<p className="text-sm font-medium text-zinc-900 dark:text-white">
+												{user.firstName} {user.lastName}
+											</p>
+											<p className="text-xs text-zinc-600 dark:text-zinc-400 truncate max-w-[120px]">
+												{user.email}
+											</p>
+										</div>
 									</div>
-									<div className="hidden lg:block">
-										<p className="text-sm font-medium text-zinc-900 dark:text-white">
-											{user.firstName} {user.lastName}
-										</p>
-										<p className="text-xs text-zinc-600 dark:text-zinc-400 truncate max-w-[120px]">
-											{user.email}
-										</p>
-									</div>
-								</div>
+								</Link>
 								<Button
 									variant="ghost"
 									size="sm"
@@ -198,7 +206,11 @@ export default function Navbar() {
 									</>
 								)}
 							</button>
-							<div className="flex items-center space-x-3 px-4 py-2">
+							<Link
+								href="/profile"
+								onClick={() => setIsMobileMenuOpen(false)}
+								className="flex items-center space-x-3 px-4 py-2 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+							>
 								<div className="flex h-10 w-10 items-center justify-center rounded-full bg-linear-to-br from-blue-600 to-purple-600 text-white text-sm font-semibold">
 									{user.firstName.charAt(0)}
 									{user.lastName.charAt(0)}
@@ -211,7 +223,7 @@ export default function Navbar() {
 										{user.email}
 									</p>
 								</div>
-							</div>
+							</Link>
 							<button
 								onClick={handleLogout}
 								disabled={isLoggingOut}

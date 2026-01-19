@@ -59,14 +59,19 @@ export function useLogin() {
 			password: string
 		}) => {
 			const response = await apiClient.login(email, password)
-			if (!response.success || !response.data) {
+			if (!response.success) {
 				throw new Error(response.message || "Login failed")
+			}
+			if (!response.data) {
+				throw new Error("Login failed: No data received")
 			}
 			return response.data
 		},
 		onSuccess: (data) => {
-			if ("user" in data) {
+			if ("user" in data && data.user) {
 				queryClient.setQueryData(authKeys.profile(), data.user)
+			} else if ("requiresVerification" in data) {
+				queryClient.setQueryData(authKeys.profile(), null)
 			}
 		},
 	})
@@ -98,13 +103,11 @@ export function useRegister() {
 			}
 			return response.data
 		},
-		onSuccess: (data) => {
-			queryClient.setQueryData(authKeys.profile(), data.user)
-			if (!data.user.isEmailVerified) {
-				toast.info("Verification email sent", {
-					description: "Please check your email to verify your account.",
-				})
-			}
+		onSuccess: () => {
+			queryClient.setQueryData(authKeys.profile(), null)
+			toast.success("Registration successful!", {
+				description: "Please check your email for verification code. You can now log in.",
+			})
 		},
 	})
 }
@@ -170,6 +173,30 @@ export function useRefreshToken() {
 		},
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: authKeys.profile() })
+		},
+	})
+}
+
+export function useUploadProfilePicture() {
+	const queryClient = useQueryClient()
+
+	return useMutation({
+		mutationFn: async (file: File) => {
+			const response = await apiClient.uploadProfilePicture(file)
+			if (!response.success || !response.data) {
+				throw new Error(response.message || "Failed to upload profile picture")
+			}
+			return response.data.user
+		},
+		onSuccess: async (user) => {
+			queryClient.setQueryData(authKeys.profile(), user)
+			await queryClient.refetchQueries({ queryKey: authKeys.profile() })
+			toast.success("Profile picture uploaded successfully!")
+		},
+		onError: (error) => {
+			toast.error("Failed to upload profile picture", {
+				description: error instanceof Error ? error.message : "Unknown error",
+			})
 		},
 	})
 }
