@@ -157,6 +157,24 @@ class ApiClient {
 
 		return this.handleResponse<{ user: User }>(response)
 	}
+
+	async requestPasswordReset(email: string): Promise<ApiResponse> {
+		return this.request("/api/auth/forgot-password", {
+			method: "POST",
+			body: JSON.stringify({ email }),
+		})
+	}
+
+	async resetPassword(
+		email: string,
+		otp: string,
+		newPassword: string
+	): Promise<ApiResponse> {
+		return this.request("/api/auth/reset-password", {
+			method: "POST",
+			body: JSON.stringify({ email, otp, newPassword }),
+		})
+	}
 }
 
 export const apiClient = new ApiClient(API_BASE_URL)

@@ -4,6 +4,8 @@ import { useState } from "react"
 import { toast } from "sonner"
 
 import { EmailVerificationModal } from "@/components/EmailVerificationModal"
+import ForgotPasswordForm from "@/components/ForgotPasswordForm"
+import ResetPasswordForm from "@/components/ResetPasswordForm"
 import { useLogin } from "@/hooks/useAuth"
 
 interface LoginFormProps {
@@ -15,6 +17,8 @@ export default function LoginForm({ onToggleMode }: LoginFormProps) {
 	const [password, setPassword] = useState("")
 	const [showVerificationModal, setShowVerificationModal] = useState(false)
 	const [pendingEmail, setPendingEmail] = useState<string | null>(null)
+	const [showForgotPassword, setShowForgotPassword] = useState(false)
+	const [resetEmail, setResetEmail] = useState<string | null>(null)
 	const { mutate: login, isPending, error, reset } = useLogin()
 
 	const handleSubmit = async (e: React.FormEvent) => {
@@ -39,6 +43,32 @@ export default function LoginForm({ onToggleMode }: LoginFormProps) {
 		toast.success("Email verified!", {
 			description: "You have been logged in successfully.",
 		})
+	}
+
+	const handleForgotPasswordSuccess = (email: string) => {
+		setResetEmail(email)
+		setShowForgotPassword(false)
+	}
+
+	const handleBackToLogin = () => {
+		setShowForgotPassword(false)
+		setResetEmail(null)
+		setEmail("")
+	}
+
+	if (resetEmail) {
+		return (
+			<ResetPasswordForm email={resetEmail} onBack={handleBackToLogin} />
+		)
+	}
+
+	if (showForgotPassword) {
+		return (
+			<ForgotPasswordForm
+				onSuccess={handleForgotPasswordSuccess}
+				onBack={handleBackToLogin}
+			/>
+		)
 	}
 
 	return (
@@ -80,12 +110,21 @@ export default function LoginForm({ onToggleMode }: LoginFormProps) {
 				</div>
 
 				<div>
-					<label
-						htmlFor="password"
-						className="block text-sm font-medium text-zinc-700 dark:text-zinc-300"
-					>
-						Password
-					</label>
+					<div className="flex items-center justify-between">
+						<label
+							htmlFor="password"
+							className="block text-sm font-medium text-zinc-700 dark:text-zinc-300"
+						>
+							Password
+						</label>
+						<button
+							type="button"
+							onClick={() => setShowForgotPassword(true)}
+							className="text-sm font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400"
+						>
+							Forgot password?
+						</button>
+					</div>
 					<input
 						id="password"
 						name="password"

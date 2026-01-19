@@ -201,6 +201,58 @@ export function useUploadProfilePicture() {
 	})
 }
 
+export function useRequestPasswordReset() {
+	return useMutation({
+		mutationFn: async (email: string) => {
+			const response = await apiClient.requestPasswordReset(email)
+			if (!response.success) {
+				throw new Error(response.message || "Failed to request password reset")
+			}
+			return response
+		},
+		onSuccess: () => {
+			toast.success("Password reset code sent!", {
+				description: "Please check your email for the verification code.",
+			})
+		},
+		onError: (error) => {
+			toast.error("Failed to send password reset code", {
+				description: error instanceof Error ? error.message : "Unknown error",
+			})
+		},
+	})
+}
+
+export function useResetPassword() {
+	return useMutation({
+		mutationFn: async ({
+			email,
+			otp,
+			newPassword,
+		}: {
+			email: string
+			otp: string
+			newPassword: string
+		}) => {
+			const response = await apiClient.resetPassword(email, otp, newPassword)
+			if (!response.success) {
+				throw new Error(response.message || "Failed to reset password")
+			}
+			return response
+		},
+		onSuccess: () => {
+			toast.success("Password reset successfully!", {
+				description: "You can now log in with your new password.",
+			})
+		},
+		onError: (error) => {
+			toast.error("Failed to reset password", {
+				description: error instanceof Error ? error.message : "Unknown error",
+			})
+		},
+	})
+}
+
 export function useAuthMutations() {
 	const login = useLogin()
 	const register = useRegister()
