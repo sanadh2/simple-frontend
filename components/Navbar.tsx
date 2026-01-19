@@ -1,7 +1,6 @@
 "use client"
 
 import {
-	Bookmark,
 	FileText,
 	Home,
 	LogOut,
@@ -29,7 +28,6 @@ export default function Navbar() {
 
 	const navLinks = [
 		{ href: "/", label: "Home", icon: Home },
-		{ href: "/bookmarks", label: "Bookmarks", icon: Bookmark },
 		{ href: "/logs", label: "Logs", icon: FileText },
 	]
 
