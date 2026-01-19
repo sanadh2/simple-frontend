@@ -1,7 +1,9 @@
 "use client"
 
 import { useState } from "react"
+import { toast } from "sonner"
 
+import { EmailVerificationModal } from "@/components/EmailVerificationModal"
 import { useLogin } from "@/hooks/useAuth"
 
 interface LoginFormProps {
@@ -11,12 +13,32 @@ interface LoginFormProps {
 export default function LoginForm({ onToggleMode }: LoginFormProps) {
 	const [email, setEmail] = useState("")
 	const [password, setPassword] = useState("")
+	const [showVerificationModal, setShowVerificationModal] = useState(false)
+	const [pendingEmail, setPendingEmail] = useState<string | null>(null)
 	const { mutate: login, isPending, error, reset } = useLogin()
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault()
 		reset()
-		login({ email, password })
+		login(
+			{ email, password },
+			{
+				onSuccess: (data) => {
+					if ("requiresVerification" in data && data.requiresVerification) {
+						setPendingEmail(email)
+						setShowVerificationModal(true)
+					}
+				},
+			}
+		)
+	}
+
+	const handleVerified = () => {
+		setShowVerificationModal(false)
+		setPendingEmail(null)
+		toast.success("Email verified!", {
+			description: "You have been logged in successfully.",
+		})
 	}
 
 	return (
@@ -97,6 +119,13 @@ export default function LoginForm({ onToggleMode }: LoginFormProps) {
 					</button>
 				</p>
 			</div>
+
+			<EmailVerificationModal
+				open={showVerificationModal}
+				onVerified={handleVerified}
+				email={pendingEmail}
+				isLoginFlow={true}
+			/>
 		</div>
 	)
 }

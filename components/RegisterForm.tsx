@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 
+import { EmailVerificationModal } from "@/components/EmailVerificationModal"
 import { useRegister } from "@/hooks/useAuth"
 
 interface RegisterFormProps {
@@ -15,6 +16,7 @@ export default function RegisterForm({ onToggleMode }: RegisterFormProps) {
 	const [firstName, setFirstName] = useState("")
 	const [lastName, setLastName] = useState("")
 	const [localError, setLocalError] = useState("")
+	const [showVerificationModal, setShowVerificationModal] = useState(false)
 	const { mutate: register, isPending, error, reset } = useRegister()
 
 	const handleSubmit = async (e: React.FormEvent) => {
@@ -37,7 +39,20 @@ export default function RegisterForm({ onToggleMode }: RegisterFormProps) {
 			return
 		}
 
-		register({ email, password, firstName, lastName })
+		register(
+			{ email, password, firstName, lastName },
+			{
+				onSuccess: (data) => {
+					if (!data.user.isEmailVerified) {
+						setShowVerificationModal(true)
+					}
+				},
+			}
+		)
+	}
+
+	const handleVerified = () => {
+		setShowVerificationModal(false)
 	}
 
 	const displayError =
@@ -183,6 +198,11 @@ export default function RegisterForm({ onToggleMode }: RegisterFormProps) {
 					</button>
 				</p>
 			</div>
+
+			<EmailVerificationModal
+				open={showVerificationModal}
+				onVerified={handleVerified}
+			/>
 		</div>
 	)
 }

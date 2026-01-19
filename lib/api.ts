@@ -67,7 +67,12 @@ class ApiClient {
 	async login(
 		email: string,
 		password: string
-	): Promise<ApiResponse<{ user: User; tokens: AuthTokens }>> {
+	): Promise<
+		ApiResponse<
+			| { user: User; tokens: AuthTokens }
+			| { requiresVerification: true; email: string }
+		>
+	> {
 		return this.request("/api/auth/login", {
 			method: "POST",
 			body: JSON.stringify({ email, password }),
@@ -97,6 +102,29 @@ class ApiClient {
 	async getProfile(): Promise<ApiResponse<{ user: User }>> {
 		return this.request("/api/auth/me", {
 			method: "GET",
+		})
+	}
+
+	async sendVerificationOTP(): Promise<ApiResponse> {
+		return this.request("/api/auth/send-verification-otp", {
+			method: "POST",
+		})
+	}
+
+	async verifyEmail(otp: string): Promise<ApiResponse> {
+		return this.request("/api/auth/verify-email", {
+			method: "POST",
+			body: JSON.stringify({ otp }),
+		})
+	}
+
+	async verifyEmailAndLogin(
+		email: string,
+		otp: string
+	): Promise<ApiResponse<{ user: User; tokens: AuthTokens }>> {
+		return this.request("/api/auth/verify-email-login", {
+			method: "POST",
+			body: JSON.stringify({ email, otp }),
 		})
 	}
 }

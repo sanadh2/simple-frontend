@@ -1,6 +1,7 @@
 "use client"
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { toast } from "sonner"
 
 import { apiClient } from "@/lib/api"
 
@@ -64,7 +65,9 @@ export function useLogin() {
 			return response.data
 		},
 		onSuccess: (data) => {
-			queryClient.setQueryData(authKeys.profile(), data.user)
+			if ("user" in data) {
+				queryClient.setQueryData(authKeys.profile(), data.user)
+			}
 		},
 	})
 }
@@ -97,6 +100,11 @@ export function useRegister() {
 		},
 		onSuccess: (data) => {
 			queryClient.setQueryData(authKeys.profile(), data.user)
+			if (!data.user.isEmailVerified) {
+				toast.info("Verification email sent", {
+					description: "Please check your email to verify your account.",
+				})
+			}
 		},
 	})
 }

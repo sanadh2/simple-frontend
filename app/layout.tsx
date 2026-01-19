@@ -4,6 +4,7 @@ import type { Metadata } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
 
 import Navbar from "@/components/Navbar"
+import { Toaster } from "@/components/ui/sonner"
 import { QueryProvider } from "@/providers/QueryProvider"
 import { ThemeProvider } from "@/providers/ThemeProvider"
 
@@ -41,6 +42,7 @@ export default function RootLayout({
 					<QueryProvider>
 						<Navbar />
 						{children}
+						<Toaster />
 					</QueryProvider>
 				</ThemeProvider>
 			</body>
