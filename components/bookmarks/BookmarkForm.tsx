@@ -12,7 +12,6 @@ export function BookmarkForm({ onSuccess }: { onSuccess?: () => void }) {
 	const [url, setUrl] = useState("")
 	const [title, setTitle] = useState("")
 	const [description, setDescription] = useState("")
-	const [useAI, setUseAI] = useState(true)
 
 	const createBookmark = useCreateBookmark()
 
@@ -24,7 +23,6 @@ export function BookmarkForm({ onSuccess }: { onSuccess?: () => void }) {
 				url,
 				title,
 				description: description || undefined,
-				useAI,
 			})
 
 			setUrl("")
@@ -71,19 +69,6 @@ export function BookmarkForm({ onSuccess }: { onSuccess?: () => void }) {
 						onChange={(e) => setDescription(e.target.value)}
 						placeholder="A brief description..."
 					/>
-				</div>
-
-				<div className="flex items-center space-x-2">
-					<input
-						type="checkbox"
-						id="useAI"
-						checked={useAI}
-						onChange={(e) => setUseAI(e.target.checked)}
-						className="w-4 h-4 rounded"
-					/>
-					<Label htmlFor="useAI" className="cursor-pointer">
-						Use AI to auto-generate tags
-					</Label>
 				</div>
 
 				<Button

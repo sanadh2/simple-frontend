@@ -26,7 +26,6 @@ export interface CreateBookmarkDTO {
 	title: string
 	description?: string
 	tags?: string[]
-	useAI?: boolean
 }
 
 export interface UpdateBookmarkDTO {
@@ -43,9 +42,7 @@ export interface BookmarkFilters {
 }
 
 class BookmarksApiClient {
-	async createBookmark(
-		data: CreateBookmarkDTO
-	): Promise<{ bookmark: Bookmark; jobId?: string }> {
+	async createBookmark(data: CreateBookmarkDTO): Promise<{ bookmark: Bookmark }> {
 		const response = await fetchWithAuth(`${API_BASE_URL}/api/bookmarks`, {
 			method: "POST",
 			body: JSON.stringify(data),
@@ -60,11 +57,7 @@ class BookmarksApiClient {
 		}
 
 		const result = await response.json()
-		// Handle both old format (just bookmark) and new format (bookmark + jobId)
-		if (result.data.bookmark) {
-			return result.data
-		}
-		return { bookmark: result.data, jobId: result.data.jobId }
+		return result.data
 	}
 
 	async getBookmarks(
@@ -157,120 +150,6 @@ class BookmarksApiClient {
 
 		if (!response.ok) {
 			const error = new Error("Failed to fetch tags") as Error & {
-				status: number
-			}
-			error.status = response.status
-			throw error
-		}
-
-		const result = await response.json()
-		return result.data
-	}
-
-	async regenerateTags(
-		id: string
-	): Promise<{ jobId: string; bookmark: Bookmark; status: string }> {
-		const response = await fetchWithAuth(
-			`${API_BASE_URL}/api/bookmarks/${id}/regenerate-tags`,
-			{ method: "POST" }
-		)
-
-		if (!response.ok) {
-			const error = new Error("Failed to regenerate tags") as Error & {
-				status: number
-			}
-			error.status = response.status
-			throw error
-		}
-
-		const result = await response.json()
-		return result.data
-	}
-
-	async getJobStatus(jobId: string): Promise<{
-		jobId: string
-		state: string
-		progress: number
-		result: {
-			bookmarkId?: string
-			tags?: string[]
-			summary?: string
-			attempts?: number
-		} | null
-		failedReason: string | null
-		attemptsMade: number
-		maxAttempts: number
-		remainingAttempts: number
-		isRetryable: boolean | undefined
-		canRetry: boolean
-	}> {
-		const response = await fetchWithAuth(
-			`${API_BASE_URL}/api/bookmarks/jobs/${jobId}`,
-			{ method: "GET" }
-		)
-
-		if (!response.ok) {
-			const error = new Error("Failed to get job status") as Error & {
-				status: number
-			}
-			error.status = response.status
-			throw error
-		}
-
-		const result = await response.json()
-		return result.data
-	}
-
-	async retryJob(jobId: string): Promise<{
-		jobId: string
-		state: string
-		attemptsMade: number
-		maxAttempts: number
-	}> {
-		const response = await fetchWithAuth(
-			`${API_BASE_URL}/api/bookmarks/jobs/${jobId}/retry`,
-			{ method: "POST" }
-		)
-
-		if (!response.ok) {
-			const error = new Error("Failed to retry job") as Error & {
-				status: number
-			}
-			error.status = response.status
-			throw error
-		}
-
-		const result = await response.json()
-		return result.data
-	}
-
-	async getActiveJobForBookmark(bookmarkId: string): Promise<{
-		jobId: string
-		state: string
-		progress: number
-		result: {
-			bookmarkId?: string
-			tags?: string[]
-			summary?: string
-			attempts?: number
-		} | null
-		failedReason: string | null
-		attemptsMade: number
-		maxAttempts: number
-		remainingAttempts: number
-		isRetryable: boolean | undefined
-		canRetry: boolean
-	} | null> {
-		const response = await fetchWithAuth(
-			`${API_BASE_URL}/api/bookmarks/${bookmarkId}/jobs/active`,
-			{ method: "GET" }
-		)
-
-		if (!response.ok) {
-			if (response.status === 404) {
-				return null
-			}
-			const error = new Error("Failed to get active job") as Error & {
 				status: number
 			}
 			error.status = response.status
