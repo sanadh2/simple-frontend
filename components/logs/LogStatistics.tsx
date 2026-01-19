@@ -8,7 +8,7 @@ export function LogStatistics() {
 	const { data: stats, isLoading } = useLogStatistics()
 
 	if (isLoading) {
-		return <div className="animate-pulse bg-gray-100 h-32 rounded-lg" />
+		return <div className="animate-pulse bg-gray-100 h-32 " />
 	}
 
 	if (!stats) {
@@ -57,9 +57,9 @@ export function LogStatistics() {
 				return (
 					<div
 						key={stat.label}
-						className="bg-white rounded-lg shadow p-6 flex items-center gap-4"
+						className="bg-white  p-6 flex items-center gap-4"
 					>
-						<div className={`p-3 rounded-lg ${stat.color}`}>
+						<div className={`p-3  ${stat.color}`}>
 							<Icon className="w-6 h-6" />
 						</div>
 						<div>

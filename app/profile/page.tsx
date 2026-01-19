@@ -22,7 +22,7 @@ export default function ProfilePage() {
 		return (
 			<div className="flex min-h-screen bg-linear-to-br from-zinc-50 to-zinc-100 dark:from-zinc-950 dark:to-black p-4">
 				<div className="w-full max-w-4xl mx-auto my-auto">
-					<div className="bg-white dark:bg-zinc-900 rounded-2xl p-8 text-center">
+					<div className="bg-white dark:bg-zinc-900  p-8 text-center">
 						<UserCircle className="w-16 h-16 mx-auto text-zinc-400 mb-4" />
 						<h2 className="text-2xl font-bold text-zinc-900 dark:text-white mb-2">
 							Not authenticated

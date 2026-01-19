@@ -71,7 +71,7 @@ export default function LogsPage() {
 
 				{!isLoading && data && (
 					<>
-						<div className="bg-white rounded-lg shadow p-4 flex justify-between items-center">
+						<div className="bg-white  p-4 flex justify-between items-center">
 							<p className="text-sm text-gray-600">
 								Showing <strong>{data.logs.length}</strong> of{" "}
 								<strong>{data.totalCount.toLocaleString()}</strong> logs
@@ -109,7 +109,7 @@ export default function LogsPage() {
 				)}
 
 				{!isLoading && data && data.logs.length === 0 && (
-					<div className="bg-white rounded-lg shadow p-12 text-center">
+					<div className="bg-white  p-12 text-center">
 						<p className="text-gray-500">No logs found matching your filters</p>
 					</div>
 				)}

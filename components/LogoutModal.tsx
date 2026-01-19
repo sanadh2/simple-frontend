@@ -37,7 +37,7 @@ export default function LogoutModal({
 			<DialogContent className="sm:max-w-md">
 				<DialogHeader>
 					<div className="flex items-center space-x-3 mb-2">
-						<div className="flex items-center justify-center w-12 h-12 rounded-full bg-yellow-100 dark:bg-yellow-900/20">
+						<div className="flex items-center justify-center w-12 h-12  bg-yellow-100 dark:bg-yellow-900/20">
 							<AlertTriangle className="w-6 h-6 text-yellow-600 dark:text-yellow-400" />
 						</div>
 						<div>
@@ -57,7 +57,7 @@ export default function LogoutModal({
 						className="w-full h-auto p-4 flex items-center justify-between border-2 hover:border-blue-500 dark:hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/10 group"
 					>
 						<div className="flex items-center space-x-3">
-							<div className="flex items-center justify-center w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-900/30 group-hover:bg-blue-200 dark:group-hover:bg-blue-900/50 transition-colors">
+							<div className="flex items-center justify-center w-10 h-10  bg-blue-100 dark:bg-blue-900/30 group-hover:bg-blue-200 dark:group-hover:bg-blue-900/50 transition-colors">
 								<Smartphone className="w-5 h-5 text-blue-600 dark:text-blue-400" />
 							</div>
 							<div className="text-left">
@@ -79,7 +79,7 @@ export default function LogoutModal({
 						className="w-full h-auto p-4 flex items-center justify-between border-2 hover:border-red-500 dark:hover:border-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 group"
 					>
 						<div className="flex items-center space-x-3">
-							<div className="flex items-center justify-center w-10 h-10 rounded-lg bg-red-100 dark:bg-red-900/30 group-hover:bg-red-200 dark:group-hover:bg-red-900/50 transition-colors">
+							<div className="flex items-center justify-center w-10 h-10  bg-red-100 dark:bg-red-900/30 group-hover:bg-red-200 dark:group-hover:bg-red-900/50 transition-colors">
 								<LogOut className="w-5 h-5 text-red-600 dark:text-red-400" />
 							</div>
 							<div className="text-left">
@@ -107,7 +107,7 @@ export default function LogoutModal({
 				</div>
 
 				{isLoading && (
-					<div className="absolute inset-0 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-sm flex items-center justify-center rounded-lg">
+					<div className="absolute inset-0 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-sm flex items-center justify-center ">
 						<div className="flex flex-col items-center space-y-3">
 							<Loader2 className="h-10 w-10 animate-spin text-blue-600" />
 							<p className="text-sm font-medium text-zinc-900 dark:text-white">

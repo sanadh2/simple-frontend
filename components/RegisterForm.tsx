@@ -82,7 +82,7 @@ export default function RegisterForm({ onToggleMode }: RegisterFormProps) {
 		localError || (error instanceof Error ? error.message : null)
 
 	return (
-		<div className="w-full max-w-md p-8 space-y-6 bg-white rounded-lg dark:bg-zinc-900">
+		<div className="w-full max-w-md p-8 space-y-6 bg-white  dark:bg-zinc-900">
 			<div>
 				<h2 className="text-3xl font-bold text-center text-zinc-900 dark:text-white">
 					{showOTP ? "Verify your email" : "Create account"}
@@ -96,7 +96,7 @@ export default function RegisterForm({ onToggleMode }: RegisterFormProps) {
 
 			<form onSubmit={handleSubmit} className="space-y-4">
 				{displayError && (
-					<div className="p-3 text-sm text-red-600 bg-red-50 rounded-md dark:bg-red-900/20 dark:text-red-400">
+					<div className="p-3 text-sm text-red-600 bg-red-50  dark:bg-red-900/20 dark:text-red-400">
 						{displayError}
 					</div>
 				)}
@@ -120,7 +120,7 @@ export default function RegisterForm({ onToggleMode }: RegisterFormProps) {
 								required
 								value={otp}
 								onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
-								className="mt-1 block w-full px-3 py-2 border border-zinc-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-zinc-800 dark:border-zinc-700 dark:text-white text-center text-2xl tracking-widest"
+								className="mt-1 block w-full px-3 py-2 border border-zinc-300   focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-zinc-800 dark:border-zinc-700 dark:text-white text-center text-2xl tracking-widest"
 								placeholder="000000"
 								autoFocus
 							/>
@@ -129,7 +129,7 @@ export default function RegisterForm({ onToggleMode }: RegisterFormProps) {
 						<button
 							type="submit"
 							disabled={verifyEmail.isPending || !otp.trim()}
-							className="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+							className="w-full flex justify-center py-2.5 px-4 border border-transparent   text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
 						>
 							{verifyEmail.isPending ? "Verifying..." : "Verify Email"}
 						</button>
@@ -165,7 +165,7 @@ export default function RegisterForm({ onToggleMode }: RegisterFormProps) {
 									required
 									value={firstName}
 									onChange={(e) => setFirstName(e.target.value)}
-									className="mt-1 block w-full px-3 py-2 border border-zinc-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-zinc-800 dark:border-zinc-700 dark:text-white"
+									className="mt-1 block w-full px-3 py-2 border border-zinc-300   focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-zinc-800 dark:border-zinc-700 dark:text-white"
 									placeholder="John"
 								/>
 							</div>
@@ -185,7 +185,7 @@ export default function RegisterForm({ onToggleMode }: RegisterFormProps) {
 									required
 									value={lastName}
 									onChange={(e) => setLastName(e.target.value)}
-									className="mt-1 block w-full px-3 py-2 border border-zinc-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-zinc-800 dark:border-zinc-700 dark:text-white"
+									className="mt-1 block w-full px-3 py-2 border border-zinc-300   focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-zinc-800 dark:border-zinc-700 dark:text-white"
 									placeholder="Doe"
 								/>
 							</div>
@@ -206,7 +206,7 @@ export default function RegisterForm({ onToggleMode }: RegisterFormProps) {
 								required
 								value={email}
 								onChange={(e) => setEmail(e.target.value)}
-								className="mt-1 block w-full px-3 py-2 border border-zinc-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-zinc-800 dark:border-zinc-700 dark:text-white"
+								className="mt-1 block w-full px-3 py-2 border border-zinc-300   focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-zinc-800 dark:border-zinc-700 dark:text-white"
 								placeholder="you@example.com"
 							/>
 						</div>
@@ -226,7 +226,7 @@ export default function RegisterForm({ onToggleMode }: RegisterFormProps) {
 								required
 								value={password}
 								onChange={(e) => setPassword(e.target.value)}
-								className="mt-1 block w-full px-3 py-2 border border-zinc-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-zinc-800 dark:border-zinc-700 dark:text-white"
+								className="mt-1 block w-full px-3 py-2 border border-zinc-300   focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-zinc-800 dark:border-zinc-700 dark:text-white"
 								placeholder="••••••••"
 							/>
 						</div>
@@ -246,7 +246,7 @@ export default function RegisterForm({ onToggleMode }: RegisterFormProps) {
 								required
 								value={confirmPassword}
 								onChange={(e) => setConfirmPassword(e.target.value)}
-								className="mt-1 block w-full px-3 py-2 border border-zinc-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-zinc-800 dark:border-zinc-700 dark:text-white"
+								className="mt-1 block w-full px-3 py-2 border border-zinc-300   focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-zinc-800 dark:border-zinc-700 dark:text-white"
 								placeholder="••••••••"
 							/>
 						</div>
@@ -254,7 +254,7 @@ export default function RegisterForm({ onToggleMode }: RegisterFormProps) {
 						<button
 							type="submit"
 							disabled={isPending}
-							className="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+							className="w-full flex justify-center py-2.5 px-4 border border-transparent   text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
 						>
 							{isPending ? "Creating account..." : "Create account"}
 						</button>

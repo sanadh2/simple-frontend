@@ -44,7 +44,7 @@ export default function Navbar() {
 				<div className="flex h-16 items-center justify-between">
 					<div className="flex items-center">
 						<Link href="/" className="flex items-center space-x-2">
-							<div className="flex h-8 w-8 items-center justify-center rounded-lg overflow-hidden">
+							<div className="flex h-8 w-8 items-center justify-center  overflow-hidden">
 								<img
 									src="/logo.svg"
 									alt="Job Application Tracker"
@@ -95,8 +95,8 @@ export default function Navbar() {
 									)}
 								</Button>
 								<Link href="/profile">
-									<div className="flex items-center space-x-2 px-3 py-1.5 rounded-lg bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors cursor-pointer">
-										<div className="flex h-8 w-8 items-center justify-center rounded-full bg-linear-to-br from-blue-600 to-purple-600 text-white text-sm font-semibold">
+									<div className="flex items-center space-x-2 px-3 py-1.5  bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors cursor-pointer">
+										<div className="flex h-8 w-8 items-center justify-center  bg-linear-to-br from-blue-600 to-purple-600 text-white text-sm font-semibold">
 											{user.firstName.charAt(0)}
 											{user.lastName.charAt(0)}
 										</div>
@@ -164,7 +164,7 @@ export default function Navbar() {
 
 					{isLoading && (
 						<div className="flex items-center space-x-2">
-							<div className="h-8 w-8 animate-pulse rounded-full bg-zinc-200 dark:bg-zinc-800"></div>
+							<div className="h-8 w-8 animate-pulse  bg-zinc-200 dark:bg-zinc-800"></div>
 						</div>
 					)}
 				</div>
@@ -178,7 +178,7 @@ export default function Navbar() {
 									key={link.href}
 									href={link.href}
 									onClick={() => setIsMobileMenuOpen(false)}
-									className={`flex items-center space-x-3 px-4 py-2 rounded-lg transition-colors ${
+									className={`flex items-center space-x-3 px-4 py-2  transition-colors ${
 										isActive(link.href)
 											? "bg-blue-600 text-white dark:bg-blue-500"
 											: "text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800"
@@ -192,7 +192,7 @@ export default function Navbar() {
 						<div className="pt-4 border-t border-zinc-200 dark:border-zinc-800 space-y-2">
 							<button
 								onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-								className="w-full flex items-center space-x-3 px-4 py-2 rounded-lg text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+								className="w-full flex items-center space-x-3 px-4 py-2  text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
 							>
 								{theme === "dark" ? (
 									<>
@@ -209,9 +209,9 @@ export default function Navbar() {
 							<Link
 								href="/profile"
 								onClick={() => setIsMobileMenuOpen(false)}
-								className="flex items-center space-x-3 px-4 py-2 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+								className="flex items-center space-x-3 px-4 py-2  hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
 							>
-								<div className="flex h-10 w-10 items-center justify-center rounded-full bg-linear-to-br from-blue-600 to-purple-600 text-white text-sm font-semibold">
+								<div className="flex h-10 w-10 items-center justify-center  bg-linear-to-br from-blue-600 to-purple-600 text-white text-sm font-semibold">
 									{user.firstName.charAt(0)}
 									{user.lastName.charAt(0)}
 								</div>
@@ -227,7 +227,7 @@ export default function Navbar() {
 							<button
 								onClick={handleLogout}
 								disabled={isLoggingOut}
-								className="w-full flex items-center space-x-3 px-4 py-2 rounded-lg text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/20 transition-colors disabled:opacity-50"
+								className="w-full flex items-center space-x-3 px-4 py-2  text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/20 transition-colors disabled:opacity-50"
 							>
 								<LogOut className="h-5 w-5" />
 								<span className="font-medium">Logout</span>

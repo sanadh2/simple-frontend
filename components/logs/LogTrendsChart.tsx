@@ -17,12 +17,12 @@ export function LogTrendsChart({ days = 7 }: { days?: number }) {
 	const { data: trends, isLoading } = useLogTrends(days)
 
 	if (isLoading) {
-		return <div className="animate-pulse bg-gray-100 h-80 rounded-lg" />
+		return <div className="animate-pulse bg-gray-100 h-80 " />
 	}
 
 	if (!trends || trends.length === 0) {
 		return (
-			<div className="bg-white rounded-lg shadow p-6">
+			<div className="bg-white  p-6">
 				<p className="text-gray-500 text-center">No trend data available</p>
 			</div>
 		)
@@ -47,7 +47,7 @@ export function LogTrendsChart({ days = 7 }: { days?: number }) {
 		.reverse()
 
 	return (
-		<div className="bg-white rounded-lg shadow p-6">
+		<div className="bg-white  p-6">
 			<h3 className="text-lg font-semibold mb-4">
 				Log Trends (Last {days} Days)
 			</h3>

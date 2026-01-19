@@ -38,7 +38,7 @@ export function LogsTable({ logs, onCorrelationClick }: LogsTableProps) {
 
 	return (
 		<>
-			<div className="bg-white rounded-lg shadow overflow-hidden">
+			<div className="bg-white  overflow-hidden">
 				<div className="overflow-x-auto">
 					<table className="min-w-full divide-y divide-gray-200">
 						<thead className="bg-gray-50">
@@ -87,7 +87,7 @@ export function LogsTable({ logs, onCorrelationClick }: LogsTableProps) {
 										</td>
 										<td className="px-6 py-4 whitespace-nowrap">
 											<span
-												className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium ${config.color}`}
+												className={`inline-flex items-center gap-1 px-2.5 py-0.5  text-xs font-medium ${config.color}`}
 											>
 												<Icon className="w-3 h-3" />
 												{config.label}

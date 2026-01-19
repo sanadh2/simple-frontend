@@ -20,6 +20,8 @@ export interface User {
 	lastName: string
 	isEmailVerified: boolean
 	profilePicture?: string
+	currentRole?: string
+	yearsOfExperience?: number
 	createdAt?: string
 	updatedAt?: string
 }
@@ -107,6 +109,18 @@ class ApiClient {
 	async getProfile(): Promise<ApiResponse<{ user: User }>> {
 		return this.request("/api/auth/me", {
 			method: "GET",
+		})
+	}
+
+	async updateProfile(data: {
+		firstName?: string
+		lastName?: string
+		currentRole?: string | null
+		yearsOfExperience?: number | null
+	}): Promise<ApiResponse<{ user: User }>> {
+		return this.request("/api/auth/update-profile", {
+			method: "PUT",
+			body: JSON.stringify(data),
 		})
 	}
 

@@ -12,9 +12,9 @@ interface ErrorFallbackProps {
 export default function ErrorFallback({ error, onRetry }: ErrorFallbackProps) {
 	return (
 		<div className="flex min-h-screen items-center justify-center bg-linear-to-br from-zinc-50 to-zinc-100 dark:from-zinc-950 dark:to-black p-4">
-			<div className="w-full max-w-md p-8 space-y-6 bg-white rounded-xl dark:bg-zinc-900 animate-in fade-in slide-in-from-bottom-4 duration-500">
+			<div className="w-full max-w-md p-8 space-y-6 bg-white  dark:bg-zinc-900 animate-in fade-in slide-in-from-bottom-4 duration-500">
 				<div className="text-center space-y-4">
-					<div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-red-100 dark:bg-red-900/20">
+					<div className="inline-flex items-center justify-center w-16 h-16  bg-red-100 dark:bg-red-900/20">
 						<AlertTriangle className="w-8 h-8 text-red-600 dark:text-red-400" />
 					</div>
 

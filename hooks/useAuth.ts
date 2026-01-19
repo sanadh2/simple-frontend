@@ -201,6 +201,35 @@ export function useUploadProfilePicture() {
 	})
 }
 
+export function useUpdateProfile() {
+	const queryClient = useQueryClient()
+
+	return useMutation({
+		mutationFn: async (data: {
+			firstName?: string
+			lastName?: string
+			currentRole?: string | null
+			yearsOfExperience?: number | null
+		}) => {
+			const response = await apiClient.updateProfile(data)
+			if (!response.success || !response.data) {
+				throw new Error(response.message || "Failed to update profile")
+			}
+			return response.data.user
+		},
+		onSuccess: async (user) => {
+			queryClient.setQueryData(authKeys.profile(), user)
+			await queryClient.refetchQueries({ queryKey: authKeys.profile() })
+			toast.success("Profile updated successfully!")
+		},
+		onError: (error) => {
+			toast.error("Failed to update profile", {
+				description: error instanceof Error ? error.message : "Unknown error",
+			})
+		},
+	})
+}
+
 export function useRequestPasswordReset() {
 	return useMutation({
 		mutationFn: async (email: string) => {

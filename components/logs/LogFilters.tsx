@@ -41,7 +41,7 @@ export function LogFilters({ onFilterChange, onRefresh }: LogFiltersProps) {
 	const hasActiveFilters = level || message || startDate || endDate
 
 	return (
-		<div className="bg-white rounded-lg shadow p-6 space-y-4">
+		<div className="bg-white  p-6 space-y-4">
 			<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
 				<div>
 					<label className="block text-sm font-medium text-gray-700 mb-1">
@@ -50,7 +50,7 @@ export function LogFilters({ onFilterChange, onRefresh }: LogFiltersProps) {
 					<select
 						value={level}
 						onChange={(e) => setLevel(e.target.value)}
-						className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+						className="w-full px-3 py-2 border border-gray-300  focus:outline-none focus:ring-2 focus:ring-blue-500"
 					>
 						<option value="">All Levels</option>
 						<option value="info">Info</option>
@@ -71,7 +71,7 @@ export function LogFilters({ onFilterChange, onRefresh }: LogFiltersProps) {
 							value={message}
 							onChange={(e) => setMessage(e.target.value)}
 							placeholder="Search..."
-							className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+							className="w-full pl-10 pr-3 py-2 border border-gray-300  focus:outline-none focus:ring-2 focus:ring-blue-500"
 						/>
 					</div>
 				</div>
@@ -86,7 +86,7 @@ export function LogFilters({ onFilterChange, onRefresh }: LogFiltersProps) {
 							type="datetime-local"
 							value={startDate}
 							onChange={(e) => setStartDate(e.target.value)}
-							className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+							className="w-full pl-10 pr-3 py-2 border border-gray-300  focus:outline-none focus:ring-2 focus:ring-blue-500"
 						/>
 					</div>
 				</div>
@@ -101,7 +101,7 @@ export function LogFilters({ onFilterChange, onRefresh }: LogFiltersProps) {
 							type="datetime-local"
 							value={endDate}
 							onChange={(e) => setEndDate(e.target.value)}
-							className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+							className="w-full pl-10 pr-3 py-2 border border-gray-300  focus:outline-none focus:ring-2 focus:ring-blue-500"
 						/>
 					</div>
 				</div>

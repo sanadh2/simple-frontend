@@ -60,7 +60,7 @@ export function RequestTraceModal({
 
 				{!isLoading && logs && logs.length > 0 && (
 					<div className="space-y-4">
-						<div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+						<div className="bg-blue-50 border border-blue-200  p-4">
 							<p className="text-sm text-blue-800">
 								<strong>{logs.length}</strong> log entries found for this
 								request
@@ -79,17 +79,17 @@ export function RequestTraceModal({
 										<div key={index} className="relative flex gap-4">
 											<div className="relative z-10 flex-shrink-0">
 												<div
-													className={`p-2 rounded-full bg-white border-2 ${color.replace("text-", "border-")}`}
+													className={`p-2  bg-white border-2 ${color.replace("text-", "border-")}`}
 												>
 													<Icon className={`w-4 h-4 ${color}`} />
 												</div>
 											</div>
 
-											<div className="flex-1 bg-white rounded-lg shadow p-4 space-y-2">
+											<div className="flex-1 bg-white   p-4 space-y-2">
 												<div className="flex justify-between items-start">
 													<div>
 														<span
-															className={`inline-block px-2 py-0.5 rounded text-xs font-semibold mb-1 ${
+															className={`inline-block px-2 py-0.5  text-xs font-semibold mb-1 ${
 																log.level === "error"
 																	? "bg-red-100 text-red-700"
 																	: log.level === "warn"
@@ -119,7 +119,7 @@ export function RequestTraceModal({
 														<summary className="cursor-pointer text-blue-600 hover:text-blue-800">
 															Show metadata
 														</summary>
-														<pre className="mt-2 bg-gray-50 p-2 rounded overflow-x-auto">
+														<pre className="mt-2 bg-gray-50 p-2  overflow-x-auto">
 															{JSON.stringify(log.meta, null, 2)}
 														</pre>
 													</details>

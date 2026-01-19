@@ -54,7 +54,7 @@ export function LogDetailModal({
 							<label className="text-sm font-medium text-gray-500">Level</label>
 							<p className="text-sm">
 								<span
-									className={`inline-block px-2 py-1 rounded text-xs font-semibold ${
+									className={`inline-block px-2 py-1  text-xs font-semibold ${
 										log.level === "error"
 											? "bg-red-100 text-red-700"
 											: log.level === "warn"
@@ -122,7 +122,7 @@ export function LogDetailModal({
 
 					<div className="space-y-1">
 						<label className="text-sm font-medium text-gray-500">Message</label>
-						<p className="text-sm bg-gray-50 p-3 rounded-md">{log.message}</p>
+						<p className="text-sm bg-gray-50 p-3 ">{log.message}</p>
 					</div>
 
 					{log.meta && Object.keys(log.meta).length > 0 && (
@@ -130,7 +130,7 @@ export function LogDetailModal({
 							<label className="text-sm font-medium text-gray-500">
 								Metadata
 							</label>
-							<pre className="text-xs bg-gray-900 text-gray-100 p-4 rounded-md overflow-x-auto">
+							<pre className="text-xs bg-gray-900 text-gray-100 p-4  overflow-x-auto">
 								{JSON.stringify(log.meta, null, 2)}
 							</pre>
 						</div>

@@ -163,7 +163,7 @@ export const ProfilePictureUpload = forwardRef<
 				{/* Current Profile Picture Display */}
 				{currentPictureUrl && !file && (
 					<div className="relative inline-block">
-						<div className="relative w-32 h-32 rounded-full overflow-hidden border-4 border-gray-200 dark:border-gray-700">
+						<div className="relative w-32 h-32  overflow-hidden border-4 border-gray-200 dark:border-gray-700">
 							<Image
 								src={currentPictureUrl}
 								alt="Profile picture"
@@ -218,7 +218,7 @@ export const ProfilePictureUpload = forwardRef<
 				<div
 					{...getRootProps()}
 					className={cn(
-						"border-2 border-dashed rounded-lg p-6 text-center transition-colors cursor-pointer",
+						"border-2 border-dashed  p-6 text-center transition-colors cursor-pointer",
 						isDragActive && !isDragReject && "border-blue-400 bg-blue-50",
 						isDragReject && "border-red-400 bg-red-50",
 						!isDragActive &&
