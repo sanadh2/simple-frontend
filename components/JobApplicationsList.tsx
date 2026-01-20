@@ -1,0 +1,205 @@
+"use client"
+
+import { format } from "date-fns"
+import { Building2, Calendar, ExternalLink, MapPin, Tag } from "lucide-react"
+import Link from "next/link"
+
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import {
+	Card,
+	CardContent,
+	CardDescription,
+	CardHeader,
+	CardTitle,
+} from "@/components/ui/card"
+import LoadingSpinner from "@/components/LoadingSpinner"
+import type { JobApplication, JobStatus, PriorityLevel } from "@/lib/api"
+import { useJobApplications } from "@/hooks/useJobApplications"
+
+const statusColors: Record<JobStatus, string> = {
+	Wishlist: "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200",
+	Applied: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200",
+	"Interview Scheduled": "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200",
+	Interviewing: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200",
+	Offer: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200",
+	Rejected: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200",
+	Accepted: "bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200",
+	Withdrawn: "bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-200",
+}
+
+const priorityColors: Record<PriorityLevel, string> = {
+	high: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200",
+	medium: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200",
+	low: "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200",
+}
+
+const locationTypeLabels: Record<string, string> = {
+	remote: "Remote",
+	hybrid: "Hybrid",
+	onsite: "Onsite",
+}
+
+export default function JobApplicationsList() {
+	const { data, isLoading, error } = useJobApplications({ limit: 50 })
+
+	if (isLoading) {
+		return <LoadingSpinner text="Loading job applications..." />
+	}
+
+	if (error) {
+		return (
+			<Card>
+				<CardContent className="pt-6">
+					<p className="text-red-600 dark:text-red-400">
+						Error loading job applications: {(error as Error).message}
+					</p>
+				</CardContent>
+			</Card>
+		)
+	}
+
+	if (!data || data.applications.length === 0) {
+		return (
+			<Card>
+				<CardHeader>
+					<CardTitle>Job Applications</CardTitle>
+					<CardDescription>
+						Track and manage your job applications
+					</CardDescription>
+				</CardHeader>
+				<CardContent>
+					<div className="text-center py-12">
+						<Building2 className="w-12 h-12 mx-auto text-gray-400 mb-4" />
+						<p className="text-gray-500 dark:text-gray-400 mb-4">
+							No job applications yet
+						</p>
+						<Link href="/job-applications">
+							<Button>Add Your First Application</Button>
+						</Link>
+					</div>
+				</CardContent>
+			</Card>
+		)
+	}
+
+	return (
+		<Card>
+			<CardHeader>
+				<div className="flex items-center justify-between">
+					<div>
+						<CardTitle>Job Applications</CardTitle>
+						<CardDescription>
+							{data.totalCount} total application
+							{data.totalCount !== 1 ? "s" : ""}
+						</CardDescription>
+					</div>
+					<Link href="/job-applications">
+						<Button>Add New Application</Button>
+					</Link>
+				</div>
+			</CardHeader>
+			<CardContent>
+				<div className="space-y-4">
+					{data.applications.map((application) => (
+						<JobApplicationCard
+							key={application._id}
+							application={application}
+						/>
+					))}
+				</div>
+			</CardContent>
+		</Card>
+	)
+}
+
+function JobApplicationCard({ application }: { application: JobApplication }) {
+	const locationText =
+		application.location_type === "remote"
+			? "Remote"
+			: `${locationTypeLabels[application.location_type]}${
+					application.location_city
+						? ` - ${application.location_city}`
+						: ""
+				}`
+
+	return (
+		<div className="border rounded-lg p-4 hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-colors">
+			<div className="flex items-start justify-between gap-4">
+				<div className="flex-1 space-y-3">
+					<div className="flex items-start gap-3">
+						<div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
+							<Building2 className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+						</div>
+						<div className="flex-1">
+							<div className="flex items-center gap-2 mb-1">
+								<h3 className="font-semibold text-lg text-zinc-900 dark:text-white">
+									{application.job_title}
+								</h3>
+								<Badge
+									className={statusColors[application.status]}
+									variant="secondary"
+								>
+									{application.status}
+								</Badge>
+								<Badge
+									className={priorityColors[application.priority]}
+									variant="secondary"
+								>
+									{application.priority}
+								</Badge>
+							</div>
+							<p className="text-zinc-600 dark:text-zinc-400 font-medium">
+								{application.company_name}
+							</p>
+						</div>
+					</div>
+
+					<div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm text-zinc-600 dark:text-zinc-400">
+						<div className="flex items-center gap-2">
+							<Calendar className="w-4 h-4" />
+							<span>
+								Applied: {format(new Date(application.application_date), "MMM d, yyyy")}
+							</span>
+						</div>
+						<div className="flex items-center gap-2">
+							<MapPin className="w-4 h-4" />
+							<span>{locationText}</span>
+						</div>
+						{application.salary_range && (
+							<div className="flex items-center gap-2">
+								<Tag className="w-4 h-4" />
+								<span>{application.salary_range}</span>
+							</div>
+						)}
+						{application.application_method && (
+							<div className="flex items-center gap-2">
+								<span className="text-xs">Via: {application.application_method}</span>
+							</div>
+						)}
+					</div>
+
+					{application.job_description && (
+						<p className="text-sm text-zinc-600 dark:text-zinc-400 line-clamp-2">
+							{application.job_description}
+						</p>
+					)}
+				</div>
+
+				<div className="flex flex-col gap-2">
+					{application.job_posting_url && (
+						<a
+							href={application.job_posting_url}
+							target="_blank"
+							rel="noopener noreferrer"
+							className="inline-flex items-center gap-1 text-sm text-blue-600 dark:text-blue-400 hover:underline"
+						>
+							<ExternalLink className="w-4 h-4" />
+							View Posting
+						</a>
+					)}
+				</div>
+			</div>
+		</div>
+	)
+}

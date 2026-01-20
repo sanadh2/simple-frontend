@@ -40,7 +40,7 @@ export interface LogFilters {
 	page?: number
 	limit?: number
 	level?: string
-	correlationId?: string
+	correlation_id?: string
 	userId?: string
 	message?: string
 	startDate?: string
@@ -74,9 +74,9 @@ class LogsApiClient {
 		return result.data
 	}
 
-	async getLogsByCorrelationId(correlationId: string): Promise<Log[]> {
+	async getLogsBycorrelation_id(correlation_id: string): Promise<Log[]> {
 		const response = await fetchWithAuth(
-			`${API_BASE_URL}/api/logs/correlation/${correlationId}`,
+			`${API_BASE_URL}/api/logs/correlation/${correlation_id}`,
 			{ method: "GET" }
 		)
 

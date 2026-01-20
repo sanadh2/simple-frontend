@@ -11,7 +11,7 @@ import { LogDetailModal } from "./LogDetailModal"
 
 interface LogsTableProps {
 	logs: Log[]
-	onCorrelationClick?: (correlationId: string) => void
+	onCorrelationClick?: (correlation_id: string) => void
 }
 
 const levelConfig = {

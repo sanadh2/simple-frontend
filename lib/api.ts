@@ -26,6 +26,62 @@ export interface User {
 	updatedAt?: string
 }
 
+export type JobStatus =
+	| "Wishlist"
+	| "Applied"
+	| "Interview Scheduled"
+	| "Interviewing"
+	| "Offer"
+	| "Rejected"
+	| "Accepted"
+	| "Withdrawn"
+
+export type LocationType = "remote" | "hybrid" | "onsite"
+
+export type PriorityLevel = "high" | "medium" | "low"
+
+export interface JobApplication {
+	_id: string
+	user_id: string
+	company_name: string
+	job_title: string
+	job_description?: string
+	application_date: string
+	status: JobStatus
+	salary_range?: string
+	location_type: LocationType
+	location_city?: string
+	job_posting_url?: string
+	application_method?: string
+	priority: PriorityLevel
+	createdAt: string
+	updatedAt: string
+}
+
+export interface CreateJobApplicationInput {
+	company_name: string
+	job_title: string
+	job_description?: string
+	application_date: string | Date
+	status: JobStatus
+	salary_range?: string
+	location_type: LocationType
+	location_city?: string
+	job_posting_url?: string
+	application_method?: string
+	priority: PriorityLevel
+}
+
+export interface UpdateJobApplicationInput extends Partial<CreateJobApplicationInput> {}
+
+export interface PaginatedJobApplications {
+	applications: JobApplication[]
+	totalCount: number
+	currentPage: number
+	pageSize: number
+	totalPages: number
+}
+
 class ApiClient {
 	private baseURL: string
 
@@ -187,6 +243,66 @@ class ApiClient {
 		return this.request("/api/auth/reset-password", {
 			method: "POST",
 			body: JSON.stringify({ email, otp, newPassword }),
+		})
+	}
+
+	async createJobApplication(
+		data: CreateJobApplicationInput
+	): Promise<ApiResponse<JobApplication>> {
+		return this.request("/api/job-applications", {
+			method: "POST",
+			body: JSON.stringify(data),
+		})
+	}
+
+	async getJobApplications(params?: {
+		page?: number
+		limit?: number
+		status?: JobStatus
+		priority?: PriorityLevel
+		company_name?: string
+		startDate?: string
+		endDate?: string
+	}): Promise<ApiResponse<PaginatedJobApplications>> {
+		const queryParams = new URLSearchParams()
+		if (params?.page) queryParams.append("page", params.page.toString())
+		if (params?.limit) queryParams.append("limit", params.limit.toString())
+		if (params?.status) queryParams.append("status", params.status)
+		if (params?.priority) queryParams.append("priority", params.priority)
+		if (params?.company_name)
+			queryParams.append("company_name", params.company_name)
+		if (params?.startDate) queryParams.append("startDate", params.startDate)
+		if (params?.endDate) queryParams.append("endDate", params.endDate)
+
+		const queryString = queryParams.toString()
+		const endpoint = `/api/job-applications${queryString ? `?${queryString}` : ""}`
+
+		return this.request(endpoint, {
+			method: "GET",
+		})
+	}
+
+	async getJobApplicationById(
+		id: string
+	): Promise<ApiResponse<JobApplication>> {
+		return this.request(`/api/job-applications/${id}`, {
+			method: "GET",
+		})
+	}
+
+	async updateJobApplication(
+		id: string,
+		data: UpdateJobApplicationInput
+	): Promise<ApiResponse<JobApplication>> {
+		return this.request(`/api/job-applications/${id}`, {
+			method: "PUT",
+			body: JSON.stringify(data),
+		})
+	}
+
+	async deleteJobApplication(id: string): Promise<ApiResponse> {
+		return this.request(`/api/job-applications/${id}`, {
+			method: "DELETE",
 		})
 	}
 }

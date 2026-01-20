@@ -9,12 +9,12 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from "@/components/ui/dialog"
-import { useLogsByCorrelationId } from "@/hooks/useLogs"
+import { useLogsBycorrelation_id } from "@/hooks/useLogs"
 
 import LoadingSpinner from "../LoadingSpinner"
 
 interface RequestTraceModalProps {
-	correlationId: string
+	correlation_id: string
 	onClose: () => void
 }
 
@@ -33,17 +33,17 @@ const levelColors = {
 }
 
 export function RequestTraceModal({
-	correlationId,
+	correlation_id,
 	onClose,
 }: RequestTraceModalProps) {
-	const { data: logs, isLoading } = useLogsByCorrelationId(correlationId)
+	const { data: logs, isLoading } = useLogsBycorrelation_id(correlation_id)
 
 	return (
 		<Dialog open={true} onOpenChange={onClose}>
 			<DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
 				<DialogHeader>
 					<DialogTitle>Request Trace</DialogTitle>
-					<p className="text-sm text-gray-500 font-mono">{correlationId}</p>
+					<p className="text-sm text-gray-500 font-mono">{correlation_id}</p>
 				</DialogHeader>
 
 				{isLoading && (

@@ -30,11 +30,11 @@ export function useLogs(
 	})
 }
 
-export function useLogsByCorrelationId(correlationId: string) {
+export function useLogsBycorrelation_id(correlation_id: string) {
 	return useQuery({
-		queryKey: logsKeys.correlation(correlationId),
-		queryFn: () => logsApiClient.getLogsByCorrelationId(correlationId),
-		enabled: !!correlationId,
+		queryKey: logsKeys.correlation(correlation_id),
+		queryFn: () => logsApiClient.getLogsBycorrelation_id(correlation_id),
+		enabled: !!correlation_id,
 		staleTime: 1000 * 60 * 5,
 	})
 }

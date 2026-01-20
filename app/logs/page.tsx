@@ -20,7 +20,7 @@ export default function LogsPage() {
 		startDate?: string
 		endDate?: string
 	}>({})
-	const [selectedCorrelationId, setSelectedCorrelationId] = useState<
+	const [selectedcorrelation_id, setSelectedcorrelation_id] = useState<
 		string | null
 	>(null)
 
@@ -40,7 +40,7 @@ export default function LogsPage() {
 	}
 
 	return (
-		<div className="min-h-screen bg-gray-50">
+		<div className=" bg-gray-50">
 			<div className="max-w-[1600px] mx-auto px-4 py-8 space-y-6">
 				<div className="flex items-center justify-between">
 					<div>
@@ -103,7 +103,7 @@ export default function LogsPage() {
 
 						<LogsTable
 							logs={data.logs}
-							onCorrelationClick={setSelectedCorrelationId}
+							onCorrelationClick={setSelectedcorrelation_id}
 						/>
 					</>
 				)}
@@ -115,10 +115,10 @@ export default function LogsPage() {
 				)}
 			</div>
 
-			{selectedCorrelationId && (
+			{selectedcorrelation_id && (
 				<RequestTraceModal
-					correlationId={selectedCorrelationId}
-					onClose={() => setSelectedCorrelationId(null)}
+					correlation_id={selectedcorrelation_id}
+					onClose={() => setSelectedcorrelation_id(null)}
 				/>
 			)}
 		</div>

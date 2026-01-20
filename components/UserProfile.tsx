@@ -137,10 +137,8 @@ export default function UserProfile({ user }: UserProfileProps) {
 	const isLoading = isLoggingOut || isLoggingOutAll || isUpdatingProfile
 
 	// Profile picture URL - Cloudinary URLs are already full URLs, local paths need API URL prefix
-	const profilePictureUrl = user.profilePicture
-		? user.profilePicture.startsWith("http")
-			? user.profilePicture
-			: `${env.NEXT_PUBLIC_API_URL}${user.profilePicture}`
+	const profilePictureUrl = user.profile_picture
+		? `${user.profile_picture}`
 		: null
 
 	return (
@@ -331,23 +329,23 @@ export default function UserProfile({ user }: UserProfileProps) {
 							</>
 						) : (
 							<>
-								{user.currentRole && (
+								{user.current_role && (
 									<div className="flex items-center justify-between p-3 bg-zinc-50 dark:bg-zinc-800 ">
 										<span className="text-sm font-medium text-zinc-600 dark:text-zinc-400">
 											Current Role
 										</span>
 										<span className="text-sm text-zinc-900 dark:text-white">
-											{user.currentRole}
+											{user.current_role}
 										</span>
 									</div>
 								)}
-								{user.yearsOfExperience !== undefined && user.yearsOfExperience !== null && (
+								{user.years_of_experience !== undefined && user.years_of_experience !== null && (
 									<div className="flex items-center justify-between p-3 bg-zinc-50 dark:bg-zinc-800 ">
 										<span className="text-sm font-medium text-zinc-600 dark:text-zinc-400">
 											Years of Experience
 										</span>
 										<span className="text-sm text-zinc-900 dark:text-white">
-											{user.yearsOfExperience} {user.yearsOfExperience === 1 ? "year" : "years"}
+											{user.years_of_experience} {user.years_of_experience === 1 ? "year" : "years"}
 										</span>
 									</div>
 								)}

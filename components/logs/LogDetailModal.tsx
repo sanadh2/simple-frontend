@@ -82,10 +82,10 @@ export function LogDetailModal({
 									variant="ghost"
 									size="sm"
 									onClick={() =>
-										copyToClipboard(log.correlation_id, "correlationId")
+										copyToClipboard(log.correlation_id, "correlation_id")
 									}
 								>
-									{copiedField === "correlationId" ? (
+									{copiedField === "correlation_id" ? (
 										<Check className="w-4 h-4 text-green-600" />
 									) : (
 										<Copy className="w-4 h-4" />
