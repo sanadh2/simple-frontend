@@ -170,3 +170,7 @@
 		@apply bg-background text-foreground;
 	}
 }
+
+.filepond--credits{
+	display: none;
+}

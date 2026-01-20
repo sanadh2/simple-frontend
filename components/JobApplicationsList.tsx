@@ -163,11 +163,11 @@ function JobApplicationCard({ application }: { application: JobApplication }) {
 
 	return (
 		<>
-			<div className="border rounded-lg p-4 hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-colors">
+			<div className="border p-4 hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-colors">
 				<div className="flex items-start justify-between gap-4">
 					<div className="flex-1 space-y-3">
 						<div className="flex items-start gap-3">
-							<div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
+							<div className="p-2 bg-blue-100 dark:bg-blue-900">
 								<Building2 className="w-5 h-5 text-blue-600 dark:text-blue-400" />
 							</div>
 							<div className="flex-1">

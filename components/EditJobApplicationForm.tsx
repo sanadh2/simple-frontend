@@ -325,7 +325,7 @@ export default function EditJobApplicationForm({
 										<FormControl>
 											<select
 												{...field}
-												className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+												className="flex h-10 w-full border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
 											>
 												{STATUS_OPTIONS.map((option) => (
 													<option key={option.value} value={option.value}>
@@ -348,7 +348,7 @@ export default function EditJobApplicationForm({
 										<FormControl>
 											<select
 												{...field}
-												className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+												className="flex h-10 w-full border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
 											>
 												{PRIORITY_OPTIONS.map((option) => (
 													<option key={option.value} value={option.value}>
@@ -371,7 +371,7 @@ export default function EditJobApplicationForm({
 										<FormControl>
 											<select
 												{...field}
-												className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+												className="flex h-10 w-full border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
 											>
 												{LOCATION_TYPE_OPTIONS.map((option) => (
 													<option key={option.value} value={option.value}>
@@ -459,7 +459,7 @@ export default function EditJobApplicationForm({
 										<textarea
 											{...field}
 											rows={4}
-											className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+											className="flex min-h-[80px] w-full border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
 											placeholder="Paste or describe the job posting details..."
 										/>
 									</FormControl>
@@ -478,7 +478,7 @@ export default function EditJobApplicationForm({
 										<textarea
 											{...field}
 											rows={4}
-											className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+											className="flex min-h-[80px] w-full border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
 											placeholder="Add your personal notes, reminders, or thoughts about this application..."
 										/>
 									</FormControl>
@@ -488,51 +488,66 @@ export default function EditJobApplicationForm({
 						/>
 
 						<div className="space-y-4">
-							<FormItem>
-								<FormLabel>Resume</FormLabel>
-								<FormControl>
-									<DocumentUpload
-										ref={resumeUploadRef}
-										label="Resume"
-										currentFileUrl={form.watch("resume_url") ?? undefined}
-										onFileChange={(file) => {
-											setResumeFile(file)
-											if (file) {
-												form.setValue("resume_url", "")
-											}
-										}}
-										disabled={
-											isUploadingResume || updateJobApplication.isPending
-										}
-										accept={[".pdf", ".doc", ".docx", ".txt"]}
-										maxSize="10MB"
-									/>
-								</FormControl>
-								<FormMessage />
-							</FormItem>
+							<FormField
+								control={form.control}
+								name="resume_url"
+								render={() => (
+									<FormItem>
+										<FormLabel>Resume</FormLabel>
+										<FormControl>
+											<DocumentUpload
+												ref={resumeUploadRef}
+												label="Resume"
+												currentFileUrl={form.watch("resume_url") ?? undefined}
+												onFileChange={(file) => {
+													setResumeFile(file)
+													if (file) {
+														form.setValue("resume_url", "")
+													}
+												}}
+												disabled={
+													isUploadingResume || updateJobApplication.isPending
+												}
+												accept={[".pdf", ".doc", ".docx", ".txt"]}
+												maxSize="10MB"
+											/>
+										</FormControl>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
 
-							<FormItem>
-								<FormLabel>Cover Letter</FormLabel>
-								<FormControl>
-									<DocumentUpload
-										ref={coverLetterUploadRef}
-										label="Cover Letter"
-										currentFileUrl={form.watch("cover_letter_url") ?? undefined}
-										onFileChange={(file) => {
-											setCoverLetterFile(file)
-											if (file) {
-												form.setValue("cover_letter_url", "")
-											}
-										}}
-										disabled={
-											isUploadingCoverLetter || updateJobApplication.isPending
-										}
-										accept={[".pdf", ".doc", ".docx", ".txt"]}
-										maxSize="10MB"
-									/>
-								</FormControl>
-								<FormMessage />
-							</FormItem>
+							<FormField
+								control={form.control}
+								name="cover_letter_url"
+								render={() => (
+									<FormItem>
+										<FormLabel>Cover Letter</FormLabel>
+										<FormControl>
+											<DocumentUpload
+												ref={coverLetterUploadRef}
+												label="Cover Letter"
+												currentFileUrl={
+													form.watch("cover_letter_url") ?? undefined
+												}
+												onFileChange={(file) => {
+													setCoverLetterFile(file)
+													if (file) {
+														form.setValue("cover_letter_url", "")
+													}
+												}}
+												disabled={
+													isUploadingCoverLetter ||
+													updateJobApplication.isPending
+												}
+												accept={[".pdf", ".doc", ".docx", ".txt"]}
+												maxSize="10MB"
+											/>
+										</FormControl>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
 						</div>
 
 						<DialogFooter>

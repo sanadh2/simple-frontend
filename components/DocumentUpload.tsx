@@ -168,7 +168,7 @@ export const DocumentUpload = forwardRef<
 		return (
 			<div className={cn("space-y-2", className)}>
 				{currentFileUrl && !file && (
-					<div className="flex items-center gap-2 p-3 bg-zinc-50 dark:bg-zinc-900 rounded-md border">
+					<div className="flex items-center gap-2 p-3 bg-zinc-50 dark:bg-zinc-900 border">
 						<FileText className="h-5 w-5 text-muted-foreground" />
 						<a
 							href={currentFileUrl}
