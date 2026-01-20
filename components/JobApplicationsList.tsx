@@ -24,6 +24,7 @@ import {
 } from "@/components/ui/dialog"
 import EditJobApplicationForm from "@/components/EditJobApplicationForm"
 import LoadingSpinner from "@/components/LoadingSpinner"
+import StatusHistoryTimeline from "@/components/StatusHistoryTimeline"
 import type { JobApplication, JobStatus, PriorityLevel } from "@/lib/api"
 import {
 	useDeleteJobApplication,
@@ -129,6 +130,7 @@ export default function JobApplicationsList() {
 function JobApplicationCard({ application }: { application: JobApplication }) {
 	const [isEditOpen, setIsEditOpen] = useState(false)
 	const [isDeleteOpen, setIsDeleteOpen] = useState(false)
+	const [showHistory, setShowHistory] = useState(false)
 	const deleteJobApplication = useDeleteJobApplication()
 
 	const locationText =
@@ -205,14 +207,34 @@ function JobApplicationCard({ application }: { application: JobApplication }) {
 							)}
 						</div>
 
-						{application.job_description && (
-							<p className="text-sm text-zinc-600 dark:text-zinc-400 line-clamp-2">
-								{application.job_description}
-							</p>
-						)}
-					</div>
+					{application.job_description && (
+						<div className="text-sm text-zinc-600 dark:text-zinc-400">
+							<p className="font-medium mb-1">Job Description:</p>
+							<p className="line-clamp-2">{application.job_description}</p>
+						</div>
+					)}
+					{application.notes && (
+						<div className="text-sm text-zinc-600 dark:text-zinc-400">
+							<p className="font-medium mb-1">Notes:</p>
+							<p className="line-clamp-2">{application.notes}</p>
+						</div>
+					)}
 
-					<div className="flex flex-col gap-2">
+					{application.status_history && application.status_history.length > 0 && (
+						<button
+							onClick={() => setShowHistory(!showHistory)}
+							className="text-xs text-blue-600 dark:text-blue-400 hover:underline"
+						>
+							{showHistory
+								? "Hide status history"
+								: `View ${application.status_history.length} status change${
+										application.status_history.length !== 1 ? "s" : ""
+									}`}
+						</button>
+					)}
+				</div>
+
+				<div className="flex flex-col gap-2">
 						{application.job_posting_url && (
 							<a
 								href={application.job_posting_url}
@@ -287,6 +309,12 @@ function JobApplicationCard({ application }: { application: JobApplication }) {
 					</DialogFooter>
 				</DialogContent>
 			</Dialog>
+
+			{showHistory && (
+				<div className="mt-4 pt-4 border-t">
+					<StatusHistoryTimeline application={application} />
+				</div>
+			)}
 		</>
 	)
 }

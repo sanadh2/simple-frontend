@@ -40,20 +40,29 @@ export type LocationType = "remote" | "hybrid" | "onsite"
 
 export type PriorityLevel = "high" | "medium" | "low"
 
+export interface StatusHistory {
+	status: JobStatus
+	changed_at: string
+}
+
 export interface JobApplication {
 	_id: string
 	user_id: string
 	company_name: string
 	job_title: string
 	job_description?: string
+	notes?: string
 	application_date: string
 	status: JobStatus
+	status_history: StatusHistory[]
 	salary_range?: string
 	location_type: LocationType
 	location_city?: string
 	job_posting_url?: string
 	application_method?: string
 	priority: PriorityLevel
+	resume_url?: string
+	cover_letter_url?: string
 	createdAt: string
 	updatedAt: string
 }
@@ -62,6 +71,7 @@ export interface CreateJobApplicationInput {
 	company_name: string
 	job_title: string
 	job_description?: string
+	notes?: string
 	application_date: string | Date
 	status: JobStatus
 	salary_range?: string
@@ -70,6 +80,8 @@ export interface CreateJobApplicationInput {
 	job_posting_url?: string
 	application_method?: string
 	priority: PriorityLevel
+	resume_url?: string
+	cover_letter_url?: string
 }
 
 export interface UpdateJobApplicationInput extends Partial<CreateJobApplicationInput> {}
@@ -107,7 +119,20 @@ class ApiClient {
 		options: RequestInit = {}
 	): Promise<ApiResponse<T>> {
 		const url = `${this.baseURL}${endpoint}`
-		const response = await fetchWithAuth(url, options)
+		
+		// Don't set Content-Type for FormData - browser will set it with boundary
+		const isFormData = options.body instanceof FormData
+		const headers: Record<string, string> = isFormData
+			? { ...(options.headers as Record<string, string>) }
+			: {
+					"Content-Type": "application/json",
+					...(options.headers as Record<string, string>),
+				}
+
+		const response = await fetchWithAuth(url, {
+			...options,
+			headers,
+		})
 		return this.handleResponse<T>(response)
 	}
 
@@ -303,6 +328,20 @@ class ApiClient {
 	async deleteJobApplication(id: string): Promise<ApiResponse> {
 		return this.request(`/api/job-applications/${id}`, {
 			method: "DELETE",
+		})
+	}
+
+	async uploadJobApplicationFile(
+		file: File,
+		fileType: "resume" | "cover_letter"
+	): Promise<ApiResponse<{ url: string; publicId?: string }>> {
+		const formData = new FormData()
+		formData.append("file", file)
+		formData.append("fileType", fileType)
+
+		return this.request("/api/job-applications/upload-file", {
+			method: "POST",
+			body: formData,
 		})
 	}
 }

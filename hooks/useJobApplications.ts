@@ -92,11 +92,18 @@ export function useCreateJobApplication() {
 						company_name: newApplication.company_name,
 						job_title: newApplication.job_title,
 						job_description: newApplication.job_description,
+						notes: newApplication.notes,
 						application_date:
 							typeof newApplication.application_date === "string"
 								? newApplication.application_date
 								: newApplication.application_date.toISOString(),
 						status: newApplication.status,
+						status_history: [
+							{
+								status: newApplication.status,
+								changed_at: new Date().toISOString(),
+							},
+						],
 						salary_range: newApplication.salary_range,
 						location_type: newApplication.location_type,
 						location_city: newApplication.location_city,
@@ -196,20 +203,33 @@ export function useUpdateJobApplication() {
 							if (!old) return old
 							return {
 								...old,
-								applications: old.applications.map((app) =>
-									app._id === id
-										? {
-												...app,
-												...data,
-												application_date:
-													data.application_date
-														? typeof data.application_date === "string"
-															? data.application_date
-															: data.application_date.toISOString()
-														: app.application_date,
-											}
-										: app
-								),
+								applications: old.applications.map((app) => {
+									if (app._id === id) {
+										const updatedApp = {
+											...app,
+											...data,
+											application_date:
+												data.application_date
+													? typeof data.application_date === "string"
+														? data.application_date
+														: data.application_date.toISOString()
+													: app.application_date,
+										}
+
+										if (data.status && data.status !== app.status) {
+											updatedApp.status_history = [
+												...(app.status_history || []),
+												{
+													status: data.status,
+													changed_at: new Date().toISOString(),
+												},
+											]
+										}
+
+										return updatedApp
+									}
+									return app
+								}),
 							}
 						}
 					)
@@ -221,7 +241,7 @@ export function useUpdateJobApplication() {
 					jobApplicationKeys.detail(id),
 					(old) => {
 						if (!old) return old
-						return {
+						const updated = {
 							...old,
 							...data,
 							application_date:
@@ -231,6 +251,18 @@ export function useUpdateJobApplication() {
 										: data.application_date.toISOString()
 									: old.application_date,
 						}
+
+						if (data.status && data.status !== old.status) {
+							updated.status_history = [
+								...(old.status_history || []),
+								{
+									status: data.status,
+									changed_at: new Date().toISOString(),
+								},
+							]
+						}
+
+						return updated
 					}
 				)
 			}

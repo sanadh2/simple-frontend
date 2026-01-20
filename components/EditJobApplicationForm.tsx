@@ -1,9 +1,11 @@
 "use client"
 
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
+import { toast } from "sonner"
+import { X, FileText } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -30,12 +32,14 @@ import type {
 	PriorityLevel,
 	UpdateJobApplicationInput,
 } from "@/lib/api"
+import { apiClient } from "@/lib/api"
 import { useUpdateJobApplication } from "@/hooks/useJobApplications"
 
 const jobApplicationSchema = z.object({
 	company_name: z.string().min(1, "Company name is required"),
 	job_title: z.string().min(1, "Job title is required"),
 	job_description: z.string().optional(),
+	notes: z.string().optional(),
 	application_date: z.string().min(1, "Application date is required"),
 	status: z.enum([
 		"Wishlist",
@@ -60,6 +64,22 @@ const jobApplicationSchema = z.object({
 		.or(z.literal("")),
 	application_method: z.string().optional(),
 	priority: z.enum(["high", "medium", "low"]),
+	resume_url: z
+		.string()
+		.refine(
+			(val) => !val || z.string().url().safeParse(val).success,
+			"Invalid URL format"
+		)
+		.optional()
+		.or(z.literal("")),
+	cover_letter_url: z
+		.string()
+		.refine(
+			(val) => !val || z.string().url().safeParse(val).success,
+			"Invalid URL format"
+		)
+		.optional()
+		.or(z.literal("")),
 })
 
 type JobApplicationFormValues = z.infer<typeof jobApplicationSchema>
@@ -106,6 +126,7 @@ export default function EditJobApplicationForm({
 			company_name: application.company_name,
 			job_title: application.job_title,
 			job_description: application.job_description || "",
+			notes: application.notes || "",
 			application_date: new Date(application.application_date)
 				.toISOString()
 				.split("T")[0],
@@ -125,6 +146,7 @@ export default function EditJobApplicationForm({
 				company_name: application.company_name,
 				job_title: application.job_title,
 				job_description: application.job_description || "",
+				notes: application.notes || "",
 				application_date: new Date(application.application_date)
 					.toISOString()
 					.split("T")[0],
@@ -144,6 +166,7 @@ export default function EditJobApplicationForm({
 			company_name: data.company_name,
 			job_title: data.job_title,
 			job_description: data.job_description || undefined,
+			notes: data.notes || undefined,
 			application_date: data.application_date,
 			status: data.status,
 			salary_range: data.salary_range || undefined,
@@ -356,13 +379,32 @@ export default function EditJobApplicationForm({
 							name="job_description"
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>Job Description / Notes</FormLabel>
+									<FormLabel>Job Description</FormLabel>
 									<FormControl>
 										<textarea
 											{...field}
 											rows={4}
 											className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-											placeholder="Add any notes or description about the job..."
+											placeholder="Paste or describe the job posting details..."
+										/>
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
+
+						<FormField
+							control={form.control}
+							name="notes"
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>Notes</FormLabel>
+									<FormControl>
+										<textarea
+											{...field}
+											rows={4}
+											className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+											placeholder="Add your personal notes, reminders, or thoughts about this application..."
 										/>
 									</FormControl>
 									<FormMessage />
