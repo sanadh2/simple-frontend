@@ -1,8 +1,9 @@
 "use client"
 
 import { format } from "date-fns"
-import { Building2, Calendar, ExternalLink, MapPin, Tag } from "lucide-react"
+import { Building2, Calendar, ExternalLink, MapPin, Pencil, Tag, Trash2 } from "lucide-react"
 import Link from "next/link"
+import { useState } from "react"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -13,9 +14,21 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card"
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+} from "@/components/ui/dialog"
+import EditJobApplicationForm from "@/components/EditJobApplicationForm"
 import LoadingSpinner from "@/components/LoadingSpinner"
 import type { JobApplication, JobStatus, PriorityLevel } from "@/lib/api"
-import { useJobApplications } from "@/hooks/useJobApplications"
+import {
+	useDeleteJobApplication,
+	useJobApplications,
+} from "@/hooks/useJobApplications"
 
 const statusColors: Record<JobStatus, string> = {
 	Wishlist: "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200",
@@ -114,6 +127,10 @@ export default function JobApplicationsList() {
 }
 
 function JobApplicationCard({ application }: { application: JobApplication }) {
+	const [isEditOpen, setIsEditOpen] = useState(false)
+	const [isDeleteOpen, setIsDeleteOpen] = useState(false)
+	const deleteJobApplication = useDeleteJobApplication()
+
 	const locationText =
 		application.location_type === "remote"
 			? "Remote"
@@ -123,83 +140,153 @@ function JobApplicationCard({ application }: { application: JobApplication }) {
 						: ""
 				}`
 
+	const handleDelete = async () => {
+		await deleteJobApplication.mutateAsync(application._id, {
+			onSuccess: () => {
+				setIsDeleteOpen(false)
+			},
+		})
+	}
+
 	return (
-		<div className="border rounded-lg p-4 hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-colors">
-			<div className="flex items-start justify-between gap-4">
-				<div className="flex-1 space-y-3">
-					<div className="flex items-start gap-3">
-						<div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
-							<Building2 className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-						</div>
-						<div className="flex-1">
-							<div className="flex items-center gap-2 mb-1">
-								<h3 className="font-semibold text-lg text-zinc-900 dark:text-white">
-									{application.job_title}
-								</h3>
-								<Badge
-									className={statusColors[application.status]}
-									variant="secondary"
-								>
-									{application.status}
-								</Badge>
-								<Badge
-									className={priorityColors[application.priority]}
-									variant="secondary"
-								>
-									{application.priority}
-								</Badge>
+		<>
+			<div className="border rounded-lg p-4 hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-colors">
+				<div className="flex items-start justify-between gap-4">
+					<div className="flex-1 space-y-3">
+						<div className="flex items-start gap-3">
+							<div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
+								<Building2 className="w-5 h-5 text-blue-600 dark:text-blue-400" />
 							</div>
-							<p className="text-zinc-600 dark:text-zinc-400 font-medium">
-								{application.company_name}
+							<div className="flex-1">
+								<div className="flex items-center gap-2 mb-1">
+									<h3 className="font-semibold text-lg text-zinc-900 dark:text-white">
+										{application.job_title}
+									</h3>
+									<Badge
+										className={statusColors[application.status]}
+										variant="secondary"
+									>
+										{application.status}
+									</Badge>
+									<Badge
+										className={priorityColors[application.priority]}
+										variant="secondary"
+									>
+										{application.priority}
+									</Badge>
+								</div>
+								<p className="text-zinc-600 dark:text-zinc-400 font-medium">
+									{application.company_name}
+								</p>
+							</div>
+						</div>
+
+						<div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm text-zinc-600 dark:text-zinc-400">
+							<div className="flex items-center gap-2">
+								<Calendar className="w-4 h-4" />
+								<span>
+									Applied: {format(new Date(application.application_date), "MMM d, yyyy")}
+								</span>
+							</div>
+							<div className="flex items-center gap-2">
+								<MapPin className="w-4 h-4" />
+								<span>{locationText}</span>
+							</div>
+							{application.salary_range && (
+								<div className="flex items-center gap-2">
+									<Tag className="w-4 h-4" />
+									<span>{application.salary_range}</span>
+								</div>
+							)}
+							{application.application_method && (
+								<div className="flex items-center gap-2">
+									<span className="text-xs">Via: {application.application_method}</span>
+								</div>
+							)}
+						</div>
+
+						{application.job_description && (
+							<p className="text-sm text-zinc-600 dark:text-zinc-400 line-clamp-2">
+								{application.job_description}
 							</p>
-						</div>
-					</div>
-
-					<div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm text-zinc-600 dark:text-zinc-400">
-						<div className="flex items-center gap-2">
-							<Calendar className="w-4 h-4" />
-							<span>
-								Applied: {format(new Date(application.application_date), "MMM d, yyyy")}
-							</span>
-						</div>
-						<div className="flex items-center gap-2">
-							<MapPin className="w-4 h-4" />
-							<span>{locationText}</span>
-						</div>
-						{application.salary_range && (
-							<div className="flex items-center gap-2">
-								<Tag className="w-4 h-4" />
-								<span>{application.salary_range}</span>
-							</div>
-						)}
-						{application.application_method && (
-							<div className="flex items-center gap-2">
-								<span className="text-xs">Via: {application.application_method}</span>
-							</div>
 						)}
 					</div>
 
-					{application.job_description && (
-						<p className="text-sm text-zinc-600 dark:text-zinc-400 line-clamp-2">
-							{application.job_description}
-						</p>
-					)}
-				</div>
-
-				<div className="flex flex-col gap-2">
-					{application.job_posting_url && (
-						<a
-							href={application.job_posting_url}
-							target="_blank"
-							rel="noopener noreferrer"
-							className="inline-flex items-center gap-1 text-sm text-blue-600 dark:text-blue-400 hover:underline"
-						>
-							<ExternalLink className="w-4 h-4" />
-							View Posting
-						</a>
-					)}
+					<div className="flex flex-col gap-2">
+						{application.job_posting_url && (
+							<a
+								href={application.job_posting_url}
+								target="_blank"
+								rel="noopener noreferrer"
+								className="inline-flex items-center gap-1 text-sm text-blue-600 dark:text-blue-400 hover:underline"
+							>
+								<ExternalLink className="w-4 h-4" />
+								View Posting
+							</a>
+						)}
+						<div className="flex gap-2">
+							<Button
+								variant="outline"
+								size="sm"
+								onClick={() => setIsEditOpen(true)}
+								className="flex items-center gap-1"
+							>
+								<Pencil className="w-4 h-4" />
+								Edit
+							</Button>
+							<Button
+								variant="outline"
+								size="sm"
+								onClick={() => setIsDeleteOpen(true)}
+								className="flex items-center gap-1 text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-950/20"
+							>
+								<Trash2 className="w-4 h-4" />
+								Delete
+							</Button>
+						</div>
+					</div>
 				</div>
 			</div>
-		</div>
+
+			<EditJobApplicationForm
+				application={application}
+				open={isEditOpen}
+				onOpenChange={setIsEditOpen}
+			/>
+
+			<Dialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
+				<DialogContent>
+					<DialogHeader>
+						<DialogTitle>Delete Job Application</DialogTitle>
+						<DialogDescription>
+							Are you sure you want to delete this job application? This action
+							cannot be undone.
+						</DialogDescription>
+					</DialogHeader>
+					<div className="py-4">
+						<p className="text-sm text-zinc-600 dark:text-zinc-400">
+							<strong>{application.job_title}</strong> at{" "}
+							<strong>{application.company_name}</strong>
+						</p>
+					</div>
+					<DialogFooter>
+						<Button
+							variant="outline"
+							onClick={() => setIsDeleteOpen(false)}
+							disabled={deleteJobApplication.isPending}
+						>
+							Cancel
+						</Button>
+						<Button
+							variant="destructive"
+							onClick={handleDelete}
+							disabled={deleteJobApplication.isPending}
+						>
+							{deleteJobApplication.isPending ? "Deleting..." : "Delete"}
+						</Button>
+					</DialogFooter>
+				</DialogContent>
+			</Dialog>
+		</>
 	)
 }

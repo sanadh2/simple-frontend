@@ -75,14 +75,83 @@ export function useCreateJobApplication() {
 			}
 			return response.data
 		},
-		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: jobApplicationKeys.lists() })
-			toast.success("Job application created successfully!")
+		onMutate: async (newApplication) => {
+			await queryClient.cancelQueries({
+				queryKey: jobApplicationKeys.lists(),
+			})
+
+			const previousData = queryClient.getQueriesData<PaginatedJobApplications>({
+				queryKey: jobApplicationKeys.lists(),
+			})
+
+			previousData.forEach(([queryKey, data]) => {
+				if (data) {
+					const optimisticApplication: JobApplication = {
+						_id: `temp-${Date.now()}`,
+						user_id: "",
+						company_name: newApplication.company_name,
+						job_title: newApplication.job_title,
+						job_description: newApplication.job_description,
+						application_date:
+							typeof newApplication.application_date === "string"
+								? newApplication.application_date
+								: newApplication.application_date.toISOString(),
+						status: newApplication.status,
+						salary_range: newApplication.salary_range,
+						location_type: newApplication.location_type,
+						location_city: newApplication.location_city,
+						job_posting_url: newApplication.job_posting_url,
+						application_method: newApplication.application_method,
+						priority: newApplication.priority,
+						createdAt: new Date().toISOString(),
+						updatedAt: new Date().toISOString(),
+					}
+
+					queryClient.setQueryData<PaginatedJobApplications>(
+						queryKey,
+						(old) => {
+							if (!old) return old
+							return {
+								...old,
+								applications: [optimisticApplication, ...old.applications],
+								totalCount: old.totalCount + 1,
+							}
+						}
+					)
+				}
+			})
+
+			return { previousData }
 		},
-		onError: (error: Error) => {
+		onError: (error: Error, _newApplication, context) => {
+			if (context?.previousData) {
+				context.previousData.forEach(([queryKey, data]) => {
+					if (data) {
+						queryClient.setQueryData(queryKey, data)
+					}
+				})
+			}
 			toast.error("Failed to create job application", {
 				description: error.message,
 			})
+		},
+		onSuccess: (data) => {
+			queryClient.setQueriesData<PaginatedJobApplications>(
+				{ queryKey: jobApplicationKeys.lists() },
+				(old) => {
+					if (!old) return old
+					return {
+						...old,
+						applications: old.applications.map((app) =>
+							app._id.startsWith("temp-") ? data : app
+						),
+					}
+				}
+			)
+			toast.success("Job application created successfully!")
+		},
+		onSettled: () => {
+			queryClient.invalidateQueries({ queryKey: jobApplicationKeys.lists() })
 		},
 	})
 }
@@ -104,16 +173,108 @@ export function useUpdateJobApplication() {
 			}
 			return response.data
 		},
-		onSuccess: (data) => {
-			queryClient.invalidateQueries({ queryKey: jobApplicationKeys.lists() })
-			queryClient.invalidateQueries({
-				queryKey: jobApplicationKeys.detail(data._id),
+		onMutate: async ({ id, data }) => {
+			await queryClient.cancelQueries({
+				queryKey: jobApplicationKeys.lists(),
 			})
-			toast.success("Job application updated successfully!")
+			await queryClient.cancelQueries({
+				queryKey: jobApplicationKeys.detail(id),
+			})
+
+			const previousListData = queryClient.getQueriesData<PaginatedJobApplications>({
+				queryKey: jobApplicationKeys.lists(),
+			})
+			const previousDetailData = queryClient.getQueryData<JobApplication>(
+				jobApplicationKeys.detail(id)
+			)
+
+			previousListData.forEach(([queryKey, listData]) => {
+				if (listData) {
+					queryClient.setQueryData<PaginatedJobApplications>(
+						queryKey,
+						(old) => {
+							if (!old) return old
+							return {
+								...old,
+								applications: old.applications.map((app) =>
+									app._id === id
+										? {
+												...app,
+												...data,
+												application_date:
+													data.application_date
+														? typeof data.application_date === "string"
+															? data.application_date
+															: data.application_date.toISOString()
+														: app.application_date,
+											}
+										: app
+								),
+							}
+						}
+					)
+				}
+			})
+
+			if (previousDetailData) {
+				queryClient.setQueryData<JobApplication>(
+					jobApplicationKeys.detail(id),
+					(old) => {
+						if (!old) return old
+						return {
+							...old,
+							...data,
+							application_date:
+								data.application_date
+									? typeof data.application_date === "string"
+										? data.application_date
+										: data.application_date.toISOString()
+									: old.application_date,
+						}
+					}
+				)
+			}
+
+			return { previousListData, previousDetailData }
 		},
-		onError: (error: Error) => {
+		onError: (error: Error, _variables, context) => {
+			if (context?.previousListData) {
+				context.previousListData.forEach(([queryKey, data]) => {
+					if (data) {
+						queryClient.setQueryData(queryKey, data)
+					}
+				})
+			}
+			if (context?.previousDetailData) {
+				queryClient.setQueryData(
+					jobApplicationKeys.detail(_variables.id),
+					context.previousDetailData
+				)
+			}
 			toast.error("Failed to update job application", {
 				description: error.message,
+			})
+		},
+		onSuccess: (data) => {
+			queryClient.setQueriesData<PaginatedJobApplications>(
+				{ queryKey: jobApplicationKeys.lists() },
+				(old) => {
+					if (!old) return old
+					return {
+						...old,
+						applications: old.applications.map((app) =>
+							app._id === data._id ? data : app
+						),
+					}
+				}
+			)
+			queryClient.setQueryData(jobApplicationKeys.detail(data._id), data)
+			toast.success("Job application updated successfully!")
+		},
+		onSettled: (_data, _error, variables) => {
+			queryClient.invalidateQueries({ queryKey: jobApplicationKeys.lists() })
+			queryClient.invalidateQueries({
+				queryKey: jobApplicationKeys.detail(variables.id),
 			})
 		},
 	})
@@ -130,14 +291,64 @@ export function useDeleteJobApplication() {
 			}
 			return id
 		},
-		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: jobApplicationKeys.lists() })
-			toast.success("Job application deleted successfully!")
+		onMutate: async (id) => {
+			await queryClient.cancelQueries({
+				queryKey: jobApplicationKeys.lists(),
+			})
+			await queryClient.cancelQueries({
+				queryKey: jobApplicationKeys.detail(id),
+			})
+
+			const previousListData = queryClient.getQueriesData<PaginatedJobApplications>({
+				queryKey: jobApplicationKeys.lists(),
+			})
+			const previousDetailData = queryClient.getQueryData<JobApplication>(
+				jobApplicationKeys.detail(id)
+			)
+
+			previousListData.forEach(([queryKey, listData]) => {
+				if (listData) {
+					queryClient.setQueryData<PaginatedJobApplications>(
+						queryKey,
+						(old) => {
+							if (!old) return old
+							return {
+								...old,
+								applications: old.applications.filter((app) => app._id !== id),
+								totalCount: Math.max(0, old.totalCount - 1),
+							}
+						}
+					)
+				}
+			})
+
+			queryClient.removeQueries({ queryKey: jobApplicationKeys.detail(id) })
+
+			return { previousListData, previousDetailData }
 		},
-		onError: (error: Error) => {
+		onError: (error: Error, id, context) => {
+			if (context?.previousListData) {
+				context.previousListData.forEach(([queryKey, data]) => {
+					if (data) {
+						queryClient.setQueryData(queryKey, data)
+					}
+				})
+			}
+			if (context?.previousDetailData) {
+				queryClient.setQueryData(
+					jobApplicationKeys.detail(id),
+					context.previousDetailData
+				)
+			}
 			toast.error("Failed to delete job application", {
 				description: error.message,
 			})
+		},
+		onSuccess: () => {
+			toast.success("Job application deleted successfully!")
+		},
+		onSettled: () => {
+			queryClient.invalidateQueries({ queryKey: jobApplicationKeys.lists() })
 		},
 	})
 }
