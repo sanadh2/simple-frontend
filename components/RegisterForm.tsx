@@ -5,6 +5,8 @@ import { useState } from "react"
 import { useRegister } from "@/hooks/useAuth"
 import { useVerifyEmailAfterRegistration } from "@/hooks/useEmailVerification"
 
+const MIN_PASSWORD_LENGTH = 8
+
 interface RegisterFormProps {
 	onToggleMode: () => void
 }
@@ -63,8 +65,10 @@ export default function RegisterForm({ onToggleMode }: RegisterFormProps) {
 			return
 		}
 
-		if (password.length < 8) {
-			setLocalError("Password must be at least 8 characters")
+		if (password.length < MIN_PASSWORD_LENGTH) {
+			setLocalError(
+				`Password must be at least ${MIN_PASSWORD_LENGTH} characters`
+			)
 			return
 		}
 

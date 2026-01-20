@@ -5,6 +5,9 @@ import { KeyRound, Lock, Mail } from "lucide-react"
 
 import { useResetPassword } from "@/hooks/useAuth"
 
+const MIN_PASSWORD_LENGTH = 8
+const SUCCESS_REDIRECT_DELAY_MS = 1500
+
 interface ResetPasswordFormProps {
 	email: string
 	onBack: () => void
@@ -29,8 +32,10 @@ export default function ResetPasswordForm({
 			return
 		}
 
-		if (newPassword.length < 8) {
-			setLocalError("Password must be at least 8 characters")
+		if (newPassword.length < MIN_PASSWORD_LENGTH) {
+			setLocalError(
+				`Password must be at least ${MIN_PASSWORD_LENGTH} characters`
+			)
 			return
 		}
 
@@ -45,7 +50,7 @@ export default function ResetPasswordForm({
 				onSuccess: () => {
 					setTimeout(() => {
 						onBack()
-					}, 1500)
+					}, SUCCESS_REDIRECT_DELAY_MS)
 				},
 			}
 		)

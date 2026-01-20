@@ -35,7 +35,7 @@ interface StatusHistoryTimelineProps {
 export default function StatusHistoryTimeline({
 	application,
 }: StatusHistoryTimelineProps) {
-	const statusHistory = application.status_history || []
+	const statusHistory = application.status_history
 
 	if (statusHistory.length === 0) {
 		return (
