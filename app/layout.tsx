@@ -1,7 +1,9 @@
 import type { Metadata } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
 
+import { AppSidebar } from "@/components/AppSidebar"
 import Navbar from "@/components/Navbar"
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
 import { Toaster } from "@/components/ui/sonner"
 import { QueryProvider } from "@/providers/QueryProvider"
 import { ThemeProvider } from "@/providers/ThemeProvider"
@@ -44,8 +46,15 @@ export default function RootLayout({
 					disableTransitionOnChange
 				>
 					<QueryProvider>
-						<Navbar />
-						{children}
+						<SidebarProvider>
+							<AppSidebar />
+							<SidebarInset>
+								<Navbar />
+								<div className="flex flex-1 flex-col gap-4 p-4 pt-0">
+									{children}
+								</div>
+							</SidebarInset>
+						</SidebarProvider>
 						<Toaster />
 					</QueryProvider>
 				</ThemeProvider>
