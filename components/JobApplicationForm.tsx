@@ -415,49 +415,63 @@ export default function JobApplicationForm() {
 				/>
 
 				<div className="space-y-4">
-					<FormItem>
-						<FormLabel>Resume</FormLabel>
-						<FormControl>
-							<DocumentUpload
-								ref={resumeUploadRef}
-								label="Resume"
-								currentFileUrl={form.watch("resume_url") ?? undefined}
-								onFileChange={(file) => {
-									setResumeFile(file)
-									if (file) {
-										form.setValue("resume_url", "")
-									}
-								}}
-								disabled={isUploadingResume || createJobApplication.isPending}
-								accept={[".pdf", ".doc", ".docx", ".txt"]}
-								maxSize="10MB"
-							/>
-						</FormControl>
-						<FormMessage />
-					</FormItem>
+					<FormField
+						control={form.control}
+						name="resume_url"
+						render={() => (
+							<FormItem>
+								<FormLabel>Resume</FormLabel>
+								<FormControl>
+									<DocumentUpload
+										ref={resumeUploadRef}
+										label="Resume"
+										currentFileUrl={form.watch("resume_url") ?? undefined}
+										onFileChange={(file) => {
+											setResumeFile(file)
+											if (file) {
+												form.setValue("resume_url", "")
+											}
+										}}
+										disabled={
+											isUploadingResume || createJobApplication.isPending
+										}
+										accept={[".pdf", ".doc", ".docx", ".txt"]}
+										maxSize="10MB"
+									/>
+								</FormControl>
+								<FormMessage />
+							</FormItem>
+						)}
+					/>
 
-					<FormItem>
-						<FormLabel>Cover Letter</FormLabel>
-						<FormControl>
-							<DocumentUpload
-								ref={coverLetterUploadRef}
-								label="Cover Letter"
-								currentFileUrl={form.watch("cover_letter_url") ?? undefined}
-								onFileChange={(file) => {
-									setCoverLetterFile(file)
-									if (file) {
-										form.setValue("cover_letter_url", "")
-									}
-								}}
-								disabled={
-									isUploadingCoverLetter || createJobApplication.isPending
-								}
-								accept={[".pdf", ".doc", ".docx", ".txt"]}
-								maxSize="10MB"
-							/>
-						</FormControl>
-						<FormMessage />
-					</FormItem>
+					<FormField
+						control={form.control}
+						name="cover_letter_url"
+						render={() => (
+							<FormItem>
+								<FormLabel>Cover Letter</FormLabel>
+								<FormControl>
+									<DocumentUpload
+										ref={coverLetterUploadRef}
+										label="Cover Letter"
+										currentFileUrl={form.watch("cover_letter_url") ?? undefined}
+										onFileChange={(file) => {
+											setCoverLetterFile(file)
+											if (file) {
+												form.setValue("cover_letter_url", "")
+											}
+										}}
+										disabled={
+											isUploadingCoverLetter || createJobApplication.isPending
+										}
+										accept={[".pdf", ".doc", ".docx", ".txt"]}
+										maxSize="10MB"
+									/>
+								</FormControl>
+								<FormMessage />
+							</FormItem>
+						)}
+					/>
 				</div>
 
 				<Button
