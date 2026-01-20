@@ -1,7 +1,7 @@
 "use client"
 
-import { ChevronLeft, ChevronRight, FileText } from "lucide-react"
 import { useState } from "react"
+import { ChevronLeft, ChevronRight, FileText } from "lucide-react"
 
 import LoadingSpinner from "@/components/LoadingSpinner"
 import { LogFilters } from "@/components/logs/LogFilters"
@@ -35,8 +35,8 @@ export default function LogsPage() {
 		setPage(1)
 	}
 
-	const handleRefresh = () => {
-		refetch()
+	const handleRefresh = async () => {
+		await refetch()
 	}
 
 	return (
@@ -108,7 +108,7 @@ export default function LogsPage() {
 					</>
 				)}
 
-				{!isLoading && data && data.logs.length === 0 && (
+				{!isLoading && data?.logs.length === 0 && (
 					<div className="bg-white  p-12 text-center">
 						<p className="text-gray-500">No logs found matching your filters</p>
 					</div>

@@ -16,7 +16,7 @@ export function LogStatistics() {
 	}
 
 	const getLevelCount = (level: string) => {
-		return stats.levelBreakdown.find((item) => item.level === level)?.count || 0
+		return stats.levelBreakdown.find((item) => item.level === level)?.count ?? 0
 	}
 
 	const infoCount = getLevelCount("info")

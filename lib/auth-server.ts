@@ -1,9 +1,9 @@
-import "server-only"
-
 import { cookies } from "next/headers"
 
-import { ApiResponse, AuthTokens, User } from "@/lib/api"
 import { env } from "@/env"
+import { type ApiResponse, type AuthTokens, type User } from "@/lib/api"
+
+import "server-only"
 
 const API_BASE_URL = env.NEXT_PUBLIC_API_URL
 
@@ -23,7 +23,7 @@ class ServerApiClient {
 		}
 
 		if (accessToken) {
-			headers["Authorization"] = `Bearer ${accessToken}`
+			headers.Authorization = `Bearer ${accessToken}`
 		}
 
 		return headers
@@ -31,13 +31,13 @@ class ServerApiClient {
 
 	private async getCookieHeader(): Promise<string> {
 		const cookieStore = await cookies()
-		return cookieStore.toString();
+		return cookieStore.toString()
 	}
 
 	private async handleResponse<T>(response: Response): Promise<ApiResponse<T>> {
 		if (!response.ok) {
 			const error = await response.json()
-			throw new Error(error.message || "An error occurred")
+			throw new Error(error.message ?? "An error occurred")
 		}
 
 		return response.json()
@@ -143,7 +143,6 @@ export async function getCurrentUser(): Promise<User | null> {
 
 export async function isAuthenticated(): Promise<boolean> {
 	const user = await getCurrentUser()
-	console.log("user", user)
 	return user !== null
 }
 
@@ -159,10 +158,10 @@ export async function clearAuthCookies() {
 
 export async function getAccessToken(): Promise<string | null> {
 	const cookieStore = await cookies()
-	return cookieStore.get("accessToken")?.value || null
+	return cookieStore.get("accessToken")?.value ?? null
 }
 
 export async function getRefreshToken(): Promise<string | null> {
 	const cookieStore = await cookies()
-	return cookieStore.get("refreshToken")?.value || null
+	return cookieStore.get("refreshToken")?.value ?? null
 }

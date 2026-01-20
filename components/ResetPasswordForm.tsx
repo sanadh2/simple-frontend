@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Lock, Mail, KeyRound } from "lucide-react"
+import { KeyRound, Lock, Mail } from "lucide-react"
 
 import { useResetPassword } from "@/hooks/useAuth"
 
@@ -51,7 +51,8 @@ export default function ResetPasswordForm({
 		)
 	}
 
-	const displayError = localError || (error instanceof Error ? error.message : null)
+	const displayError =
+		localError || (error instanceof Error ? error.message : null)
 
 	return (
 		<div className="w-full max-w-md p-8 space-y-6 bg-white  dark:bg-zinc-900">
@@ -60,8 +61,8 @@ export default function ResetPasswordForm({
 					Reset Password
 				</h2>
 				<p className="mt-2 text-sm text-center text-zinc-600 dark:text-zinc-400">
-					Enter the code sent to <span className="font-medium">{email}</span> and
-					your new password.
+					Enter the code sent to <span className="font-medium">{email}</span>{" "}
+					and your new password.
 				</p>
 			</div>
 

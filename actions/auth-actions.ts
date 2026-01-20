@@ -10,7 +10,7 @@ import {
 	setAuthCookies,
 } from "@/lib/auth-server"
 
-export type ActionResponse<T = unknown> = {
+export interface ActionResponse<T = unknown> {
 	success: boolean
 	message?: string
 	data?: T

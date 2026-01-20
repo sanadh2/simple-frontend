@@ -15,8 +15,11 @@ export default function ForgotPasswordForm({
 	onBack,
 }: ForgotPasswordFormProps) {
 	const [email, setEmail] = useState("")
-	const { mutate: requestPasswordReset, isPending, error } =
-		useRequestPasswordReset()
+	const {
+		mutate: requestPasswordReset,
+		isPending,
+		error,
+	} = useRequestPasswordReset()
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault()

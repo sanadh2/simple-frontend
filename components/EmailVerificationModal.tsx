@@ -13,13 +13,13 @@ import {
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { useProfile } from "@/hooks/useAuth"
 import {
 	useSendVerificationOTP,
 	useVerifyEmail,
 	useVerifyEmailAfterRegistration,
 	useVerifyEmailAndLogin,
 } from "@/hooks/useEmailVerification"
-import { useProfile } from "@/hooks/useAuth"
 
 interface EmailVerificationModalProps {
 	open: boolean
@@ -43,7 +43,7 @@ export function EmailVerificationModal({
 	const verifyEmailAfterRegistration = useVerifyEmailAfterRegistration()
 	const verifyEmailAndLogin = useVerifyEmailAndLogin()
 
-	const email = propEmail || user?.email || ""
+	const email = propEmail ?? user?.email ?? ""
 
 	const handleSendOTP = () => {
 		if (isLoginFlow || isRegistrationFlow) {
@@ -77,13 +77,18 @@ export function EmailVerificationModal({
 				setOtp("")
 				onVerified()
 			}
-		} catch (error) {
+		} catch {
 			setOtp("")
 		}
 	}
 
 	return (
-		<Dialog open={open} onOpenChange={() => {}}>
+		<Dialog
+			open={open}
+			onOpenChange={() => {
+				return undefined
+			}}
+		>
 			<DialogContent
 				className="sm:max-w-md"
 				onPointerDownOutside={(e) => e.preventDefault()}
@@ -120,9 +125,9 @@ export function EmailVerificationModal({
 						type="submit"
 						className="w-full"
 						disabled={
-							(verifyEmail.isPending ||
-								verifyEmailAndLogin.isPending ||
-								verifyEmailAfterRegistration.isPending) ||
+							verifyEmail.isPending ||
+							verifyEmailAndLogin.isPending ||
+							verifyEmailAfterRegistration.isPending ||
 							!otp.trim()
 						}
 					>

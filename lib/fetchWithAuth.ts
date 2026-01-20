@@ -1,5 +1,7 @@
 import { env } from "@/env"
 
+const HTTP_UNAUTHORIZED = 401
+
 interface FetchOptions extends RequestInit {
 	skipAuth?: boolean
 	skipRetry?: boolean
@@ -16,13 +18,16 @@ async function refreshAccessToken(): Promise<boolean> {
 	isRefreshing = true
 	refreshPromise = (async () => {
 		try {
-			const response = await fetch(`${env.NEXT_PUBLIC_API_URL}/api/auth/refresh`, {
-				method: "POST",
-				credentials: "include",
-				headers: {
-					"Content-Type": "application/json",
-				},
-			})
+			const response = await fetch(
+				`${env.NEXT_PUBLIC_API_URL}/api/auth/refresh`,
+				{
+					method: "POST",
+					credentials: "include",
+					headers: {
+						"Content-Type": "application/json",
+					},
+				}
+			)
 
 			if (!response.ok) {
 				throw new Error("Token refresh failed")
@@ -64,7 +69,7 @@ export async function fetchWithAuth(
 		credentials: "include",
 	})
 
-	if (response.status === 401 && !skipRetry && !skipAuth) {
+	if (response.status === HTTP_UNAUTHORIZED && !skipRetry && !skipAuth) {
 		const isAuthRequest =
 			url.includes("/api/auth/login") ||
 			url.includes("/api/auth/register") ||

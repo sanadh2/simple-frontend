@@ -80,9 +80,11 @@ export function useCreateJobApplication() {
 				queryKey: jobApplicationKeys.lists(),
 			})
 
-			const previousData = queryClient.getQueriesData<PaginatedJobApplications>({
-				queryKey: jobApplicationKeys.lists(),
-			})
+			const previousData = queryClient.getQueriesData<PaginatedJobApplications>(
+				{
+					queryKey: jobApplicationKeys.lists(),
+				}
+			)
 
 			previousData.forEach(([queryKey, data]) => {
 				if (data) {
@@ -117,7 +119,9 @@ export function useCreateJobApplication() {
 					queryClient.setQueryData<PaginatedJobApplications>(
 						queryKey,
 						(old) => {
-							if (!old) return old
+							if (!old) {
+								return old
+							}
 							return {
 								...old,
 								applications: [optimisticApplication, ...old.applications],
@@ -146,7 +150,9 @@ export function useCreateJobApplication() {
 			queryClient.setQueriesData<PaginatedJobApplications>(
 				{ queryKey: jobApplicationKeys.lists() },
 				(old) => {
-					if (!old) return old
+					if (!old) {
+						return old
+					}
 					return {
 						...old,
 						applications: old.applications.map((app) =>
@@ -157,8 +163,10 @@ export function useCreateJobApplication() {
 			)
 			toast.success("Job application created successfully!")
 		},
-		onSettled: () => {
-			queryClient.invalidateQueries({ queryKey: jobApplicationKeys.lists() })
+		onSettled: async () => {
+			await queryClient.invalidateQueries({
+				queryKey: jobApplicationKeys.lists(),
+			})
 		},
 	})
 }
@@ -188,9 +196,10 @@ export function useUpdateJobApplication() {
 				queryKey: jobApplicationKeys.detail(id),
 			})
 
-			const previousListData = queryClient.getQueriesData<PaginatedJobApplications>({
-				queryKey: jobApplicationKeys.lists(),
-			})
+			const previousListData =
+				queryClient.getQueriesData<PaginatedJobApplications>({
+					queryKey: jobApplicationKeys.lists(),
+				})
 			const previousDetailData = queryClient.getQueryData<JobApplication>(
 				jobApplicationKeys.detail(id)
 			)
@@ -200,25 +209,35 @@ export function useUpdateJobApplication() {
 					queryClient.setQueryData<PaginatedJobApplications>(
 						queryKey,
 						(old) => {
-							if (!old) return old
+							if (!old) {
+								return old
+							}
 							return {
 								...old,
 								applications: old.applications.map((app) => {
 									if (app._id === id) {
+										const getApplicationDate = (): string => {
+											if (!data.application_date) {
+												return app.application_date
+											}
+											if (typeof data.application_date === "string") {
+												return data.application_date
+											}
+											return data.application_date.toISOString()
+										}
+
 										const updatedApp = {
 											...app,
 											...data,
-											application_date:
-												data.application_date
-													? typeof data.application_date === "string"
-														? data.application_date
-														: data.application_date.toISOString()
-													: app.application_date,
+											application_date: getApplicationDate(),
 										}
 
-										if (data.status && data.status !== app.status) {
+										if (
+											data.status !== undefined &&
+											data.status !== app.status
+										) {
 											updatedApp.status_history = [
-												...(app.status_history || []),
+												...app.status_history,
 												{
 													status: data.status,
 													changed_at: new Date().toISOString(),
@@ -240,21 +259,28 @@ export function useUpdateJobApplication() {
 				queryClient.setQueryData<JobApplication>(
 					jobApplicationKeys.detail(id),
 					(old) => {
-						if (!old) return old
+						if (!old) {
+							return old
+						}
+						const getApplicationDate = (): string => {
+							if (!data.application_date) {
+								return old.application_date
+							}
+							if (typeof data.application_date === "string") {
+								return data.application_date
+							}
+							return data.application_date.toISOString()
+						}
+
 						const updated = {
 							...old,
 							...data,
-							application_date:
-								data.application_date
-									? typeof data.application_date === "string"
-										? data.application_date
-										: data.application_date.toISOString()
-									: old.application_date,
+							application_date: getApplicationDate(),
 						}
 
-						if (data.status && data.status !== old.status) {
+						if (data.status !== undefined && data.status !== old.status) {
 							updated.status_history = [
-								...(old.status_history || []),
+								...old.status_history,
 								{
 									status: data.status,
 									changed_at: new Date().toISOString(),
@@ -291,7 +317,9 @@ export function useUpdateJobApplication() {
 			queryClient.setQueriesData<PaginatedJobApplications>(
 				{ queryKey: jobApplicationKeys.lists() },
 				(old) => {
-					if (!old) return old
+					if (!old) {
+						return old
+					}
 					return {
 						...old,
 						applications: old.applications.map((app) =>
@@ -303,9 +331,11 @@ export function useUpdateJobApplication() {
 			queryClient.setQueryData(jobApplicationKeys.detail(data._id), data)
 			toast.success("Job application updated successfully!")
 		},
-		onSettled: (_data, _error, variables) => {
-			queryClient.invalidateQueries({ queryKey: jobApplicationKeys.lists() })
-			queryClient.invalidateQueries({
+		onSettled: async (_data, _error, variables) => {
+			await queryClient.invalidateQueries({
+				queryKey: jobApplicationKeys.lists(),
+			})
+			await queryClient.invalidateQueries({
 				queryKey: jobApplicationKeys.detail(variables.id),
 			})
 		},
@@ -331,9 +361,10 @@ export function useDeleteJobApplication() {
 				queryKey: jobApplicationKeys.detail(id),
 			})
 
-			const previousListData = queryClient.getQueriesData<PaginatedJobApplications>({
-				queryKey: jobApplicationKeys.lists(),
-			})
+			const previousListData =
+				queryClient.getQueriesData<PaginatedJobApplications>({
+					queryKey: jobApplicationKeys.lists(),
+				})
 			const previousDetailData = queryClient.getQueryData<JobApplication>(
 				jobApplicationKeys.detail(id)
 			)
@@ -343,7 +374,9 @@ export function useDeleteJobApplication() {
 					queryClient.setQueryData<PaginatedJobApplications>(
 						queryKey,
 						(old) => {
-							if (!old) return old
+							if (!old) {
+								return old
+							}
 							return {
 								...old,
 								applications: old.applications.filter((app) => app._id !== id),
@@ -379,8 +412,10 @@ export function useDeleteJobApplication() {
 		onSuccess: () => {
 			toast.success("Job application deleted successfully!")
 		},
-		onSettled: () => {
-			queryClient.invalidateQueries({ queryKey: jobApplicationKeys.lists() })
+		onSettled: async () => {
+			await queryClient.invalidateQueries({
+				queryKey: jobApplicationKeys.lists(),
+			})
 		},
 	})
 }

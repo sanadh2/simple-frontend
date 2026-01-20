@@ -1,5 +1,6 @@
-import { fetchWithAuth } from "./fetchWithAuth"
 import { env } from "@/env"
+
+import { fetchWithAuth } from "./fetchWithAuth"
 const API_BASE_URL = env.NEXT_PUBLIC_API_URL
 
 export interface Log {
@@ -110,7 +111,7 @@ class LogsApiClient {
 		return result.data
 	}
 
-	async getRecentErrors(limit: number = 20): Promise<Log[]> {
+	async getRecentErrors(limit = 20): Promise<Log[]> {
 		const response = await fetchWithAuth(
 			`${API_BASE_URL}/api/logs/errors?limit=${limit}`,
 			{ method: "GET" }
@@ -128,7 +129,7 @@ class LogsApiClient {
 		return result.data
 	}
 
-	async getLogTrends(days: number = 7): Promise<LogTrend[]> {
+	async getLogTrends(days = 7): Promise<LogTrend[]> {
 		const response = await fetchWithAuth(
 			`${API_BASE_URL}/api/logs/trends?days=${days}`,
 			{ method: "GET" }
@@ -146,7 +147,7 @@ class LogsApiClient {
 		return result.data
 	}
 
-	async clearOldLogs(days: number = 30): Promise<{ deletedCount: number }> {
+	async clearOldLogs(days = 30): Promise<{ deletedCount: number }> {
 		const response = await fetchWithAuth(
 			`${API_BASE_URL}/api/logs/clear?days=${days}`,
 			{ method: "DELETE" }

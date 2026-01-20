@@ -3,12 +3,21 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 
 import {
+	type Log,
 	type LogFilters,
 	logsApiClient,
-	type PaginatedLogs,
 	type LogStatistics,
-	type Log,
+	type PaginatedLogs,
 } from "@/lib/logs-api"
+
+const MILLISECONDS_PER_SECOND = 1000
+const SECONDS_PER_MINUTE = 60
+const STALE_TIME_SECONDS = 30
+const STALE_TIME_MINUTES_5 = 5
+const STALE_TIME_MINUTES_1 = 1
+const REFETCH_INTERVAL_SECONDS = 30
+const REFETCH_INTERVAL_MINUTES_1 = 1
+const DEFAULT_TRENDS_DAYS = 7
 
 export const logsKeys = {
 	all: ["logs"] as const,
@@ -26,7 +35,7 @@ export function useLogs(
 	return useQuery({
 		queryKey: logsKeys.list(filters),
 		queryFn: () => logsApiClient.getLogs(filters),
-		staleTime: 1000 * 30,
+		staleTime: MILLISECONDS_PER_SECOND * STALE_TIME_SECONDS,
 	})
 }
 
@@ -35,7 +44,8 @@ export function useLogsBycorrelation_id(correlation_id: string) {
 		queryKey: logsKeys.correlation(correlation_id),
 		queryFn: () => logsApiClient.getLogsBycorrelation_id(correlation_id),
 		enabled: !!correlation_id,
-		staleTime: 1000 * 60 * 5,
+		staleTime:
+			MILLISECONDS_PER_SECOND * SECONDS_PER_MINUTE * STALE_TIME_MINUTES_5,
 	})
 }
 
@@ -43,25 +53,28 @@ export function useLogStatistics() {
 	return useQuery({
 		queryKey: logsKeys.statistics(),
 		queryFn: () => logsApiClient.getLogStatistics(),
-		staleTime: 1000 * 60,
-		refetchInterval: 1000 * 60,
+		staleTime:
+			MILLISECONDS_PER_SECOND * SECONDS_PER_MINUTE * STALE_TIME_MINUTES_1,
+		refetchInterval:
+			MILLISECONDS_PER_SECOND * SECONDS_PER_MINUTE * REFETCH_INTERVAL_MINUTES_1,
 	})
 }
 
-export function useRecentErrors(limit: number = 20) {
+export function useRecentErrors(limit = 20) {
 	return useQuery({
 		queryKey: logsKeys.errors(limit),
 		queryFn: () => logsApiClient.getRecentErrors(limit),
-		staleTime: 1000 * 30,
-		refetchInterval: 1000 * 30,
+		staleTime: MILLISECONDS_PER_SECOND * REFETCH_INTERVAL_SECONDS,
+		refetchInterval: MILLISECONDS_PER_SECOND * REFETCH_INTERVAL_SECONDS,
 	})
 }
 
-export function useLogTrends(days: number = 7) {
+export function useLogTrends(days = DEFAULT_TRENDS_DAYS) {
 	return useQuery({
 		queryKey: logsKeys.trends(days),
 		queryFn: () => logsApiClient.getLogTrends(days),
-		staleTime: 1000 * 60 * 5,
+		staleTime:
+			MILLISECONDS_PER_SECOND * SECONDS_PER_MINUTE * STALE_TIME_MINUTES_5,
 	})
 }
 
@@ -71,23 +84,21 @@ export function useClearOldLogs() {
 	return useMutation({
 		mutationFn: (days: number) => logsApiClient.clearOldLogs(days),
 		onMutate: async (days) => {
-			// Cancel outgoing refetches
 			await queryClient.cancelQueries({ queryKey: logsKeys.all })
 
-			// Snapshot previous values for rollback
 			const previousQueries = queryClient.getQueriesData({
 				queryKey: logsKeys.all,
 			})
 
-			// Calculate cutoff date
 			const cutoffDate = new Date()
 			cutoffDate.setDate(cutoffDate.getDate() - days)
 
-			// Optimistically update list queries - filter out old logs
 			queryClient.setQueriesData<PaginatedLogs>(
 				{ queryKey: logsKeys.lists() },
 				(old) => {
-					if (!old) return old
+					if (!old) {
+						return old
+					}
 					const filteredLogs = old.logs.filter((log) => {
 						const logDate = new Date(log.timestamp)
 						return logDate >= cutoffDate
@@ -95,23 +106,29 @@ export function useClearOldLogs() {
 					return {
 						...old,
 						logs: filteredLogs,
-						totalCount: Math.max(0, old.totalCount - (old.logs.length - filteredLogs.length)),
+						totalCount: Math.max(
+							0,
+							old.totalCount - (old.logs.length - filteredLogs.length)
+						),
 						totalPages: Math.ceil(
-							Math.max(0, old.totalCount - (old.logs.length - filteredLogs.length)) /
-								old.pageSize
+							Math.max(
+								0,
+								old.totalCount - (old.logs.length - filteredLogs.length)
+							) / old.pageSize
 						),
 					}
 				}
 			)
 
-			// Optimistically update correlation queries - filter out old logs
 			const correlationQueries = queryClient.getQueriesData({
 				queryKey: [...logsKeys.all, "correlation"],
 			})
 			correlationQueries.forEach(([queryKey, data]) => {
 				if (Array.isArray(data)) {
 					queryClient.setQueryData<Log[]>(queryKey, (old) => {
-						if (!old || !Array.isArray(old)) return old
+						if (!old || !Array.isArray(old)) {
+							return old
+						}
 						return old.filter((log) => {
 							const logDate = new Date(log.timestamp)
 							return logDate >= cutoffDate
@@ -120,14 +137,15 @@ export function useClearOldLogs() {
 				}
 			})
 
-			// Optimistically update recent errors queries - filter out old logs
 			const errorQueries = queryClient.getQueriesData({
 				queryKey: [...logsKeys.all, "errors"],
 			})
 			errorQueries.forEach(([queryKey, data]) => {
 				if (Array.isArray(data)) {
 					queryClient.setQueryData<Log[]>(queryKey, (old) => {
-						if (!old || !Array.isArray(old)) return old
+						if (!old || !Array.isArray(old)) {
+							return old
+						}
 						return old.filter((log) => {
 							const logDate = new Date(log.timestamp)
 							return logDate >= cutoffDate
@@ -139,31 +157,27 @@ export function useClearOldLogs() {
 			return { previousQueries }
 		},
 		onError: (_error, _variables, context) => {
-			// Rollback on error
 			if (context?.previousQueries) {
 				context.previousQueries.forEach(([queryKey, data]) => {
 					queryClient.setQueryData(queryKey, data)
 				})
 			}
 		},
-		onSuccess: (data) => {
-			// Update statistics with actual deleted count
-			queryClient.setQueryData<LogStatistics>(
-				logsKeys.statistics(),
-				(old) => {
-					if (!old) return old
-					return {
-						...old,
-						totalLogs: Math.max(0, old.totalLogs - data.deletedCount),
-						// Note: levelBreakdown would need server recalculation
-						// So we invalidate it to refetch
-					}
+		onSuccess: async (data) => {
+			queryClient.setQueryData<LogStatistics>(logsKeys.statistics(), (old) => {
+				if (!old) {
+					return old
 				}
-			)
+				return {
+					...old,
+					totalLogs: Math.max(0, old.totalLogs - data.deletedCount),
+				}
+			})
 
-			// Invalidate trends and statistics breakdown as they need server recalculation
-			queryClient.invalidateQueries({ queryKey: logsKeys.statistics() })
-			queryClient.invalidateQueries({ queryKey: logsKeys.trends(7) })
+			await queryClient.invalidateQueries({ queryKey: logsKeys.statistics() })
+			await queryClient.invalidateQueries({
+				queryKey: logsKeys.trends(DEFAULT_TRENDS_DAYS),
+			})
 		},
 	})
 }

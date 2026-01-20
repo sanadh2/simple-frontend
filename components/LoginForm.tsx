@@ -28,7 +28,7 @@ export default function LoginForm({ onToggleMode }: LoginFormProps) {
 			{ email, password },
 			{
 				onSuccess: (data) => {
-					if ("requiresVerification" in data && data.requiresVerification) {
+					if ("requiresVerification" in data) {
 						setPendingEmail(email)
 						setShowVerificationModal(true)
 					}
@@ -57,9 +57,7 @@ export default function LoginForm({ onToggleMode }: LoginFormProps) {
 	}
 
 	if (resetEmail) {
-		return (
-			<ResetPasswordForm email={resetEmail} onBack={handleBackToLogin} />
-		)
+		return <ResetPasswordForm email={resetEmail} onBack={handleBackToLogin} />
 	}
 
 	if (showForgotPassword) {
@@ -163,7 +161,7 @@ export default function LoginForm({ onToggleMode }: LoginFormProps) {
 				open={showVerificationModal}
 				onVerified={handleVerified}
 				email={pendingEmail}
-				isLoginFlow={true}
+				isLoginFlow
 			/>
 		</div>
 	)

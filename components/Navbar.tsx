@@ -1,5 +1,10 @@
 "use client"
 
+import { useState } from "react"
+import Image from "next/image"
+import Link from "next/link"
+import { usePathname } from "next/navigation"
+import { useTheme } from "next-themes"
 import {
 	FileText,
 	Home,
@@ -10,10 +15,6 @@ import {
 	UserCircle,
 	X,
 } from "lucide-react"
-import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { useTheme } from "next-themes"
-import { useState } from "react"
 
 import { Button } from "@/components/ui/button"
 import { useLogout, useProfile } from "@/hooks/useAuth"
@@ -45,10 +46,13 @@ export default function Navbar() {
 					<div className="flex items-center">
 						<Link href="/" className="flex items-center space-x-2">
 							<div className="flex h-8 w-8 items-center justify-center  overflow-hidden">
-								<img
+								<Image
+									width={32}
+									height={32}
 									src="/logo.svg"
 									alt="Job Application Tracker"
 									className="h-full w-full object-contain"
+									priority
 								/>
 							</div>
 							<span className="text-xl font-bold text-zinc-900 dark:text-white hidden sm:inline-block">
@@ -96,14 +100,14 @@ export default function Navbar() {
 								</Button>
 								<Link href="/profile">
 									<div className="flex items-center space-x-2 px-3 py-1.5  bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors cursor-pointer">
-									<div className="flex h-8 w-8 items-center justify-center  bg-linear-to-br from-blue-600 to-purple-600 text-white text-sm font-semibold">
-										{user.first_name.charAt(0)}
-										{user.last_name.charAt(0)}
-									</div>
-									<div className="hidden lg:block">
-										<p className="text-sm font-medium text-zinc-900 dark:text-white">
-											{user.first_name} {user.last_name}
-										</p>
+										<div className="flex h-8 w-8 items-center justify-center  bg-linear-to-br from-blue-600 to-purple-600 text-white text-sm font-semibold">
+											{user.first_name.charAt(0)}
+											{user.last_name.charAt(0)}
+										</div>
+										<div className="hidden lg:block">
+											<p className="text-sm font-medium text-zinc-900 dark:text-white">
+												{user.first_name} {user.last_name}
+											</p>
 											<p className="text-xs text-zinc-600 dark:text-zinc-400 truncate max-w-[120px]">
 												{user.email}
 											</p>
@@ -164,7 +168,7 @@ export default function Navbar() {
 
 					{isLoading && (
 						<div className="flex items-center space-x-2">
-							<div className="h-8 w-8 animate-pulse  bg-zinc-200 dark:bg-zinc-800"></div>
+							<div className="h-8 w-8 animate-pulse  bg-zinc-200 dark:bg-zinc-800" />
 						</div>
 					)}
 				</div>

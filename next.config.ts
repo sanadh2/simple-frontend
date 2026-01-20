@@ -1,5 +1,5 @@
 import type { NextConfig } from "next"
-import "./env"
+
 import { env } from "./env"
 
 const apiUrl = env.NEXT_PUBLIC_API_URL

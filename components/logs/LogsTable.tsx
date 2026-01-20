@@ -1,13 +1,15 @@
 "use client"
 
+import { useState } from "react"
 import { formatDistanceToNow } from "date-fns"
 import { AlertTriangle, Bug, ExternalLink, Info, XCircle } from "lucide-react"
-import { useState } from "react"
 
 import { Button } from "@/components/ui/button"
-import { Log } from "@/lib/logs-api"
+import { type Log } from "@/lib/logs-api"
 
 import { LogDetailModal } from "./LogDetailModal"
+
+const ID_DISPLAY_LENGTH = 8
 
 interface LogsTableProps {
 	logs: Log[]
@@ -64,13 +66,13 @@ export function LogsTable({ logs, onCorrelationClick }: LogsTableProps) {
 							</tr>
 						</thead>
 						<tbody className="bg-white divide-y divide-gray-200">
-							{logs.map((log, index) => {
+							{logs.map((log) => {
 								const config = levelConfig[log.level]
 								const Icon = config.icon
 
 								return (
 									<tr
-										key={`${log.correlation_id}-${index}`}
+										key={`${log.correlation_id}`}
 										className="hover:bg-gray-50 transition-colors"
 									>
 										<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
@@ -101,14 +103,14 @@ export function LogsTable({ logs, onCorrelationClick }: LogsTableProps) {
 												onClick={() => onCorrelationClick?.(log.correlation_id)}
 												className="font-mono text-xs text-blue-600 hover:text-blue-800 hover:underline flex items-center gap-1"
 											>
-												{log.correlation_id.slice(0, 8)}...
+												{log.correlation_id.slice(0, ID_DISPLAY_LENGTH)}...
 												<ExternalLink className="w-3 h-3" />
 											</button>
 										</td>
 										<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
 											{log.user_id ? (
 												<span className="font-mono text-xs">
-													{log.user_id.slice(0, 8)}...
+													{log.user_id.slice(0, ID_DISPLAY_LENGTH)}...
 												</span>
 											) : (
 												<span className="text-gray-400">-</span>

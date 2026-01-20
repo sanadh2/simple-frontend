@@ -1,42 +1,54 @@
-"use client";
+"use client"
 
 import React, {
-	useCallback,
-	useState,
-	useRef,
 	forwardRef,
+	useCallback,
 	useImperativeHandle,
-} from "react";
-import { useDropzone } from "react-dropzone";
-import { FilePond, registerPlugin } from "react-filepond";
-import "filepond/dist/filepond.min.css";
-import "filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css";
+	useRef,
+	useState,
+} from "react"
+import { useDropzone } from "react-dropzone"
+import { FilePond, registerPlugin } from "react-filepond"
+import Image from "next/image"
+import type { FilePondFile, FilePondInitialFile } from "filepond"
+import FilePondPluginFileValidateSize from "filepond-plugin-file-validate-size"
+import FilePondPluginFileValidateType from "filepond-plugin-file-validate-type"
+import FilePondPluginImagePreview from "filepond-plugin-image-preview"
+import { Cloud } from "lucide-react"
 
-import FilePondPluginImagePreview from "filepond-plugin-image-preview";
-import FilePondPluginFileValidateType from "filepond-plugin-file-validate-type";
-import FilePondPluginFileValidateSize from "filepond-plugin-file-validate-size";
+import { cn } from "@/lib/utils"
 
-import { cn } from "@/lib/utils";
-import { Cloud, X } from "lucide-react";
-import Image from "next/image";
+import "filepond/dist/filepond.min.css"
+import "filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css"
 
 registerPlugin(
 	FilePondPluginImagePreview,
 	FilePondPluginFileValidateType,
 	FilePondPluginFileValidateSize
-);
+)
+
+const BYTES_PER_KB = 1024
+const BYTES_PER_MB = BYTES_PER_KB * BYTES_PER_KB
+const MAX_SIZE_MB = 5
+const MAX_SIZE_BYTES = MAX_SIZE_MB * BYTES_PER_MB
+
+interface FilePondError {
+	main?: string
+	message?: string
+	type?: string
+}
 
 interface ProfilePictureUploadProps {
-	onFileChange?: (file: File | null) => void;
-	currentPictureUrl?: string;
-	className?: string;
-	disabled?: boolean;
-	error?: string;
+	onFileChange?: (file: File | null) => void
+	currentPictureUrl?: string
+	className?: string
+	disabled?: boolean
+	error?: string
 }
 
 export interface ProfilePictureUploadRef {
-	clearFile: () => void;
-	getFile: () => File | null;
+	clearFile: () => void
+	getFile: () => File | null
 }
 
 export const ProfilePictureUpload = forwardRef<
@@ -44,72 +56,77 @@ export const ProfilePictureUpload = forwardRef<
 	ProfilePictureUploadProps
 >(
 	(
-		{
-			onFileChange,
-			currentPictureUrl,
-			className,
-			disabled = false,
-			error,
-		},
+		{ onFileChange, currentPictureUrl, className, disabled = false, error },
 		ref
 	) => {
-		const [file, setFile] = useState<File | null>(null);
-		const [filePondFiles, setFilePondFiles] = useState<any[]>([]);
-		const [isDragActive, setIsDragActive] = useState(false);
-		const [filePondError, setFilePondError] = useState<string>("");
-		const filePondRef = useRef<FilePond>(null);
+		const [file, setFile] = useState<File | null>(null)
+		const [filePondFiles, setFilePondFiles] = useState<
+			Array<string | Blob | FilePondInitialFile>
+		>([])
+		const [isDragActive, setIsDragActive] = useState(false)
+		const [filePondError, setFilePondError] = useState<string>("")
+		const filePondRef = useRef<FilePond>(null)
 
 		useImperativeHandle(ref, () => ({
 			clearFile: () => {
 				if (filePondRef.current) {
-					filePondRef.current.removeFiles();
+					filePondRef.current.removeFiles()
 				}
-				setFile(null);
-				setFilePondFiles([]);
-				setFilePondError("");
-				onFileChange?.(null);
+				setFile(null)
+				setFilePondFiles([])
+				setFilePondError("")
+				onFileChange?.(null)
 			},
 			getFile: () => file,
-		}));
+		}))
 
-		const handleFilePondUpdate = (filePondFiles: any[]) => {
-			setFilePondFiles(filePondFiles);
+		const handleFilePondUpdate = (filePondFiles: FilePondFile[]) => {
+			setFilePondFiles(
+				filePondFiles as unknown as Array<string | Blob | FilePondInitialFile>
+			)
 
-			const actualFile =
-				filePondFiles.length > 0 &&
-				filePondFiles[0].file instanceof File
-					? (filePondFiles[0].file as File)
-					: null;
+			const firstItem = filePondFiles[0]
+			let actualFile: File | null = null
 
-			setFile(actualFile);
-			onFileChange?.(actualFile || null);
-			setFilePondError("");
-		};
+			if (firstItem instanceof File) {
+				actualFile = firstItem
+			} else if (
+				typeof firstItem === "object" &&
+				"file" in firstItem &&
+				firstItem.file instanceof File
+			) {
+				actualFile = firstItem.file
+			}
 
-		const handleFilePondError = (error: any) => {
-			console.error("FilePond error:", error);
-			let errorMessage = "An error occurred while adding the file";
+			setFile(actualFile)
+			onFileChange?.(actualFile ?? null)
+			setFilePondError("")
+		}
+
+		const handleFilePondError = (error: FilePondError | string) => {
+			console.error("FilePond error:", error)
+			let errorMessage = "An error occurred while adding the file"
 
 			if (typeof error === "string") {
-				errorMessage = error;
-			} else if (error && typeof error === "object") {
+				errorMessage = error
+			} else if (typeof error === "object") {
 				if (error.main) {
-					errorMessage = error.main;
+					errorMessage = error.main
 				} else if (error.message) {
-					errorMessage = error.message;
+					errorMessage = error.message
 				} else if (error.type) {
-					errorMessage = error.type;
+					errorMessage = error.type
 				}
 			}
 
-			setFilePondError(errorMessage);
-		};
+			setFilePondError(errorMessage)
+		}
 
-		const onDrop = useCallback((acceptedFiles: File[]) => {
+		const onDrop = useCallback(async (acceptedFiles: File[]) => {
 			if (acceptedFiles.length > 0 && filePondRef.current) {
-				filePondRef.current.addFile(acceptedFiles[0]);
+				await filePondRef.current.addFile(acceptedFiles[0])
 			}
-		}, []);
+		}, [])
 
 		const { getRootProps, getInputProps, isDragReject } = useDropzone({
 			onDrop,
@@ -118,16 +135,16 @@ export const ProfilePictureUpload = forwardRef<
 				"image/png": [".png"],
 				"image/webp": [".webp"],
 			},
-			maxSize: 5 * 1024 * 1024,
+			maxSize: MAX_SIZE_BYTES,
 			maxFiles: 1,
 			disabled,
 			onDragEnter: () => setIsDragActive(true),
 			onDragLeave: () => setIsDragActive(false),
 			onDropAccepted: () => setIsDragActive(false),
 			onDropRejected: () => setIsDragActive(false),
-		});
+		})
 
-		const acceptedFileTypes = ["image/jpeg", "image/png", "image/webp"];
+		const acceptedFileTypes = ["image/jpeg", "image/png", "image/webp"]
 
 		return (
 			<div className={cn("space-y-4", className)}>
@@ -189,12 +206,12 @@ export const ProfilePictureUpload = forwardRef<
 						maxFiles={1}
 						maxFileSize="5MB"
 						acceptedFileTypes={acceptedFileTypes}
-						allowImagePreview={true}
-						allowFileTypeValidation={true}
-						allowFileSizeValidation={true}
+						allowImagePreview
+						allowFileTypeValidation
+						allowFileSizeValidation
 						allowRevert={false}
-						allowRemove={true}
-						allowReplace={true}
+						allowRemove
+						allowReplace
 						allowReorder={false}
 						allowProcess={false}
 						instantUpload={false}
@@ -242,21 +259,17 @@ export const ProfilePictureUpload = forwardRef<
 					</div>
 				</div>
 
-				{(error || filePondError) && (
+				{(error ?? filePondError) && (
 					<div className="space-y-1">
-						{error && (
-							<div className="text-xs text-red-500">{error}</div>
-						)}
+						{error && <div className="text-xs text-red-500">{error}</div>}
 						{filePondError && (
-							<div className="text-xs text-red-500">
-								{filePondError}
-							</div>
+							<div className="text-xs text-red-500">{filePondError}</div>
 						)}
 					</div>
 				)}
 			</div>
-		);
+		)
 	}
-);
+)
 
-ProfilePictureUpload.displayName = "ProfilePictureUpload";
+ProfilePictureUpload.displayName = "ProfilePictureUpload"

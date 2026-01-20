@@ -1,12 +1,15 @@
 "use client"
 
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { useForm } from "react-hook-form"
-import { z } from "zod"
+import { zodResolver } from "@hookform/resolvers/zod"
 import { toast } from "sonner"
-import { X, FileText } from "lucide-react"
+import { z } from "zod"
 
+import {
+	DocumentUpload,
+	type DocumentUploadRef,
+} from "@/components/DocumentUpload"
 import { Button } from "@/components/ui/button"
 import {
 	Dialog,
@@ -25,6 +28,7 @@ import {
 	FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
+import { useUpdateJobApplication } from "@/hooks/useJobApplications"
 import type {
 	JobApplication,
 	JobStatus,
@@ -33,7 +37,6 @@ import type {
 	UpdateJobApplicationInput,
 } from "@/lib/api"
 import { apiClient } from "@/lib/api"
-import { useUpdateJobApplication } from "@/hooks/useJobApplications"
 
 const jobApplicationSchema = z.object({
 	company_name: z.string().min(1, "Company name is required"),
@@ -125,61 +128,137 @@ export default function EditJobApplicationForm({
 		defaultValues: {
 			company_name: application.company_name,
 			job_title: application.job_title,
-			job_description: application.job_description || "",
-			notes: application.notes || "",
+			job_description: application.job_description ?? "",
+			notes: application.notes ?? "",
 			application_date: new Date(application.application_date)
 				.toISOString()
 				.split("T")[0],
 			status: application.status,
-			salary_range: application.salary_range || "",
+			salary_range: application.salary_range ?? "",
 			location_type: application.location_type,
-			location_city: application.location_city || "",
-			job_posting_url: application.job_posting_url || "",
-			application_method: application.application_method || "",
+			location_city: application.location_city ?? "",
+			job_posting_url: application.job_posting_url ?? "",
+			application_method: application.application_method ?? "",
 			priority: application.priority,
 		},
 	})
+
+	const resumeUploadRef = useRef<DocumentUploadRef>(null)
+	const coverLetterUploadRef = useRef<DocumentUploadRef>(null)
+	const [resumeFile, setResumeFile] = useState<File | null>(null)
+	const [coverLetterFile, setCoverLetterFile] = useState<File | null>(null)
+	const [isUploadingResume, setIsUploadingResume] = useState(false)
+	const [isUploadingCoverLetter, setIsUploadingCoverLetter] = useState(false)
 
 	useEffect(() => {
 		if (open) {
 			form.reset({
 				company_name: application.company_name,
 				job_title: application.job_title,
-				job_description: application.job_description || "",
-				notes: application.notes || "",
+				job_description: application.job_description ?? "",
+				notes: application.notes ?? "",
 				application_date: new Date(application.application_date)
 					.toISOString()
 					.split("T")[0],
 				status: application.status,
-				salary_range: application.salary_range || "",
+				salary_range: application.salary_range ?? "",
 				location_type: application.location_type,
-				location_city: application.location_city || "",
-				job_posting_url: application.job_posting_url || "",
-				application_method: application.application_method || "",
+				location_city: application.location_city ?? "",
+				job_posting_url: application.job_posting_url ?? "",
+				application_method: application.application_method ?? "",
 				priority: application.priority,
+				resume_url: application.resume_url ?? "",
+				cover_letter_url: application.cover_letter_url ?? "",
 			})
+			setResumeFile(null)
+			setCoverLetterFile(null)
 		}
 	}, [open, application, form])
 
-	const onSubmit = (data: JobApplicationFormValues) => {
+	const handleFileUpload = async (
+		file: File,
+		type: "resume" | "cover_letter"
+	): Promise<string | null> => {
+		try {
+			if (type === "resume") {
+				setIsUploadingResume(true)
+			} else {
+				setIsUploadingCoverLetter(true)
+			}
+
+			const response = await apiClient.uploadJobApplicationFile(file, type)
+			if (response.success && response.data) {
+				toast.success(
+					`${type === "resume" ? "Resume" : "Cover letter"} uploaded successfully`
+				)
+				return response.data.url
+			}
+			throw new Error(response.message || "Upload failed")
+		} catch (error) {
+			toast.error(
+				`Failed to upload ${type === "resume" ? "resume" : "cover letter"}`,
+				{
+					description: error instanceof Error ? error.message : "Unknown error",
+				}
+			)
+			return null
+		} finally {
+			if (type === "resume") {
+				setIsUploadingResume(false)
+			} else {
+				setIsUploadingCoverLetter(false)
+			}
+		}
+	}
+
+	const onSubmit = async (data: JobApplicationFormValues) => {
+		let resumeUrl = data.resume_url ?? undefined
+		let coverLetterUrl = data.cover_letter_url ?? undefined
+
+		if (resumeFile) {
+			const uploadedUrl = await handleFileUpload(resumeFile, "resume")
+			if (uploadedUrl) {
+				resumeUrl = uploadedUrl
+			} else {
+				return
+			}
+		}
+
+		if (coverLetterFile) {
+			const uploadedUrl = await handleFileUpload(
+				coverLetterFile,
+				"cover_letter"
+			)
+			if (uploadedUrl) {
+				coverLetterUrl = uploadedUrl
+			} else {
+				return
+			}
+		}
 		const payload: UpdateJobApplicationInput = {
 			company_name: data.company_name,
 			job_title: data.job_title,
-			job_description: data.job_description || undefined,
-			notes: data.notes || undefined,
+			job_description: data.job_description ?? undefined,
+			notes: data.notes ?? undefined,
 			application_date: data.application_date,
 			status: data.status,
-			salary_range: data.salary_range || undefined,
+			salary_range: data.salary_range ?? undefined,
 			location_type: data.location_type,
-			location_city: data.location_city || undefined,
-			job_posting_url: data.job_posting_url || undefined,
-			application_method: data.application_method || undefined,
+			location_city: data.location_city ?? undefined,
+			job_posting_url: data.job_posting_url ?? undefined,
+			application_method: data.application_method ?? undefined,
 			priority: data.priority,
+			resume_url: resumeUrl ?? undefined,
+			cover_letter_url: coverLetterUrl ?? undefined,
 		}
 
-        updateJobApplication.mutate(
+		updateJobApplication.mutate(
 			{ id: application._id, data: payload },
-			{ onSuccess: () => { onOpenChange(false) } }
+			{
+				onSuccess: () => {
+					onOpenChange(false)
+				},
+			}
 		)
 	}
 
@@ -362,11 +441,7 @@ export default function EditJobApplicationForm({
 									<FormItem>
 										<FormLabel>Job Posting URL</FormLabel>
 										<FormControl>
-											<Input
-												type="url"
-												placeholder="https://..."
-												{...field}
-											/>
+											<Input type="url" placeholder="https://..." {...field} />
 										</FormControl>
 										<FormMessage />
 									</FormItem>
@@ -412,6 +487,54 @@ export default function EditJobApplicationForm({
 							)}
 						/>
 
+						<div className="space-y-4">
+							<FormItem>
+								<FormLabel>Resume</FormLabel>
+								<FormControl>
+									<DocumentUpload
+										ref={resumeUploadRef}
+										label="Resume"
+										currentFileUrl={form.watch("resume_url") ?? undefined}
+										onFileChange={(file) => {
+											setResumeFile(file)
+											if (file) {
+												form.setValue("resume_url", "")
+											}
+										}}
+										disabled={
+											isUploadingResume || updateJobApplication.isPending
+										}
+										accept={[".pdf", ".doc", ".docx", ".txt"]}
+										maxSize="10MB"
+									/>
+								</FormControl>
+								<FormMessage />
+							</FormItem>
+
+							<FormItem>
+								<FormLabel>Cover Letter</FormLabel>
+								<FormControl>
+									<DocumentUpload
+										ref={coverLetterUploadRef}
+										label="Cover Letter"
+										currentFileUrl={form.watch("cover_letter_url") ?? undefined}
+										onFileChange={(file) => {
+											setCoverLetterFile(file)
+											if (file) {
+												form.setValue("cover_letter_url", "")
+											}
+										}}
+										disabled={
+											isUploadingCoverLetter || updateJobApplication.isPending
+										}
+										accept={[".pdf", ".doc", ".docx", ".txt"]}
+										maxSize="10MB"
+									/>
+								</FormControl>
+								<FormMessage />
+							</FormItem>
+						</div>
+
 						<DialogFooter>
 							<Button
 								type="button"
@@ -421,8 +544,19 @@ export default function EditJobApplicationForm({
 							>
 								Cancel
 							</Button>
-							<Button type="submit" disabled={updateJobApplication.isPending}>
-								{updateJobApplication.isPending ? "Updating..." : "Update Application"}
+							<Button
+								type="submit"
+								disabled={
+									updateJobApplication.isPending ||
+									isUploadingResume ||
+									isUploadingCoverLetter
+								}
+							>
+								{updateJobApplication.isPending ||
+								isUploadingResume ||
+								isUploadingCoverLetter
+									? "Updating..."
+									: "Update Application"}
 							</Button>
 						</DialogFooter>
 					</form>

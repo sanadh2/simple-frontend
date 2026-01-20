@@ -1,10 +1,21 @@
 "use client"
 
-import { format } from "date-fns"
-import { Building2, Calendar, ExternalLink, MapPin, Pencil, Tag, Trash2 } from "lucide-react"
-import Link from "next/link"
 import { useState } from "react"
+import Link from "next/link"
+import { format } from "date-fns"
+import {
+	Building2,
+	Calendar,
+	ExternalLink,
+	MapPin,
+	Pencil,
+	Tag,
+	Trash2,
+} from "lucide-react"
 
+import EditJobApplicationForm from "@/components/EditJobApplicationForm"
+import LoadingSpinner from "@/components/LoadingSpinner"
+import StatusHistoryTimeline from "@/components/StatusHistoryTimeline"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
@@ -22,29 +33,31 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from "@/components/ui/dialog"
-import EditJobApplicationForm from "@/components/EditJobApplicationForm"
-import LoadingSpinner from "@/components/LoadingSpinner"
-import StatusHistoryTimeline from "@/components/StatusHistoryTimeline"
-import type { JobApplication, JobStatus, PriorityLevel } from "@/lib/api"
 import {
 	useDeleteJobApplication,
 	useJobApplications,
 } from "@/hooks/useJobApplications"
+import type { JobApplication, JobStatus, PriorityLevel } from "@/lib/api"
 
 const statusColors: Record<JobStatus, string> = {
 	Wishlist: "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200",
 	Applied: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200",
-	"Interview Scheduled": "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200",
-	Interviewing: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200",
+	"Interview Scheduled":
+		"bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200",
+	Interviewing:
+		"bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200",
 	Offer: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200",
 	Rejected: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200",
-	Accepted: "bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200",
-	Withdrawn: "bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-200",
+	Accepted:
+		"bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200",
+	Withdrawn:
+		"bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-200",
 }
 
 const priorityColors: Record<PriorityLevel, string> = {
 	high: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200",
-	medium: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200",
+	medium:
+		"bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200",
 	low: "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200",
 }
 
@@ -66,7 +79,7 @@ export default function JobApplicationsList() {
 			<Card>
 				<CardContent className="pt-6">
 					<p className="text-red-600 dark:text-red-400">
-						Error loading job applications: {(error as Error).message}
+						Error loading job applications: {error.message}
 					</p>
 				</CardContent>
 			</Card>
@@ -137,9 +150,7 @@ function JobApplicationCard({ application }: { application: JobApplication }) {
 		application.location_type === "remote"
 			? "Remote"
 			: `${locationTypeLabels[application.location_type]}${
-					application.location_city
-						? ` - ${application.location_city}`
-						: ""
+					application.location_city ? ` - ${application.location_city}` : ""
 				}`
 
 	const handleDelete = async () => {
@@ -187,7 +198,11 @@ function JobApplicationCard({ application }: { application: JobApplication }) {
 							<div className="flex items-center gap-2">
 								<Calendar className="w-4 h-4" />
 								<span>
-									Applied: {format(new Date(application.application_date), "MMM d, yyyy")}
+									Applied:{" "}
+									{format(
+										new Date(application.application_date),
+										"MMM d, yyyy"
+									)}
 								</span>
 							</div>
 							<div className="flex items-center gap-2">
@@ -202,39 +217,41 @@ function JobApplicationCard({ application }: { application: JobApplication }) {
 							)}
 							{application.application_method && (
 								<div className="flex items-center gap-2">
-									<span className="text-xs">Via: {application.application_method}</span>
+									<span className="text-xs">
+										Via: {application.application_method}
+									</span>
 								</div>
 							)}
 						</div>
 
-					{application.job_description && (
-						<div className="text-sm text-zinc-600 dark:text-zinc-400">
-							<p className="font-medium mb-1">Job Description:</p>
-							<p className="line-clamp-2">{application.job_description}</p>
-						</div>
-					)}
-					{application.notes && (
-						<div className="text-sm text-zinc-600 dark:text-zinc-400">
-							<p className="font-medium mb-1">Notes:</p>
-							<p className="line-clamp-2">{application.notes}</p>
-						</div>
-					)}
+						{application.job_description && (
+							<div className="text-sm text-zinc-600 dark:text-zinc-400">
+								<p className="font-medium mb-1">Job Description:</p>
+								<p className="line-clamp-2">{application.job_description}</p>
+							</div>
+						)}
+						{application.notes && (
+							<div className="text-sm text-zinc-600 dark:text-zinc-400">
+								<p className="font-medium mb-1">Notes:</p>
+								<p className="line-clamp-2">{application.notes}</p>
+							</div>
+						)}
 
-					{application.status_history && application.status_history.length > 0 && (
-						<button
-							onClick={() => setShowHistory(!showHistory)}
-							className="text-xs text-blue-600 dark:text-blue-400 hover:underline"
-						>
-							{showHistory
-								? "Hide status history"
-								: `View ${application.status_history.length} status change${
-										application.status_history.length !== 1 ? "s" : ""
-									}`}
-						</button>
-					)}
-				</div>
+						{application.status_history.length > 0 && (
+							<button
+								onClick={() => setShowHistory(!showHistory)}
+								className="text-xs text-blue-600 dark:text-blue-400 hover:underline"
+							>
+								{showHistory
+									? "Hide status history"
+									: `View ${application.status_history.length} status change${
+											application.status_history.length !== 1 ? "s" : ""
+										}`}
+							</button>
+						)}
+					</div>
 
-				<div className="flex flex-col gap-2">
+					<div className="flex flex-col gap-2">
 						{application.job_posting_url && (
 							<a
 								href={application.job_posting_url}

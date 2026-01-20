@@ -1,7 +1,7 @@
 "use client"
 
-import { Calendar, Search, X } from "lucide-react"
 import { useState } from "react"
+import { Calendar, Search, X } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 
@@ -44,10 +44,14 @@ export function LogFilters({ onFilterChange, onRefresh }: LogFiltersProps) {
 		<div className="bg-white  p-6 space-y-4">
 			<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
 				<div>
-					<label className="block text-sm font-medium text-gray-700 mb-1">
+					<label
+						htmlFor="level-filter"
+						className="block text-sm font-medium text-gray-700 mb-1"
+					>
 						Level
 					</label>
 					<select
+						id="level-filter"
 						value={level}
 						onChange={(e) => setLevel(e.target.value)}
 						className="w-full px-3 py-2 border border-gray-300  focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -61,12 +65,16 @@ export function LogFilters({ onFilterChange, onRefresh }: LogFiltersProps) {
 				</div>
 
 				<div>
-					<label className="block text-sm font-medium text-gray-700 mb-1">
+					<label
+						htmlFor="message-filter"
+						className="block text-sm font-medium text-gray-700 mb-1"
+					>
 						Search Message
 					</label>
 					<div className="relative">
 						<Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
 						<input
+							id="message-filter"
 							type="text"
 							value={message}
 							onChange={(e) => setMessage(e.target.value)}
@@ -77,12 +85,16 @@ export function LogFilters({ onFilterChange, onRefresh }: LogFiltersProps) {
 				</div>
 
 				<div>
-					<label className="block text-sm font-medium text-gray-700 mb-1">
+					<label
+						htmlFor="start-date-filter"
+						className="block text-sm font-medium text-gray-700 mb-1"
+					>
 						Start Date
 					</label>
 					<div className="relative">
 						<Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
 						<input
+							id="start-date-filter"
 							type="datetime-local"
 							value={startDate}
 							onChange={(e) => setStartDate(e.target.value)}
@@ -92,12 +104,16 @@ export function LogFilters({ onFilterChange, onRefresh }: LogFiltersProps) {
 				</div>
 
 				<div>
-					<label className="block text-sm font-medium text-gray-700 mb-1">
+					<label
+						htmlFor="end-date-filter"
+						className="block text-sm font-medium text-gray-700 mb-1"
+					>
 						End Date
 					</label>
 					<div className="relative">
 						<Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
 						<input
+							id="end-date-filter"
 							type="datetime-local"
 							value={endDate}
 							onChange={(e) => setEndDate(e.target.value)}

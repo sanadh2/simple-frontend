@@ -4,6 +4,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
 
 import { apiClient } from "@/lib/api"
+
 import { authKeys } from "./useAuth"
 
 export function useSendVerificationOTP() {
@@ -39,12 +40,12 @@ export function useVerifyEmail() {
 			}
 			return response
 		},
-		onSuccess: () => {
+		onSuccess: async () => {
 			toast.success("Email verified!", {
 				description: "Your email has been successfully verified.",
 			})
-			queryClient.invalidateQueries({ queryKey: authKeys.profile() })
-			queryClient.invalidateQueries({ queryKey: authKeys.all })
+			await queryClient.invalidateQueries({ queryKey: authKeys.profile() })
+			await queryClient.invalidateQueries({ queryKey: authKeys.all })
 		},
 		onError: (error: Error) => {
 			toast.error("Verification failed", {
@@ -91,9 +92,9 @@ export function useVerifyEmailAndLogin() {
 			}
 			return response.data
 		},
-		onSuccess: (data) => {
+		onSuccess: async (data) => {
 			queryClient.setQueryData(authKeys.profile(), data.user)
-			queryClient.invalidateQueries({ queryKey: authKeys.all })
+			await queryClient.invalidateQueries({ queryKey: authKeys.all })
 		},
 		onError: (error: Error) => {
 			toast.error("Verification failed", {

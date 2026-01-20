@@ -11,7 +11,7 @@ export default function ProfilePage() {
 	const { data: user, isLoading, error, refetch } = useProfile()
 
 	if (error && !user) {
-		return <ErrorFallback error={error as Error} onRetry={() => refetch()} />
+		return <ErrorFallback error={error} onRetry={() => refetch()} />
 	}
 
 	if (isLoading) {

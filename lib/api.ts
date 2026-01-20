@@ -1,4 +1,5 @@
 import { env } from "@/env"
+
 import { fetchWithAuth } from "./fetchWithAuth"
 
 const API_BASE_URL = env.NEXT_PUBLIC_API_URL
@@ -84,7 +85,7 @@ export interface CreateJobApplicationInput {
 	cover_letter_url?: string
 }
 
-export interface UpdateJobApplicationInput extends Partial<CreateJobApplicationInput> {}
+export type UpdateJobApplicationInput = Partial<CreateJobApplicationInput>
 
 export interface PaginatedJobApplications {
 	applications: JobApplication[]
@@ -105,7 +106,7 @@ class ApiClient {
 		if (!response.ok) {
 			const error = await response.json()
 			const errorWithStatus = new Error(
-				error.message || "An error occurred"
+				error.message ?? "An error occurred"
 			) as Error & { status: number }
 			errorWithStatus.status = response.status
 			throw errorWithStatus
@@ -119,7 +120,7 @@ class ApiClient {
 		options: RequestInit = {}
 	): Promise<ApiResponse<T>> {
 		const url = `${this.baseURL}${endpoint}`
-		
+
 		// Don't set Content-Type for FormData - browser will set it with boundary
 		const isFormData = options.body instanceof FormData
 		const headers: Record<string, string> = isFormData
@@ -238,9 +239,7 @@ class ApiClient {
 		})
 	}
 
-	async uploadProfilePicture(
-		file: File
-	): Promise<ApiResponse<{ user: User }>> {
+	async uploadProfilePicture(file: File): Promise<ApiResponse<{ user: User }>> {
 		const formData = new FormData()
 		formData.append("profilePicture", file)
 
@@ -290,14 +289,27 @@ class ApiClient {
 		endDate?: string
 	}): Promise<ApiResponse<PaginatedJobApplications>> {
 		const queryParams = new URLSearchParams()
-		if (params?.page) queryParams.append("page", params.page.toString())
-		if (params?.limit) queryParams.append("limit", params.limit.toString())
-		if (params?.status) queryParams.append("status", params.status)
-		if (params?.priority) queryParams.append("priority", params.priority)
-		if (params?.company_name)
+		if (params?.page) {
+			queryParams.append("page", params.page.toString())
+		}
+		if (params?.limit) {
+			queryParams.append("limit", params.limit.toString())
+		}
+		if (params?.status) {
+			queryParams.append("status", params.status)
+		}
+		if (params?.priority) {
+			queryParams.append("priority", params.priority)
+		}
+		if (params?.company_name) {
 			queryParams.append("company_name", params.company_name)
-		if (params?.startDate) queryParams.append("startDate", params.startDate)
-		if (params?.endDate) queryParams.append("endDate", params.endDate)
+		}
+		if (params?.startDate) {
+			queryParams.append("startDate", params.startDate)
+		}
+		if (params?.endDate) {
+			queryParams.append("endDate", params.endDate)
+		}
 
 		const queryString = queryParams.toString()
 		const endpoint = `/api/job-applications${queryString ? `?${queryString}` : ""}`

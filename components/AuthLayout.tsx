@@ -1,7 +1,7 @@
 "use client"
 
+import { type ReactNode } from "react"
 import { Heart, Lock } from "lucide-react"
-import { ReactNode } from "react"
 
 interface AuthLayoutProps {
 	children: ReactNode
@@ -11,9 +11,9 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
 	return (
 		<div className="flex min-h-screen bg-linear-to-br from-zinc-50 to-zinc-100 dark:from-zinc-950 dark:to-black">
 			<div className="fixed inset-0 overflow-hidden pointer-events-none">
-				<div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-400 dark:bg-blue-600  mix-blend-multiply dark:mix-blend-soft-light filter blur-3xl opacity-20 animate-blob"></div>
-				<div className="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-400 dark:bg-purple-600  mix-blend-multiply dark:mix-blend-soft-light filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
-				<div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-pink-400 dark:bg-pink-600  mix-blend-multiply dark:mix-blend-soft-light filter blur-3xl opacity-20 animate-blob animation-delay-4000"></div>
+				<div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-400 dark:bg-blue-600  mix-blend-multiply dark:mix-blend-soft-light filter blur-3xl opacity-20 animate-blob" />
+				<div className="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-400 dark:bg-purple-600  mix-blend-multiply dark:mix-blend-soft-light filter blur-3xl opacity-20 animate-blob animation-delay-2000" />
+				<div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-pink-400 dark:bg-pink-600  mix-blend-multiply dark:mix-blend-soft-light filter blur-3xl opacity-20 animate-blob animation-delay-4000" />
 			</div>
 
 			<main className="relative flex-1 flex flex-col items-center justify-center p-4">

@@ -16,12 +16,16 @@ import type { JobApplication, JobStatus } from "@/lib/api"
 const statusColors: Record<JobStatus, string> = {
 	Wishlist: "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200",
 	Applied: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200",
-	"Interview Scheduled": "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200",
-	Interviewing: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200",
+	"Interview Scheduled":
+		"bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200",
+	Interviewing:
+		"bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200",
 	Offer: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200",
 	Rejected: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200",
-	Accepted: "bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200",
-	Withdrawn: "bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-200",
+	Accepted:
+		"bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200",
+	Withdrawn:
+		"bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-200",
 }
 
 interface StatusHistoryTimelineProps {
@@ -38,9 +42,7 @@ export default function StatusHistoryTimeline({
 			<Card>
 				<CardHeader>
 					<CardTitle>Status History</CardTitle>
-					<CardDescription>
-						No status changes recorded yet
-					</CardDescription>
+					<CardDescription>No status changes recorded yet</CardDescription>
 				</CardHeader>
 			</Card>
 		)
@@ -71,7 +73,10 @@ export default function StatusHistoryTimeline({
 								format(date, "yyyy-MM-dd") === format(new Date(), "yyyy-MM-dd")
 
 							return (
-								<div key={`${entry.status}-${entry.changed_at}`} className="relative flex gap-4">
+								<div
+									key={`${entry.status}-${entry.changed_at}`}
+									className="relative flex gap-4"
+								>
 									<div className="relative z-10 shrink-0">
 										<div
 											className={`flex h-8 w-8 items-center justify-center rounded-full border-2 ${

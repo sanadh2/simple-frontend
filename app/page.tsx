@@ -15,7 +15,7 @@ export default function Home() {
 	const [isLoginMode, setIsLoginMode] = useState(true)
 
 	if (error && !user) {
-		return <ErrorFallback error={error as Error} onRetry={() => refetch()} />
+		return <ErrorFallback error={error} onRetry={() => refetch()} />
 	}
 
 	if (isLoading) {

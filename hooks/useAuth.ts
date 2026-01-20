@@ -5,6 +5,11 @@ import { toast } from "sonner"
 
 import { apiClient } from "@/lib/api"
 
+const HTTP_UNAUTHORIZED = 401
+const MILLISECONDS_PER_SECOND = 1000
+const SECONDS_PER_MINUTE = 60
+const STALE_TIME_MINUTES = 5
+
 export const authKeys = {
 	all: ["auth"] as const,
 	profile: () => [...authKeys.all, "profile"] as const,
@@ -18,16 +23,15 @@ export function useProfile() {
 				const response = await apiClient.getProfile()
 				return response.success && response.data ? response.data.user : null
 			} catch (error) {
-				// Check if it's a 401 (unauthorized) - don't try to refresh if user is logged out
-				const isUnauthorized = error instanceof Error && "status" in error && error.status === 401
-				
+				const isUnauthorized =
+					error instanceof Error &&
+					"status" in error &&
+					error.status === HTTP_UNAUTHORIZED
+
 				if (isUnauthorized) {
-					// User is not authenticated, return null without trying to refresh
-					// This prevents unnecessary token refresh attempts that could trigger redirects
 					return null
 				}
 
-				// For other errors, try to refresh token
 				try {
 					const refreshResponse = await apiClient.refreshToken()
 					if (refreshResponse.success && refreshResponse.data) {
@@ -42,7 +46,8 @@ export function useProfile() {
 				return null
 			}
 		},
-		staleTime: 1000 * 60 * 5,
+		staleTime:
+			MILLISECONDS_PER_SECOND * SECONDS_PER_MINUTE * STALE_TIME_MINUTES,
 		retry: false,
 	})
 }
@@ -68,7 +73,7 @@ export function useLogin() {
 			return response.data
 		},
 		onSuccess: (data) => {
-			if ("user" in data && data.user) {
+			if ("user" in data) {
 				queryClient.setQueryData(authKeys.profile(), data.user)
 			} else if ("requiresVerification" in data) {
 				queryClient.setQueryData(authKeys.profile(), null)
@@ -106,7 +111,8 @@ export function useRegister() {
 		onSuccess: () => {
 			queryClient.setQueryData(authKeys.profile(), null)
 			toast.success("Registration successful!", {
-				description: "Please check your email for verification code. You can now log in.",
+				description:
+					"Please check your email for verification code. You can now log in.",
 			})
 		},
 	})
@@ -123,12 +129,10 @@ export function useLogout() {
 				console.error("Logout error:", error)
 			}
 		},
-		onSuccess: () => {
-			// Clear auth data immediately
+		onSuccess: async () => {
 			queryClient.setQueryData(authKeys.profile(), null)
 			queryClient.removeQueries({ queryKey: authKeys.all })
-			// Cancel any in-flight queries to prevent them from triggering redirects
-			queryClient.cancelQueries({ queryKey: authKeys.profile() })
+			await queryClient.cancelQueries({ queryKey: authKeys.profile() })
 		},
 	})
 }
@@ -144,18 +148,15 @@ export function useLogoutAll() {
 				console.error("Logout all error:", error)
 			}
 		},
-		onSuccess: () => {
-			// Clear auth data immediately
+		onSuccess: async () => {
 			queryClient.setQueryData(authKeys.profile(), null)
 			queryClient.removeQueries({ queryKey: authKeys.all })
-			// Cancel any in-flight queries to prevent them from triggering redirects
-			queryClient.cancelQueries({ queryKey: authKeys.profile() })
+			await queryClient.cancelQueries({ queryKey: authKeys.profile() })
 		},
-		onError: () => {
-			// Clear auth data even on error
+		onError: async () => {
 			queryClient.setQueryData(authKeys.profile(), null)
 			queryClient.removeQueries({ queryKey: authKeys.all })
-			queryClient.cancelQueries({ queryKey: authKeys.profile() })
+			await queryClient.cancelQueries({ queryKey: authKeys.profile() })
 		},
 	})
 }
@@ -171,8 +172,8 @@ export function useRefreshToken() {
 			}
 			return response.data
 		},
-		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: authKeys.profile() })
+		onSuccess: async () => {
+			await queryClient.invalidateQueries({ queryKey: authKeys.profile() })
 		},
 	})
 }

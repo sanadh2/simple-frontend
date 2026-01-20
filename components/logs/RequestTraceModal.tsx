@@ -32,6 +32,19 @@ const levelColors = {
 	debug: "text-gray-600",
 }
 
+const getLevelBadgeClasses = (level: string): string => {
+	if (level === "error") {
+		return "bg-red-100 text-red-700"
+	}
+	if (level === "warn") {
+		return "bg-yellow-100 text-yellow-700"
+	}
+	if (level === "info") {
+		return "bg-blue-100 text-blue-700"
+	}
+	return "bg-gray-100 text-gray-700"
+}
+
 export function RequestTraceModal({
 	correlation_id,
 	onClose,
@@ -39,7 +52,7 @@ export function RequestTraceModal({
 	const { data: logs, isLoading } = useLogsBycorrelation_id(correlation_id)
 
 	return (
-		<Dialog open={true} onOpenChange={onClose}>
+		<Dialog open onOpenChange={onClose}>
 			<DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
 				<DialogHeader>
 					<DialogTitle>Request Trace</DialogTitle>
@@ -52,7 +65,7 @@ export function RequestTraceModal({
 					</div>
 				)}
 
-				{!isLoading && logs && logs.length === 0 && (
+				{!isLoading && logs?.length === 0 && (
 					<div className="text-center py-12">
 						<p className="text-gray-500">No logs found for this request</p>
 					</div>
@@ -74,10 +87,11 @@ export function RequestTraceModal({
 								{logs.map((log, index) => {
 									const Icon = levelIcons[log.level]
 									const color = levelColors[log.level]
+									const logKey = `${log.correlation_id}-${log.timestamp}-${index}`
 
 									return (
-										<div key={index} className="relative flex gap-4">
-											<div className="relative z-10 flex-shrink-0">
+										<div key={logKey} className="relative flex gap-4">
+											<div className="relative z-10 shrink-0">
 												<div
 													className={`p-2  bg-white border-2 ${color.replace("text-", "border-")}`}
 												>
@@ -89,15 +103,7 @@ export function RequestTraceModal({
 												<div className="flex justify-between items-start">
 													<div>
 														<span
-															className={`inline-block px-2 py-0.5  text-xs font-semibold mb-1 ${
-																log.level === "error"
-																	? "bg-red-100 text-red-700"
-																	: log.level === "warn"
-																		? "bg-yellow-100 text-yellow-700"
-																		: log.level === "info"
-																			? "bg-blue-100 text-blue-700"
-																			: "bg-gray-100 text-gray-700"
-															}`}
+															className={`inline-block px-2 py-0.5  text-xs font-semibold mb-1 ${getLevelBadgeClasses(log.level)}`}
 														>
 															{log.level.toUpperCase()}
 														</span>
