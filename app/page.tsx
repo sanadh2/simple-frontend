@@ -3,8 +3,8 @@
 import { useState } from "react"
 
 import AuthLayout from "@/components/AuthLayout"
+import DashboardOverview from "@/components/DashboardOverview"
 import ErrorFallback from "@/components/ErrorBoundaryFallback"
-import JobApplicationsList from "@/components/JobApplicationsList"
 import LoadingSpinner from "@/components/LoadingSpinner"
 import LoginForm from "@/components/LoginForm"
 import RegisterForm from "@/components/RegisterForm"
@@ -23,13 +23,7 @@ export default function Home() {
 	}
 
 	if (user) {
-		return (
-			<div className="flex  bg-linear-to-br from-zinc-50 to-zinc-100 dark:from-zinc-950 dark:to-black p-4">
-				<div className="w-full max-w-6xl mx-auto my-auto animate-in fade-in slide-in-from-bottom-4 duration-700 space-y-6">
-					<JobApplicationsList />
-				</div>
-			</div>
-		)
+		return <DashboardOverview />
 	}
 
 	return (

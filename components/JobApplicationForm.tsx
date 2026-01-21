@@ -80,7 +80,11 @@ const LOCATION_TYPE_OPTIONS: { value: LocationType; label: string }[] = [
 	{ value: "onsite", label: "Onsite" },
 ]
 
-export default function JobApplicationForm() {
+export default function JobApplicationForm({
+	onClose,
+}: {
+	onClose: () => void
+}) {
 	const createJobApplication = useCreateJobApplication()
 
 	const form = useForm<JobApplicationFormValues>({
@@ -193,6 +197,9 @@ export default function JobApplicationForm() {
 				form.reset()
 				setResumeFile(null)
 				setCoverLetterFile(null)
+				resumeUploadRef.current?.clearFile()
+				coverLetterUploadRef.current?.clearFile()
+				onClose()
 			},
 		})
 	}

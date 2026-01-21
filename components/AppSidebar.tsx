@@ -4,7 +4,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useTheme } from "next-themes"
-import { FileText, Home, LogOut, Moon, Sun } from "lucide-react"
+import { Briefcase, FileText, Home, LogOut, Moon, Sun } from "lucide-react"
 
 import {
 	Sidebar,
@@ -34,6 +34,11 @@ export function AppSidebar() {
 			title: "Home",
 			url: "/",
 			icon: Home,
+		},
+		{
+			title: "Applications",
+			url: "/job-applications",
+			icon: Briefcase,
 		},
 		{
 			title: "Logs",

@@ -1,7 +1,6 @@
 "use client"
 
 import { useState } from "react"
-import Link from "next/link"
 import { format } from "date-fns"
 import {
 	Building2,
@@ -18,13 +17,7 @@ import LoadingSpinner from "@/components/LoadingSpinner"
 import StatusHistoryTimeline from "@/components/StatusHistoryTimeline"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import {
-	Card,
-	CardContent,
-	CardDescription,
-	CardHeader,
-	CardTitle,
-} from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import {
 	Dialog,
 	DialogContent,
@@ -88,55 +81,21 @@ export default function JobApplicationsList() {
 
 	if (!data || data.applications.length === 0) {
 		return (
-			<Card>
-				<CardHeader>
-					<CardTitle>Job Applications</CardTitle>
-					<CardDescription>
-						Track and manage your job applications
-					</CardDescription>
-				</CardHeader>
-				<CardContent>
-					<div className="text-center py-12">
-						<Building2 className="w-12 h-12 mx-auto text-gray-400 mb-4" />
-						<p className="text-gray-500 dark:text-gray-400 mb-4">
-							No job applications yet
-						</p>
-						<Link href="/job-applications">
-							<Button>Add Your First Application</Button>
-						</Link>
-					</div>
-				</CardContent>
-			</Card>
+			<div className="text-center py-12">
+				<Building2 className="w-12 h-12 mx-auto text-gray-400 mb-4" />
+				<p className="text-gray-500 dark:text-gray-400 mb-4">
+					No job applications yet
+				</p>
+			</div>
 		)
 	}
 
 	return (
-		<Card>
-			<CardHeader>
-				<div className="flex items-center justify-between">
-					<div>
-						<CardTitle>Job Applications</CardTitle>
-						<CardDescription>
-							{data.totalCount} total application
-							{data.totalCount !== 1 ? "s" : ""}
-						</CardDescription>
-					</div>
-					<Link href="/job-applications">
-						<Button>Add New Application</Button>
-					</Link>
-				</div>
-			</CardHeader>
-			<CardContent>
-				<div className="space-y-4">
-					{data.applications.map((application) => (
-						<JobApplicationCard
-							key={application._id}
-							application={application}
-						/>
-					))}
-				</div>
-			</CardContent>
-		</Card>
+		<div className="space-y-4">
+			{data.applications.map((application) => (
+				<JobApplicationCard key={application._id} application={application} />
+			))}
+		</div>
 	)
 }
 
@@ -163,7 +122,7 @@ function JobApplicationCard({ application }: { application: JobApplication }) {
 
 	return (
 		<>
-			<div className="border p-4 hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-colors">
+			<div className="p-4 hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-colors">
 				<div className="flex items-start justify-between gap-4">
 					<div className="flex-1 space-y-3">
 						<div className="flex items-start gap-3">
