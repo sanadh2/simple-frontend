@@ -7,8 +7,10 @@ import { ActivityTimeline } from "@/components/dashboard/ActivityTimeline"
 import { ApplicationsByStatusChart } from "@/components/dashboard/ApplicationsByStatusChart"
 import { QuickStats } from "@/components/dashboard/QuickStats"
 import { RecentApplications } from "@/components/dashboard/RecentApplications"
+import InterviewCalendar from "@/components/InterviewCalendar"
 import LoadingSpinner from "@/components/LoadingSpinner"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { useInterviews } from "@/hooks/useInterviews"
 import { useJobApplications } from "@/hooks/useJobApplications"
 import type { JobApplication, JobStatus } from "@/lib/api"
 
@@ -18,6 +20,8 @@ const ACTIVITIES_LIMIT = 50
 
 export default function DashboardOverview() {
 	const { data, isLoading, error } = useJobApplications({ limit: 1000 })
+	const { data: interviewsData, isLoading: isLoadingInterviews } =
+		useInterviews()
 
 	const stats = useMemo(() => {
 		if (!data?.applications) {
@@ -133,7 +137,7 @@ export default function DashboardOverview() {
 		}
 	}, [data])
 
-	if (isLoading) {
+	if (isLoading || isLoadingInterviews) {
 		return <LoadingSpinner text="Loading dashboard..." />
 	}
 
@@ -192,6 +196,9 @@ export default function DashboardOverview() {
 				<RecentApplications applications={stats.recentApplications} />
 				<ActivityTimeline activities={stats.activities} />
 			</div>
+
+			{/* Interview Calendar */}
+			<InterviewCalendar interviews={interviewsData ?? []} />
 		</div>
 	)
 }

@@ -153,12 +153,25 @@ export default function InterviewForm({
 	})
 
 	const addChecklistItem = () => {
-		if (newChecklistItem.trim()) {
-			const updated = [...checklistItems, newChecklistItem.trim()]
-			setChecklistItems(updated)
-			form.setValue("preparation_checklist", updated)
-			setNewChecklistItem("")
+		const trimmedItem = newChecklistItem.trim()
+		if (!trimmedItem) {
+			return
 		}
+
+		// Check for duplicates (case-insensitive)
+		const isDuplicate = checklistItems.some(
+			(item) => item.toLowerCase() === trimmedItem.toLowerCase()
+		)
+
+		if (isDuplicate) {
+			toast.error("This item already exists in the checklist")
+			return
+		}
+
+		const updated = [...checklistItems, trimmedItem]
+		setChecklistItems(updated)
+		form.setValue("preparation_checklist", updated)
+		setNewChecklistItem("")
 	}
 
 	const removeChecklistItem = (index: number) => {
@@ -307,7 +320,7 @@ export default function InterviewForm({
 												<Input
 													type="number"
 													placeholder="e.g., 60"
-													{...field}
+													value={field.value ?? ""}
 													onChange={(e) =>
 														field.onChange(
 															e.target.value
@@ -315,6 +328,9 @@ export default function InterviewForm({
 																: undefined
 														)
 													}
+													onBlur={field.onBlur}
+													name={field.name}
+													ref={field.ref}
 												/>
 											</FormControl>
 											<FormMessage />
@@ -416,7 +432,7 @@ export default function InterviewForm({
 									<div className="space-y-2 mt-2">
 										{checklistItems.map((item, index) => (
 											<div
-												key={item}
+												key={`checklist-item-${index}`}
 												className="flex items-center gap-2 p-2 bg-muted"
 											>
 												<span className="flex-1 text-sm">{item}</span>
