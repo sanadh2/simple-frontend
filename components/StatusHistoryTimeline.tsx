@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/card"
 import type { JobApplication, JobStatus } from "@/lib/api"
 
-const statusColors: Record<JobStatus, string> = {
+const statusColors: Record<Exclude<JobStatus, "All">, string> = {
 	Wishlist: "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200",
 	Applied: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200",
 	"Interview Scheduled":
@@ -96,7 +96,11 @@ export default function StatusHistoryTimeline({
 									<div className="flex-1 pb-6">
 										<div className="flex items-center gap-2 mb-1">
 											<Badge
-												className={statusColors[entry.status]}
+												className={
+													statusColors[
+														entry.status as Exclude<JobStatus, "All">
+													]
+												}
 												variant="secondary"
 											>
 												{entry.status}

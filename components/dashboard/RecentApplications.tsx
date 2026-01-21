@@ -11,7 +11,7 @@ interface RecentApplicationsProps {
 	applications: JobApplication[]
 }
 
-const statusColors: Record<JobStatus, string> = {
+const statusColors: Record<Exclude<JobStatus, "All">, string> = {
 	Wishlist: "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200",
 	Applied: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200",
 	"Interview Scheduled":
@@ -71,7 +71,11 @@ export function RecentApplications({ applications }: RecentApplicationsProps) {
 									</div>
 								</div>
 								<div className="flex flex-col items-end gap-2">
-									<Badge className={statusColors[app.status]}>
+									<Badge
+										className={
+											statusColors[app.status as Exclude<JobStatus, "All">]
+										}
+									>
 										{app.status}
 									</Badge>
 									{app.job_posting_url && (

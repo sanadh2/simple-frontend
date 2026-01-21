@@ -18,7 +18,7 @@ interface ApplicationsByStatusChartProps {
 	statusBreakdown: Record<JobStatus, number>
 }
 
-const STATUS_COLORS: Record<JobStatus, string> = {
+const STATUS_COLORS: Record<Exclude<JobStatus, "All">, string> = {
 	Wishlist: "#9CA3AF",
 	Applied: "#3B82F6",
 	"Interview Scheduled": "#A855F7",
@@ -77,7 +77,7 @@ export function ApplicationsByStatusChart({
 							{data.map((entry) => (
 								<Cell
 									key={`cell-${entry.name}`}
-									fill={STATUS_COLORS[entry.name as JobStatus]}
+									fill={STATUS_COLORS[entry.name as Exclude<JobStatus, "All">]}
 								/>
 							))}
 						</Pie>

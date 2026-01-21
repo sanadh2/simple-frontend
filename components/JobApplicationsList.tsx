@@ -32,7 +32,7 @@ import {
 } from "@/hooks/useJobApplications"
 import type { JobApplication, JobStatus, PriorityLevel } from "@/lib/api"
 
-const statusColors: Record<JobStatus, string> = {
+const statusColors: Record<Exclude<JobStatus, "All">, string> = {
 	Wishlist: "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200",
 	Applied: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200",
 	"Interview Scheduled":
@@ -149,7 +149,11 @@ function JobApplicationCard({ application }: { application: JobApplication }) {
 										{application.job_title}
 									</h3>
 									<Badge
-										className={statusColors[application.status]}
+										className={
+											statusColors[
+												application.status as Exclude<JobStatus, "All">
+											]
+										}
 										variant="secondary"
 									>
 										{application.status}
