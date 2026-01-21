@@ -88,9 +88,75 @@ export interface CreateInterviewInput {
 
 export type UpdateInterviewInput = Partial<CreateInterviewInput>
 
+export type CompanySize =
+	| "startup"
+	| "small"
+	| "medium"
+	| "large"
+	| "enterprise"
+	| ""
+
+export type FundingStage =
+	| "bootstrapped"
+	| "seed"
+	| "series-a"
+	| "series-b"
+	| "series-c"
+	| "series-d"
+	| "ipo"
+	| "acquired"
+	| "unknown"
+	| ""
+
+export interface Company {
+	_id: string
+	user_id: string
+	name: string
+	size?: CompanySize
+	industry?: string
+	funding_stage?: FundingStage
+	glassdoor_url?: string
+	culture_notes?: string
+	pros: string[]
+	cons: string[]
+	interview_process_overview?: string
+	application_count?: number
+	applications?: Array<{
+		_id: string
+		job_title: string
+		status: string
+		application_date: string
+	}>
+	createdAt: string
+	updatedAt: string
+}
+
+export interface CreateCompanyInput {
+	name: string
+	size?: CompanySize
+	industry?: string
+	funding_stage?: FundingStage
+	glassdoor_url?: string
+	culture_notes?: string
+	pros?: string[]
+	cons?: string[]
+	interview_process_overview?: string
+}
+
+export type UpdateCompanyInput = Partial<CreateCompanyInput>
+
+export interface PaginatedCompanies {
+	companies: Company[]
+	totalCount: number
+	currentPage: number
+	pageSize: number
+	totalPages: number
+}
+
 export interface JobApplication {
 	_id: string
 	user_id: string
+	company_id?: string
 	company_name: string
 	job_title: string
 	job_description?: string
@@ -111,6 +177,7 @@ export interface JobApplication {
 }
 
 export interface CreateJobApplicationInput {
+	company_id?: string
 	company_name: string
 	job_title: string
 	job_description?: string
@@ -478,6 +545,90 @@ class ApiClient {
 
 	async deleteInterview(id: string): Promise<ApiResponse> {
 		return this.request(`/api/interviews/${id}`, {
+			method: "DELETE",
+		})
+	}
+
+	async createCompany(data: CreateCompanyInput): Promise<ApiResponse<Company>> {
+		return this.request("/api/companies", {
+			method: "POST",
+			body: JSON.stringify(data),
+		})
+	}
+
+	async getCompanies(params?: {
+		page?: number
+		limit?: number
+		search?: string
+		size?: CompanySize
+		industry?: string
+		funding_stage?: FundingStage
+		sortBy?: string
+		sortOrder?: "asc" | "desc"
+	}): Promise<ApiResponse<PaginatedCompanies>> {
+		const queryParams = new URLSearchParams()
+		if (params) {
+			if (params.page) {
+				queryParams.append("page", params.page.toString())
+			}
+			if (params.limit) {
+				queryParams.append("limit", params.limit.toString())
+			}
+			if (params.search) {
+				queryParams.append("search", params.search)
+			}
+			if (params.size) {
+				queryParams.append("size", params.size)
+			}
+			if (params.industry) {
+				queryParams.append("industry", params.industry)
+			}
+			if (params.funding_stage) {
+				queryParams.append("funding_stage", params.funding_stage)
+			}
+			if (params.sortBy) {
+				queryParams.append("sortBy", params.sortBy)
+			}
+			if (params.sortOrder) {
+				queryParams.append("sortOrder", params.sortOrder)
+			}
+		}
+		const queryString = queryParams.toString()
+		const endpoint = `/api/companies${queryString ? `?${queryString}` : ""}`
+
+		return this.request(endpoint, {
+			method: "GET",
+		})
+	}
+
+	async getCompanyById(
+		id: string,
+		includeApplications?: boolean
+	): Promise<ApiResponse<Company>> {
+		const queryParams = new URLSearchParams()
+		if (includeApplications) {
+			queryParams.append("includeApplications", "true")
+		}
+		const queryString = queryParams.toString()
+		const endpoint = `/api/companies/${id}${queryString ? `?${queryString}` : ""}`
+
+		return this.request(endpoint, {
+			method: "GET",
+		})
+	}
+
+	async updateCompany(
+		id: string,
+		data: UpdateCompanyInput
+	): Promise<ApiResponse<Company>> {
+		return this.request(`/api/companies/${id}`, {
+			method: "PUT",
+			body: JSON.stringify(data),
+		})
+	}
+
+	async deleteCompany(id: string): Promise<ApiResponse> {
+		return this.request(`/api/companies/${id}`, {
 			method: "DELETE",
 		})
 	}

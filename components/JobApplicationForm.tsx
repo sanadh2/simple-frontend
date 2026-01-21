@@ -1,6 +1,6 @@
 "use client"
 
-import { useRef, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { toast } from "sonner"
@@ -27,9 +27,11 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select"
+import { useCompanies, useCreateCompany } from "@/hooks/useCompanies"
 import { useCreateJobApplication } from "@/hooks/useJobApplications"
 import {
 	apiClient,
+	type CreateCompanyInput,
 	type CreateJobApplicationInput,
 	type JobStatus,
 	type LocationType,
@@ -37,6 +39,7 @@ import {
 } from "@/lib/api"
 
 const jobApplicationSchema = z.object({
+	company_id: z.string().optional(),
 	company_name: z.string().min(1, "Company name is required"),
 	job_title: z.string().min(1, "Job title is required"),
 	job_description: z.string().optional(),
@@ -93,10 +96,13 @@ export default function JobApplicationForm({
 	onClose: () => void
 }) {
 	const createJobApplication = useCreateJobApplication()
+	const createCompany = useCreateCompany()
+	const { data: companiesData } = useCompanies({ limit: 100 })
 
 	const form = useForm<JobApplicationFormValues>({
 		resolver: zodResolver(jobApplicationSchema),
 		defaultValues: {
+			company_id: "",
 			company_name: "",
 			job_title: "",
 			job_description: "",
@@ -113,6 +119,27 @@ export default function JobApplicationForm({
 			cover_letter_url: "",
 		},
 	})
+
+	const selectedCompanyId = form.watch("company_id")
+	const companyName = form.watch("company_name")
+	const showCreateButton =
+		!selectedCompanyId &&
+		companyName.trim() !== "" &&
+		companyName.trim().length > 0
+	const companies = useMemo(
+		() => companiesData?.companies ?? [],
+		[companiesData]
+	)
+
+	// Update company_name when a company is selected
+	useEffect(() => {
+		if (selectedCompanyId) {
+			const selectedCompany = companies.find((c) => c._id === selectedCompanyId)
+			if (selectedCompany) {
+				form.setValue("company_name", selectedCompany.name)
+			}
+		}
+	}, [selectedCompanyId, companies, form])
 
 	const resumeUploadRef = useRef<DocumentUploadRef>(null)
 	const coverLetterUploadRef = useRef<DocumentUploadRef>(null)
@@ -157,32 +184,81 @@ export default function JobApplicationForm({
 		}
 	}
 
-	const onSubmit = async (data: JobApplicationFormValues) => {
-		let resumeUrl = data.resume_url ?? undefined
-		let coverLetterUrl = data.cover_letter_url ?? undefined
-
-		if (resumeFile) {
-			const uploadedUrl = await handleFileUpload(resumeFile, "resume")
-			if (uploadedUrl) {
-				resumeUrl = uploadedUrl
-			} else {
-				return
-			}
+	const handleCreateCompany = async () => {
+		const companyName = form.getValues("company_name")
+		if (!companyName.trim()) {
+			toast.error("Please enter a company name")
+			return
 		}
 
-		if (coverLetterFile) {
-			const uploadedUrl = await handleFileUpload(
-				coverLetterFile,
-				"cover_letter"
-			)
-			if (uploadedUrl) {
-				coverLetterUrl = uploadedUrl
-			} else {
-				return
-			}
+		const newCompany: CreateCompanyInput = {
+			name: companyName.trim(),
+		}
+		const createdCompany = await createCompany.mutateAsync(newCompany)
+		form.setValue("company_id", createdCompany._id)
+		form.setValue("company_name", createdCompany.name)
+		toast.success("Company created and linked!")
+	}
+
+	const ensureCompanyCreated = async (
+		companyId: string | undefined,
+		companyName: string
+	): Promise<string | undefined> => {
+		if (companyId || !companyName.trim()) {
+			return companyId
 		}
 
-		const payload: CreateJobApplicationInput = {
+		try {
+			const newCompany: CreateCompanyInput = {
+				name: companyName.trim(),
+			}
+			const createdCompany = await createCompany.mutateAsync(newCompany)
+			form.setValue("company_id", createdCompany._id)
+			return createdCompany._id
+		} catch {
+			toast.error("Failed to create company. Please try again.")
+			throw new Error("Company creation failed")
+		}
+	}
+
+	const uploadResumeIfNeeded = async (
+		currentUrl: string | undefined
+	): Promise<string | undefined> => {
+		if (!resumeFile) {
+			return currentUrl
+		}
+
+		const uploadedUrl = await handleFileUpload(resumeFile, "resume")
+		if (!uploadedUrl) {
+			throw new Error("Resume upload failed")
+		}
+
+		return uploadedUrl
+	}
+
+	const uploadCoverLetterIfNeeded = async (
+		currentUrl: string | undefined
+	): Promise<string | undefined> => {
+		if (!coverLetterFile) {
+			return currentUrl
+		}
+
+		const uploadedUrl = await handleFileUpload(coverLetterFile, "cover_letter")
+		if (!uploadedUrl) {
+			throw new Error("Cover letter upload failed")
+		}
+
+		return uploadedUrl
+	}
+
+	const buildPayload = (
+		data: JobApplicationFormValues,
+		companyId: string | undefined,
+		resumeUrl: string | undefined,
+		coverLetterUrl: string | undefined
+	): CreateJobApplicationInput => {
+		return {
+			company_id: companyId,
 			company_name: data.company_name,
 			job_title: data.job_title,
 			job_description: data.job_description ?? undefined,
@@ -198,16 +274,37 @@ export default function JobApplicationForm({
 			resume_url: resumeUrl,
 			cover_letter_url: coverLetterUrl,
 		}
+	}
+
+	const resetFormState = () => {
+		form.reset()
+		setResumeFile(null)
+		setCoverLetterFile(null)
+		resumeUploadRef.current?.clearFile()
+		coverLetterUploadRef.current?.clearFile()
+		onClose()
+	}
+
+	const onSubmit = async (data: JobApplicationFormValues) => {
+		const finalCompanyId = await ensureCompanyCreated(
+			data.company_id,
+			data.company_name
+		)
+
+		const resumeUrl = await uploadResumeIfNeeded(data.resume_url ?? undefined)
+		const coverLetterUrl = await uploadCoverLetterIfNeeded(
+			data.cover_letter_url ?? undefined
+		)
+
+		const payload = buildPayload(
+			data,
+			finalCompanyId,
+			resumeUrl,
+			coverLetterUrl
+		)
 
 		await createJobApplication.mutateAsync(payload, {
-			onSuccess: () => {
-				form.reset()
-				setResumeFile(null)
-				setCoverLetterFile(null)
-				resumeUploadRef.current?.clearFile()
-				coverLetterUploadRef.current?.clearFile()
-				onClose()
-			},
+			onSuccess: resetFormState,
 		})
 	}
 
@@ -217,14 +314,75 @@ export default function JobApplicationForm({
 				<div className="grid grid-cols-1 gap-6 md:grid-cols-2">
 					<FormField
 						control={form.control}
+						name="company_id"
+						render={({ field }) => (
+							<FormItem>
+								<FormLabel>Link to Company (Optional)</FormLabel>
+								<Select
+									onValueChange={(value) => {
+										if (value === "__new__") {
+											field.onChange(undefined)
+											form.setValue("company_name", "")
+										} else {
+											field.onChange(value)
+										}
+									}}
+									value={field.value ?? "__new__"}
+								>
+									<FormControl>
+										<SelectTrigger>
+											<SelectValue placeholder="Select existing company" />
+										</SelectTrigger>
+									</FormControl>
+									<SelectContent>
+										<SelectItem value="__new__">Create new company</SelectItem>
+										{companies.map((company) => (
+											<SelectItem key={company._id} value={company._id}>
+												{company.name}
+											</SelectItem>
+										))}
+									</SelectContent>
+								</Select>
+								<FormMessage />
+							</FormItem>
+						)}
+					/>
+
+					<FormField
+						control={form.control}
 						name="company_name"
 						render={({ field }) => (
 							<FormItem>
 								<FormLabel>Company Name *</FormLabel>
 								<FormControl>
-									<Input placeholder="e.g., Google" {...field} />
+									<div className="flex gap-2">
+										<Input
+											placeholder="e.g., Google"
+											{...field}
+											disabled={!!selectedCompanyId}
+										/>
+										{showCreateButton && (
+											<Button
+												type="button"
+												variant="outline"
+												onClick={handleCreateCompany}
+												disabled={createCompany.isPending}
+											>
+												{createCompany.isPending
+													? "Creating..."
+													: "Create & Link"}
+											</Button>
+										)}
+									</div>
 								</FormControl>
 								<FormMessage />
+								{showCreateButton && (
+									<p className="text-xs text-muted-foreground">
+										Click &quot;Create & Link&quot; to create a company profile
+										and link it to this application, or select an existing
+										company above.
+									</p>
+								)}
 							</FormItem>
 						)}
 					/>
