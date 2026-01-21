@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 import { Bricolage_Grotesque, Geist_Mono } from "next/font/google"
+import { SpeedInsights } from "@vercel/speed-insights/next"
 
 import { AppSidebar } from "@/components/AppSidebar"
 import Navbar from "@/components/Navbar"
@@ -59,6 +60,7 @@ export default function RootLayout({
 						<Toaster />
 					</QueryProvider>
 				</ThemeProvider>
+				<SpeedInsights />
 			</body>
 		</html>
 	)
