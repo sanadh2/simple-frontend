@@ -28,6 +28,7 @@ export interface User {
 }
 
 export type JobStatus =
+	| "All"
 	| "Wishlist"
 	| "Applied"
 	| "Interview Scheduled"
@@ -279,38 +280,61 @@ class ApiClient {
 		})
 	}
 
+	private buildQueryParams(params?: {
+		page?: number
+		limit?: number
+		status?: JobStatus
+		priority?: PriorityLevel
+		company_name?: string
+		search?: string
+		startDate?: string
+		endDate?: string
+		sortBy?: string
+		sortOrder?: "asc" | "desc"
+	}): URLSearchParams {
+		const queryParams = new URLSearchParams()
+		if (!params) {
+			return queryParams
+		}
+
+		const paramMap: Record<string, string | undefined> = {
+			page: params.page?.toString(),
+			limit: params.limit?.toString(),
+			status: params.status,
+			priority: params.priority,
+			company_name: params.company_name,
+			search: params.search,
+			startDate: params.startDate,
+			endDate: params.endDate,
+			sortBy: params.sortBy,
+			sortOrder: params.sortOrder,
+		}
+
+		for (const [key, value] of Object.entries(paramMap)) {
+			if (value) {
+				queryParams.append(key, value)
+			}
+		}
+
+		return queryParams
+	}
+
 	async getJobApplications(params?: {
 		page?: number
 		limit?: number
 		status?: JobStatus
 		priority?: PriorityLevel
 		company_name?: string
+		search?: string
 		startDate?: string
 		endDate?: string
+		sortBy?: string
+		sortOrder?: "asc" | "desc"
 	}): Promise<ApiResponse<PaginatedJobApplications>> {
-		const queryParams = new URLSearchParams()
-		if (params?.page) {
-			queryParams.append("page", params.page.toString())
+		const queryParams = this.buildQueryParams(params)
+		if (queryParams.get("status") === "All") {
+			queryParams.delete("status")
 		}
-		if (params?.limit) {
-			queryParams.append("limit", params.limit.toString())
-		}
-		if (params?.status) {
-			queryParams.append("status", params.status)
-		}
-		if (params?.priority) {
-			queryParams.append("priority", params.priority)
-		}
-		if (params?.company_name) {
-			queryParams.append("company_name", params.company_name)
-		}
-		if (params?.startDate) {
-			queryParams.append("startDate", params.startDate)
-		}
-		if (params?.endDate) {
-			queryParams.append("endDate", params.endDate)
-		}
-
 		const queryString = queryParams.toString()
 		const endpoint = `/api/job-applications${queryString ? `?${queryString}` : ""}`
 

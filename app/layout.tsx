@@ -1,5 +1,5 @@
 import type { Metadata } from "next"
-import { Geist, Geist_Mono } from "next/font/google"
+import { Bricolage_Grotesque, Geist_Mono } from "next/font/google"
 
 import { AppSidebar } from "@/components/AppSidebar"
 import Navbar from "@/components/Navbar"
@@ -10,9 +10,10 @@ import { ThemeProvider } from "@/providers/ThemeProvider"
 
 import "./globals.css"
 
-const geistSans = Geist({
-	variable: "--font-geist-sans",
+const bricolageGrotesque = Bricolage_Grotesque({
+	variable: "--font-bricolage-grotesque",
 	subsets: ["latin"],
+	display: "swap",
 })
 
 const geistMono = Geist_Mono({
@@ -37,7 +38,7 @@ export default function RootLayout({
 	return (
 		<html lang="en" suppressHydrationWarning>
 			<body
-				className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+				className={`${bricolageGrotesque.variable} ${geistMono.variable} font-sans antialiased`}
 			>
 				<ThemeProvider
 					attribute="class"

@@ -22,8 +22,11 @@ export const jobApplicationKeys = {
 		status?: JobStatus
 		priority?: PriorityLevel
 		company_name?: string
+		search?: string
 		startDate?: string
 		endDate?: string
+		sortBy?: string
+		sortOrder?: "asc" | "desc"
 	}) => [...jobApplicationKeys.lists(), filters] as const,
 	details: () => [...jobApplicationKeys.all, "detail"] as const,
 	detail: (id: string) => [...jobApplicationKeys.details(), id] as const,
@@ -35,8 +38,11 @@ export function useJobApplications(params?: {
 	status?: JobStatus
 	priority?: PriorityLevel
 	company_name?: string
+	search?: string
 	startDate?: string
 	endDate?: string
+	sortBy?: string
+	sortOrder?: "asc" | "desc"
 }) {
 	return useQuery({
 		queryKey: jobApplicationKeys.list(params),

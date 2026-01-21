@@ -4,6 +4,7 @@ import { fetchWithAuth } from "./fetchWithAuth"
 const API_BASE_URL = env.NEXT_PUBLIC_API_URL
 
 export interface Log {
+	_id: string
 	timestamp: string
 	level: "info" | "warn" | "error" | "debug"
 	correlation_id: string

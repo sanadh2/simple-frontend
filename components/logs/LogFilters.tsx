@@ -4,6 +4,13 @@ import { useState } from "react"
 import { Calendar, Search, X } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select"
 
 interface LogFiltersProps {
 	onFilterChange: (filters: {
@@ -50,18 +57,18 @@ export function LogFilters({ onFilterChange, onRefresh }: LogFiltersProps) {
 					>
 						Level
 					</label>
-					<select
-						id="level-filter"
-						value={level}
-						onChange={(e) => setLevel(e.target.value)}
-						className="w-full px-3 py-2 border border-gray-300  focus:outline-none focus:ring-2 focus:ring-blue-500"
-					>
-						<option value="">All Levels</option>
-						<option value="info">Info</option>
-						<option value="warn">Warning</option>
-						<option value="error">Error</option>
-						<option value="debug">Debug</option>
-					</select>
+					<Select value={level} onValueChange={setLevel}>
+						<SelectTrigger id="level-filter" className="w-full">
+							<SelectValue placeholder="All Levels" />
+						</SelectTrigger>
+						<SelectContent>
+							<SelectItem value="All">All Levels</SelectItem>
+							<SelectItem value="info">Info</SelectItem>
+							<SelectItem value="warn">Warning</SelectItem>
+							<SelectItem value="error">Error</SelectItem>
+							<SelectItem value="debug">Debug</SelectItem>
+						</SelectContent>
+					</Select>
 				</div>
 
 				<div>

@@ -28,6 +28,13 @@ import {
 	FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select"
 import { useUpdateJobApplication } from "@/hooks/useJobApplications"
 import type {
 	JobApplication,
@@ -45,6 +52,7 @@ const jobApplicationSchema = z.object({
 	notes: z.string().optional(),
 	application_date: z.string().min(1, "Application date is required"),
 	status: z.enum([
+		"All",
 		"Wishlist",
 		"Applied",
 		"Interview Scheduled",
@@ -322,18 +330,20 @@ export default function EditJobApplicationForm({
 								render={({ field }) => (
 									<FormItem>
 										<FormLabel>Status *</FormLabel>
-										<FormControl>
-											<select
-												{...field}
-												className="flex h-10 w-full border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-											>
+										<Select onValueChange={field.onChange} value={field.value}>
+											<FormControl>
+												<SelectTrigger>
+													<SelectValue placeholder="Select status" />
+												</SelectTrigger>
+											</FormControl>
+											<SelectContent>
 												{STATUS_OPTIONS.map((option) => (
-													<option key={option.value} value={option.value}>
+													<SelectItem key={option.value} value={option.value}>
 														{option.label}
-													</option>
+													</SelectItem>
 												))}
-											</select>
-										</FormControl>
+											</SelectContent>
+										</Select>
 										<FormMessage />
 									</FormItem>
 								)}
@@ -345,18 +355,20 @@ export default function EditJobApplicationForm({
 								render={({ field }) => (
 									<FormItem>
 										<FormLabel>Priority *</FormLabel>
-										<FormControl>
-											<select
-												{...field}
-												className="flex h-10 w-full border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-											>
+										<Select onValueChange={field.onChange} value={field.value}>
+											<FormControl>
+												<SelectTrigger>
+													<SelectValue placeholder="Select priority" />
+												</SelectTrigger>
+											</FormControl>
+											<SelectContent>
 												{PRIORITY_OPTIONS.map((option) => (
-													<option key={option.value} value={option.value}>
+													<SelectItem key={option.value} value={option.value}>
 														{option.label}
-													</option>
+													</SelectItem>
 												))}
-											</select>
-										</FormControl>
+											</SelectContent>
+										</Select>
 										<FormMessage />
 									</FormItem>
 								)}
@@ -368,18 +380,20 @@ export default function EditJobApplicationForm({
 								render={({ field }) => (
 									<FormItem>
 										<FormLabel>Location Type *</FormLabel>
-										<FormControl>
-											<select
-												{...field}
-												className="flex h-10 w-full border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-											>
+										<Select onValueChange={field.onChange} value={field.value}>
+											<FormControl>
+												<SelectTrigger>
+													<SelectValue placeholder="Select location type" />
+												</SelectTrigger>
+											</FormControl>
+											<SelectContent>
 												{LOCATION_TYPE_OPTIONS.map((option) => (
-													<option key={option.value} value={option.value}>
+													<SelectItem key={option.value} value={option.value}>
 														{option.label}
-													</option>
+													</SelectItem>
 												))}
-											</select>
-										</FormControl>
+											</SelectContent>
+										</Select>
 										<FormMessage />
 									</FormItem>
 								)}

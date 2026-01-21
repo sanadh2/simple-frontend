@@ -109,7 +109,7 @@ export function AppSidebar() {
 									tooltip="Profile"
 								>
 									<Link href="/profile">
-										<div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-linear-to-br from-blue-600 to-purple-600 text-white text-sm font-semibold">
+										<div className="flex aspect-square size-8 items-center justify-center bg-linear-to-br from-blue-600 to-purple-600 text-white text-sm font-semibold">
 											{user.first_name.charAt(0)}
 											{user.last_name.charAt(0)}
 										</div>

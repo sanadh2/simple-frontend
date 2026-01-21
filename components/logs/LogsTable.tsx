@@ -72,7 +72,7 @@ export function LogsTable({ logs, onCorrelationClick }: LogsTableProps) {
 
 								return (
 									<tr
-										key={`${log.correlation_id}`}
+										key={`${log._id}`}
 										className="hover:bg-gray-50 transition-colors"
 									>
 										<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">

@@ -60,8 +60,22 @@ const locationTypeLabels: Record<string, string> = {
 	onsite: "Onsite",
 }
 
-export default function JobApplicationsList() {
-	const { data, isLoading, error } = useJobApplications({ limit: 50 })
+interface JobApplicationsListProps {
+	filters?: {
+		search?: string
+		status?: JobStatus
+		startDate?: string
+		endDate?: string
+		sortBy?: string
+		sortOrder?: "asc" | "desc"
+		limit?: number
+	}
+}
+
+export default function JobApplicationsList({
+	filters,
+}: JobApplicationsListProps) {
+	const { data, isLoading, error } = useJobApplications(filters)
 
 	if (isLoading) {
 		return <LoadingSpinner text="Loading job applications..." />

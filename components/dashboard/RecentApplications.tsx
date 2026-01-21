@@ -52,7 +52,7 @@ export function RecentApplications({ applications }: RecentApplicationsProps) {
 					{applications.map((app) => (
 						<div
 							key={app._id}
-							className="block p-4 rounded-lg border hover:bg-accent transition-colors"
+							className="block p-4 border hover:bg-accent transition-colors"
 						>
 							<div className="flex items-start justify-between">
 								<div className="flex-1">
