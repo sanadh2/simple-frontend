@@ -7,7 +7,7 @@ import { ActivityTimeline } from "@/components/dashboard/ActivityTimeline"
 import { ApplicationsByStatusChart } from "@/components/dashboard/ApplicationsByStatusChart"
 import { QuickStats } from "@/components/dashboard/QuickStats"
 import { RecentApplications } from "@/components/dashboard/RecentApplications"
-import InterviewCalendar from "@/components/InterviewCalendar"
+import InterviewCalendarView from "@/components/InterviewCalendarView"
 import LoadingSpinner from "@/components/LoadingSpinner"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { useInterviews } from "@/hooks/useInterviews"
@@ -198,7 +198,10 @@ export default function DashboardOverview() {
 			</div>
 
 			{/* Interview Calendar */}
-			<InterviewCalendar interviews={interviewsData ?? []} />
+			<InterviewCalendarView
+				interviews={interviewsData ?? []}
+				jobApplications={data?.applications ?? []}
+			/>
 		</div>
 	)
 }
