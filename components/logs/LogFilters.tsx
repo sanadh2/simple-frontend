@@ -45,7 +45,7 @@ export function LogFilters({ onFilterChange, onRefresh }: LogFiltersProps) {
 		onFilterChange({})
 	}
 
-	const hasActiveFilters = level || message || startDate || endDate
+	const hasActiveFilters = level !== "All" || message || startDate || endDate
 
 	return (
 		<div className="bg-white  p-6 space-y-4">

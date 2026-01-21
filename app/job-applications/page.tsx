@@ -99,7 +99,7 @@ export default function JobApplicationsPage() {
 
 	const hasActiveFilters =
 		search ||
-		status ||
+		status !== "All" ||
 		startDate ||
 		endDate ||
 		sortBy !== "application_date:desc"
