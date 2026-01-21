@@ -42,10 +42,51 @@ export type LocationType = "remote" | "hybrid" | "onsite"
 
 export type PriorityLevel = "high" | "medium" | "low"
 
+export type InterviewType =
+	| "phone_screen"
+	| "technical"
+	| "behavioral"
+	| "system_design"
+	| "hr"
+	| "final"
+
+export type InterviewFormat = "phone" | "video" | "in_person"
+
 export interface StatusHistory {
 	status: JobStatus
 	changed_at: string
 }
+
+export interface Interview {
+	_id: string
+	job_application_id: string
+	interview_type: InterviewType
+	scheduled_at: string
+	interviewer_name?: string
+	interviewer_role?: string
+	interview_format: InterviewFormat
+	duration_minutes?: number
+	notes?: string
+	feedback?: string
+	preparation_checklist?: string[]
+	createdAt: string
+	updatedAt: string
+}
+
+export interface CreateInterviewInput {
+	job_application_id: string
+	interview_type: InterviewType
+	scheduled_at: string | Date
+	interviewer_name?: string
+	interviewer_role?: string
+	interview_format: InterviewFormat
+	duration_minutes?: number
+	notes?: string
+	feedback?: string
+	preparation_checklist?: string[]
+}
+
+export type UpdateInterviewInput = Partial<CreateInterviewInput>
 
 export interface JobApplication {
 	_id: string
@@ -378,6 +419,66 @@ class ApiClient {
 		return this.request("/api/job-applications/upload-file", {
 			method: "POST",
 			body: formData,
+		})
+	}
+
+	async createInterview(
+		data: CreateInterviewInput
+	): Promise<ApiResponse<Interview>> {
+		return this.request("/api/interviews", {
+			method: "POST",
+			body: JSON.stringify(data),
+		})
+	}
+
+	async getInterviews(): Promise<ApiResponse<Interview[]>> {
+		return this.request("/api/interviews", {
+			method: "GET",
+		})
+	}
+
+	async getInterviewById(id: string): Promise<ApiResponse<Interview>> {
+		return this.request(`/api/interviews/${id}`, {
+			method: "GET",
+		})
+	}
+
+	async getInterviewsByJobApplicationId(
+		jobApplicationId: string
+	): Promise<ApiResponse<Interview[]>> {
+		return this.request(`/api/interviews/job-application/${jobApplicationId}`, {
+			method: "GET",
+		})
+	}
+
+	async getUpcomingInterviews(
+		days?: number
+	): Promise<ApiResponse<Interview[]>> {
+		const queryParams = new URLSearchParams()
+		if (days) {
+			queryParams.append("days", days.toString())
+		}
+		const queryString = queryParams.toString()
+		const endpoint = `/api/interviews/upcoming${queryString ? `?${queryString}` : ""}`
+
+		return this.request(endpoint, {
+			method: "GET",
+		})
+	}
+
+	async updateInterview(
+		id: string,
+		data: UpdateInterviewInput
+	): Promise<ApiResponse<Interview>> {
+		return this.request(`/api/interviews/${id}`, {
+			method: "PUT",
+			body: JSON.stringify(data),
+		})
+	}
+
+	async deleteInterview(id: string): Promise<ApiResponse> {
+		return this.request(`/api/interviews/${id}`, {
+			method: "DELETE",
 		})
 	}
 }

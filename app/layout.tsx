@@ -7,6 +7,7 @@ import { AppSidebar } from "@/components/AppSidebar"
 import Navbar from "@/components/Navbar"
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
 import { Toaster } from "@/components/ui/sonner"
+import { env } from "@/env"
 import { QueryProvider } from "@/providers/QueryProvider"
 import { ThemeProvider } from "@/providers/ThemeProvider"
 
@@ -61,8 +62,12 @@ export default function RootLayout({
 						<Toaster />
 					</QueryProvider>
 				</ThemeProvider>
-				<SpeedInsights />
-				<Analytics />
+				{env.NODE_ENV === "production" ? (
+					<>
+						<SpeedInsights />
+						<Analytics />
+					</>
+				) : null}
 			</body>
 		</html>
 	)

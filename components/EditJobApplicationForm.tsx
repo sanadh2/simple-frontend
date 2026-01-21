@@ -272,7 +272,7 @@ export default function EditJobApplicationForm({
 
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>
-			<DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+			<DialogContent className="max-w-2xl max-h-[90vh] flex flex-col">
 				<DialogHeader>
 					<DialogTitle>Edit Job Application</DialogTitle>
 					<DialogDescription>
@@ -280,136 +280,221 @@ export default function EditJobApplicationForm({
 					</DialogDescription>
 				</DialogHeader>
 				<Form {...form}>
-					<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-						<div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-							<FormField
-								control={form.control}
-								name="company_name"
-								render={({ field }) => (
-									<FormItem>
-										<FormLabel>Company Name *</FormLabel>
-										<FormControl>
-											<Input placeholder="e.g., Google" {...field} />
-										</FormControl>
-										<FormMessage />
-									</FormItem>
-								)}
-							/>
-
-							<FormField
-								control={form.control}
-								name="job_title"
-								render={({ field }) => (
-									<FormItem>
-										<FormLabel>Job Title *</FormLabel>
-										<FormControl>
-											<Input placeholder="e.g., Software Engineer" {...field} />
-										</FormControl>
-										<FormMessage />
-									</FormItem>
-								)}
-							/>
-
-							<FormField
-								control={form.control}
-								name="application_date"
-								render={({ field }) => (
-									<FormItem>
-										<FormLabel>Application Date *</FormLabel>
-										<FormControl>
-											<Input type="date" {...field} />
-										</FormControl>
-										<FormMessage />
-									</FormItem>
-								)}
-							/>
-
-							<FormField
-								control={form.control}
-								name="status"
-								render={({ field }) => (
-									<FormItem>
-										<FormLabel>Status *</FormLabel>
-										<Select onValueChange={field.onChange} value={field.value}>
+					<form
+						onSubmit={form.handleSubmit(onSubmit)}
+						className="flex flex-col flex-1 min-h-0"
+					>
+						<div className="flex-1 overflow-y-auto space-y-6 pr-1">
+							<div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+								<FormField
+									control={form.control}
+									name="company_name"
+									render={({ field }) => (
+										<FormItem>
+											<FormLabel>Company Name *</FormLabel>
 											<FormControl>
-												<SelectTrigger>
-													<SelectValue placeholder="Select status" />
-												</SelectTrigger>
+												<Input placeholder="e.g., Google" {...field} />
 											</FormControl>
-											<SelectContent>
-												{STATUS_OPTIONS.map((option) => (
-													<SelectItem key={option.value} value={option.value}>
-														{option.label}
-													</SelectItem>
-												))}
-											</SelectContent>
-										</Select>
-										<FormMessage />
-									</FormItem>
-								)}
-							/>
+											<FormMessage />
+										</FormItem>
+									)}
+								/>
 
-							<FormField
-								control={form.control}
-								name="priority"
-								render={({ field }) => (
-									<FormItem>
-										<FormLabel>Priority *</FormLabel>
-										<Select onValueChange={field.onChange} value={field.value}>
+								<FormField
+									control={form.control}
+									name="job_title"
+									render={({ field }) => (
+										<FormItem>
+											<FormLabel>Job Title *</FormLabel>
 											<FormControl>
-												<SelectTrigger>
-													<SelectValue placeholder="Select priority" />
-												</SelectTrigger>
+												<Input
+													placeholder="e.g., Software Engineer"
+													{...field}
+												/>
 											</FormControl>
-											<SelectContent>
-												{PRIORITY_OPTIONS.map((option) => (
-													<SelectItem key={option.value} value={option.value}>
-														{option.label}
-													</SelectItem>
-												))}
-											</SelectContent>
-										</Select>
-										<FormMessage />
-									</FormItem>
-								)}
-							/>
+											<FormMessage />
+										</FormItem>
+									)}
+								/>
 
-							<FormField
-								control={form.control}
-								name="location_type"
-								render={({ field }) => (
-									<FormItem>
-										<FormLabel>Location Type *</FormLabel>
-										<Select onValueChange={field.onChange} value={field.value}>
+								<FormField
+									control={form.control}
+									name="application_date"
+									render={({ field }) => (
+										<FormItem>
+											<FormLabel>Application Date *</FormLabel>
 											<FormControl>
-												<SelectTrigger>
-													<SelectValue placeholder="Select location type" />
-												</SelectTrigger>
+												<Input type="date" {...field} />
 											</FormControl>
-											<SelectContent>
-												{LOCATION_TYPE_OPTIONS.map((option) => (
-													<SelectItem key={option.value} value={option.value}>
-														{option.label}
-													</SelectItem>
-												))}
-											</SelectContent>
-										</Select>
-										<FormMessage />
-									</FormItem>
-								)}
-							/>
+											<FormMessage />
+										</FormItem>
+									)}
+								/>
+
+								<FormField
+									control={form.control}
+									name="status"
+									render={({ field }) => (
+										<FormItem>
+											<FormLabel>Status *</FormLabel>
+											<Select
+												onValueChange={field.onChange}
+												value={field.value}
+											>
+												<FormControl>
+													<SelectTrigger>
+														<SelectValue placeholder="Select status" />
+													</SelectTrigger>
+												</FormControl>
+												<SelectContent>
+													{STATUS_OPTIONS.map((option) => (
+														<SelectItem key={option.value} value={option.value}>
+															{option.label}
+														</SelectItem>
+													))}
+												</SelectContent>
+											</Select>
+											<FormMessage />
+										</FormItem>
+									)}
+								/>
+
+								<FormField
+									control={form.control}
+									name="priority"
+									render={({ field }) => (
+										<FormItem>
+											<FormLabel>Priority *</FormLabel>
+											<Select
+												onValueChange={field.onChange}
+												value={field.value}
+											>
+												<FormControl>
+													<SelectTrigger>
+														<SelectValue placeholder="Select priority" />
+													</SelectTrigger>
+												</FormControl>
+												<SelectContent>
+													{PRIORITY_OPTIONS.map((option) => (
+														<SelectItem key={option.value} value={option.value}>
+															{option.label}
+														</SelectItem>
+													))}
+												</SelectContent>
+											</Select>
+											<FormMessage />
+										</FormItem>
+									)}
+								/>
+
+								<FormField
+									control={form.control}
+									name="location_type"
+									render={({ field }) => (
+										<FormItem>
+											<FormLabel>Location Type *</FormLabel>
+											<Select
+												onValueChange={field.onChange}
+												value={field.value}
+											>
+												<FormControl>
+													<SelectTrigger>
+														<SelectValue placeholder="Select location type" />
+													</SelectTrigger>
+												</FormControl>
+												<SelectContent>
+													{LOCATION_TYPE_OPTIONS.map((option) => (
+														<SelectItem key={option.value} value={option.value}>
+															{option.label}
+														</SelectItem>
+													))}
+												</SelectContent>
+											</Select>
+											<FormMessage />
+										</FormItem>
+									)}
+								/>
+
+								<FormField
+									control={form.control}
+									name="location_city"
+									render={({ field }) => (
+										<FormItem>
+											<FormLabel>City</FormLabel>
+											<FormControl>
+												<Input
+													placeholder="e.g., San Francisco"
+													{...field}
+													disabled={form.watch("location_type") === "remote"}
+												/>
+											</FormControl>
+											<FormMessage />
+										</FormItem>
+									)}
+								/>
+
+								<FormField
+									control={form.control}
+									name="salary_range"
+									render={({ field }) => (
+										<FormItem>
+											<FormLabel>Salary Range</FormLabel>
+											<FormControl>
+												<Input placeholder="e.g., $100k - $150k" {...field} />
+											</FormControl>
+											<FormMessage />
+										</FormItem>
+									)}
+								/>
+
+								<FormField
+									control={form.control}
+									name="application_method"
+									render={({ field }) => (
+										<FormItem>
+											<FormLabel>Application Method</FormLabel>
+											<FormControl>
+												<Input
+													placeholder="e.g., Company website, LinkedIn, Referral"
+													{...field}
+												/>
+											</FormControl>
+											<FormMessage />
+										</FormItem>
+									)}
+								/>
+
+								<FormField
+									control={form.control}
+									name="job_posting_url"
+									render={({ field }) => (
+										<FormItem>
+											<FormLabel>Job Posting URL</FormLabel>
+											<FormControl>
+												<Input
+													type="url"
+													placeholder="https://..."
+													{...field}
+												/>
+											</FormControl>
+											<FormMessage />
+										</FormItem>
+									)}
+								/>
+							</div>
 
 							<FormField
 								control={form.control}
-								name="location_city"
+								name="job_description"
 								render={({ field }) => (
 									<FormItem>
-										<FormLabel>City</FormLabel>
+										<FormLabel>Job Description</FormLabel>
 										<FormControl>
-											<Input
-												placeholder="e.g., San Francisco"
+											<textarea
 												{...field}
-												disabled={form.watch("location_type") === "remote"}
+												rows={4}
+												className="flex min-h-[80px] w-full border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+												placeholder="Paste or describe the job posting details..."
 											/>
 										</FormControl>
 										<FormMessage />
@@ -419,28 +504,16 @@ export default function EditJobApplicationForm({
 
 							<FormField
 								control={form.control}
-								name="salary_range"
+								name="notes"
 								render={({ field }) => (
 									<FormItem>
-										<FormLabel>Salary Range</FormLabel>
+										<FormLabel>Notes</FormLabel>
 										<FormControl>
-											<Input placeholder="e.g., $100k - $150k" {...field} />
-										</FormControl>
-										<FormMessage />
-									</FormItem>
-								)}
-							/>
-
-							<FormField
-								control={form.control}
-								name="application_method"
-								render={({ field }) => (
-									<FormItem>
-										<FormLabel>Application Method</FormLabel>
-										<FormControl>
-											<Input
-												placeholder="e.g., Company website, LinkedIn, Referral"
+											<textarea
 												{...field}
+												rows={4}
+												className="flex min-h-[80px] w-full border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+												placeholder="Add your personal notes, reminders, or thoughts about this application..."
 											/>
 										</FormControl>
 										<FormMessage />
@@ -448,123 +521,71 @@ export default function EditJobApplicationForm({
 								)}
 							/>
 
-							<FormField
-								control={form.control}
-								name="job_posting_url"
-								render={({ field }) => (
-									<FormItem>
-										<FormLabel>Job Posting URL</FormLabel>
-										<FormControl>
-											<Input type="url" placeholder="https://..." {...field} />
-										</FormControl>
-										<FormMessage />
-									</FormItem>
-								)}
-							/>
+							<div className="space-y-4">
+								<FormField
+									control={form.control}
+									name="resume_url"
+									render={() => (
+										<FormItem>
+											<FormLabel>Resume</FormLabel>
+											<FormControl>
+												<DocumentUpload
+													ref={resumeUploadRef}
+													label="Resume"
+													currentFileUrl={form.watch("resume_url") ?? undefined}
+													onFileChange={(file) => {
+														setResumeFile(file)
+														if (file) {
+															form.setValue("resume_url", "")
+														}
+													}}
+													disabled={
+														isUploadingResume || updateJobApplication.isPending
+													}
+													accept={[".pdf", ".doc", ".docx", ".txt"]}
+													maxSize="10MB"
+												/>
+											</FormControl>
+											<FormMessage />
+										</FormItem>
+									)}
+								/>
+
+								<FormField
+									control={form.control}
+									name="cover_letter_url"
+									render={() => (
+										<FormItem>
+											<FormLabel>Cover Letter</FormLabel>
+											<FormControl>
+												<DocumentUpload
+													ref={coverLetterUploadRef}
+													label="Cover Letter"
+													currentFileUrl={
+														form.watch("cover_letter_url") ?? undefined
+													}
+													onFileChange={(file) => {
+														setCoverLetterFile(file)
+														if (file) {
+															form.setValue("cover_letter_url", "")
+														}
+													}}
+													disabled={
+														isUploadingCoverLetter ||
+														updateJobApplication.isPending
+													}
+													accept={[".pdf", ".doc", ".docx", ".txt"]}
+													maxSize="10MB"
+												/>
+											</FormControl>
+											<FormMessage />
+										</FormItem>
+									)}
+								/>
+							</div>
 						</div>
 
-						<FormField
-							control={form.control}
-							name="job_description"
-							render={({ field }) => (
-								<FormItem>
-									<FormLabel>Job Description</FormLabel>
-									<FormControl>
-										<textarea
-											{...field}
-											rows={4}
-											className="flex min-h-[80px] w-full border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-											placeholder="Paste or describe the job posting details..."
-										/>
-									</FormControl>
-									<FormMessage />
-								</FormItem>
-							)}
-						/>
-
-						<FormField
-							control={form.control}
-							name="notes"
-							render={({ field }) => (
-								<FormItem>
-									<FormLabel>Notes</FormLabel>
-									<FormControl>
-										<textarea
-											{...field}
-											rows={4}
-											className="flex min-h-[80px] w-full border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-											placeholder="Add your personal notes, reminders, or thoughts about this application..."
-										/>
-									</FormControl>
-									<FormMessage />
-								</FormItem>
-							)}
-						/>
-
-						<div className="space-y-4">
-							<FormField
-								control={form.control}
-								name="resume_url"
-								render={() => (
-									<FormItem>
-										<FormLabel>Resume</FormLabel>
-										<FormControl>
-											<DocumentUpload
-												ref={resumeUploadRef}
-												label="Resume"
-												currentFileUrl={form.watch("resume_url") ?? undefined}
-												onFileChange={(file) => {
-													setResumeFile(file)
-													if (file) {
-														form.setValue("resume_url", "")
-													}
-												}}
-												disabled={
-													isUploadingResume || updateJobApplication.isPending
-												}
-												accept={[".pdf", ".doc", ".docx", ".txt"]}
-												maxSize="10MB"
-											/>
-										</FormControl>
-										<FormMessage />
-									</FormItem>
-								)}
-							/>
-
-							<FormField
-								control={form.control}
-								name="cover_letter_url"
-								render={() => (
-									<FormItem>
-										<FormLabel>Cover Letter</FormLabel>
-										<FormControl>
-											<DocumentUpload
-												ref={coverLetterUploadRef}
-												label="Cover Letter"
-												currentFileUrl={
-													form.watch("cover_letter_url") ?? undefined
-												}
-												onFileChange={(file) => {
-													setCoverLetterFile(file)
-													if (file) {
-														form.setValue("cover_letter_url", "")
-													}
-												}}
-												disabled={
-													isUploadingCoverLetter ||
-													updateJobApplication.isPending
-												}
-												accept={[".pdf", ".doc", ".docx", ".txt"]}
-												maxSize="10MB"
-											/>
-										</FormControl>
-										<FormMessage />
-									</FormItem>
-								)}
-							/>
-						</div>
-
-						<DialogFooter>
+						<DialogFooter className="mt-4 shrink-0 border-t pt-4">
 							<Button
 								type="button"
 								variant="outline"

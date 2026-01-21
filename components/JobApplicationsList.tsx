@@ -13,19 +13,14 @@ import {
 } from "lucide-react"
 
 import EditJobApplicationForm from "@/components/EditJobApplicationForm"
+import InterviewList from "@/components/InterviewList"
 import LoadingSpinner from "@/components/LoadingSpinner"
 import StatusHistoryTimeline from "@/components/StatusHistoryTimeline"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import {
-	Dialog,
-	DialogContent,
-	DialogDescription,
-	DialogFooter,
-	DialogHeader,
-	DialogTitle,
-} from "@/components/ui/dialog"
+import { ConfirmDialog } from "@/components/ui/confirm-dialog"
+import { useInterviewsByJobApplication } from "@/hooks/useInterviews"
 import {
 	useDeleteJobApplication,
 	useJobApplications,
@@ -113,18 +108,26 @@ export default function JobApplicationsList({
 	)
 }
 
+const getLocationText = (application: JobApplication): string => {
+	if (application.location_type === "remote") {
+		return "Remote"
+	}
+	const locationType = locationTypeLabels[application.location_type] || ""
+	return application.location_city
+		? `${locationType} - ${application.location_city}`
+		: locationType
+}
+
 function JobApplicationCard({ application }: { application: JobApplication }) {
 	const [isEditOpen, setIsEditOpen] = useState(false)
 	const [isDeleteOpen, setIsDeleteOpen] = useState(false)
 	const [showHistory, setShowHistory] = useState(false)
+	const [showInterviews, setShowInterviews] = useState(false)
 	const deleteJobApplication = useDeleteJobApplication()
+	const { data: interviews = [], refetch: refetchInterviews } =
+		useInterviewsByJobApplication(application._id)
 
-	const locationText =
-		application.location_type === "remote"
-			? "Remote"
-			: `${locationTypeLabels[application.location_type]}${
-					application.location_city ? ` - ${application.location_city}` : ""
-				}`
+	const locationText = getLocationText(application)
 
 	const handleDelete = async () => {
 		await deleteJobApplication.mutateAsync(application._id, {
@@ -134,9 +137,15 @@ function JobApplicationCard({ application }: { application: JobApplication }) {
 		})
 	}
 
+	const handleDeleteDialogClose = () => {
+		if (!deleteJobApplication.isPending) {
+			setIsDeleteOpen(false)
+		}
+	}
+
 	return (
 		<>
-			<div className="p-4 hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-colors">
+			<div className="p-4 bg-neutral-100 dark:hover:bg-neutral-900 transition-colors">
 				<div className="flex items-start justify-between gap-4">
 					<div className="flex-1 space-y-3">
 						<div className="flex items-start gap-3">
@@ -214,18 +223,30 @@ function JobApplicationCard({ application }: { application: JobApplication }) {
 							</div>
 						)}
 
-						{application.status_history.length > 0 && (
+						<div className="flex flex-col gap-2">
+							{application.status_history.length > 0 && (
+								<button
+									onClick={() => setShowHistory(!showHistory)}
+									className="text-xs text-blue-600 dark:text-blue-400 hover:underline text-left"
+								>
+									{showHistory
+										? "Hide status history"
+										: `View ${application.status_history.length} status change${
+												application.status_history.length !== 1 ? "s" : ""
+											}`}
+								</button>
+							)}
 							<button
-								onClick={() => setShowHistory(!showHistory)}
-								className="text-xs text-blue-600 dark:text-blue-400 hover:underline"
+								onClick={() => setShowInterviews(!showInterviews)}
+								className="text-xs text-blue-600 dark:text-blue-400 hover:underline text-left"
 							>
-								{showHistory
-									? "Hide status history"
-									: `View ${application.status_history.length} status change${
-											application.status_history.length !== 1 ? "s" : ""
+								{showInterviews
+									? "Hide interviews"
+									: `View ${interviews.length} interview${
+											interviews.length !== 1 ? "s" : ""
 										}`}
 							</button>
-						)}
+						</div>
 					</div>
 
 					<div className="flex flex-col gap-2">
@@ -270,43 +291,31 @@ function JobApplicationCard({ application }: { application: JobApplication }) {
 				onOpenChange={setIsEditOpen}
 			/>
 
-			<Dialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
-				<DialogContent>
-					<DialogHeader>
-						<DialogTitle>Delete Job Application</DialogTitle>
-						<DialogDescription>
-							Are you sure you want to delete this job application? This action
-							cannot be undone.
-						</DialogDescription>
-					</DialogHeader>
-					<div className="py-4">
-						<p className="text-sm text-zinc-600 dark:text-zinc-400">
-							<strong>{application.job_title}</strong> at{" "}
-							<strong>{application.company_name}</strong>
-						</p>
-					</div>
-					<DialogFooter>
-						<Button
-							variant="outline"
-							onClick={() => setIsDeleteOpen(false)}
-							disabled={deleteJobApplication.isPending}
-						>
-							Cancel
-						</Button>
-						<Button
-							variant="destructive"
-							onClick={handleDelete}
-							disabled={deleteJobApplication.isPending}
-						>
-							{deleteJobApplication.isPending ? "Deleting..." : "Delete"}
-						</Button>
-					</DialogFooter>
-				</DialogContent>
-			</Dialog>
+			<ConfirmDialog
+				open={isDeleteOpen}
+				onOpenChange={handleDeleteDialogClose}
+				onConfirm={handleDelete}
+				title="Delete Job Application"
+				description={`Are you sure you want to delete "${application.job_title}" at ${application.company_name}? This action cannot be undone.`}
+				confirmText="Delete"
+				cancelText="Cancel"
+				variant="destructive"
+				isLoading={deleteJobApplication.isPending}
+			/>
 
 			{showHistory && (
 				<div className="mt-4 pt-4 border-t">
 					<StatusHistoryTimeline application={application} />
+				</div>
+			)}
+
+			{showInterviews && (
+				<div className="mt-4 pt-4 border-t">
+					<InterviewList
+						jobApplicationId={application._id}
+						interviews={interviews}
+						onUpdate={refetchInterviews}
+					/>
 				</div>
 			)}
 		</>
