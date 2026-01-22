@@ -157,16 +157,45 @@ export async function isAuthenticated(): Promise<boolean> {
  * - Next.js middleware/proxy.ts (can read all cookies)
  */
 export async function setAuthCookies() {
-	const cookieStore = await cookies()
-	const isProduction = env.NODE_ENV === "production"
+	try {
+		console.log("[setAuthCookies] Setting isAuthenticated cookie...")
+		const cookieStore = await cookies()
+		const isProduction = env.NODE_ENV === "production"
 
-	cookieStore.set("isAuthenticated", "true", {
-		path: "/", // Available on all routes
-		httpOnly: false, // Allows client-side JavaScript to read it
-		secure: isProduction, // HTTPS only in production
-		sameSite: isProduction ? "none" : "lax", // Cross-site support in production
-		maxAge: MAX_AGE, // 7 days
-	})
+		console.log(
+			"[setAuthCookies] Cookie store obtained, isProduction:",
+			isProduction
+		)
+
+		cookieStore.set("isAuthenticated", "true", {
+			path: "/", // Available on all routes
+			httpOnly: false, // Allows client-side JavaScript to read it
+			secure: isProduction, // HTTPS only in production
+			sameSite: isProduction ? "none" : "lax", // Cross-site support in production
+			maxAge: MAX_AGE, // 7 days
+		})
+
+		console.log("[setAuthCookies] Cookie set successfully with options:", {
+			path: "/",
+			httpOnly: false,
+			secure: isProduction,
+			sameSite: isProduction ? "none" : "lax",
+			maxAge: MAX_AGE,
+		})
+
+		// Verify the cookie was set
+		const verifyCookie = cookieStore.get("isAuthenticated")
+		console.log("[setAuthCookies] Cookie verification:", {
+			exists: !!verifyCookie,
+			value: verifyCookie?.value,
+		})
+	} catch (error) {
+		console.error("[setAuthCookies] Error setting cookie:", {
+			error: error instanceof Error ? error.message : String(error),
+			stack: error instanceof Error ? error.stack : undefined,
+		})
+		throw error
+	}
 }
 
 export async function clearAuthCookies() {

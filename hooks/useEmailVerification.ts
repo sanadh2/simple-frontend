@@ -4,6 +4,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
 
 import { apiClient } from "@/lib/api"
+import { setAuthCookieClient } from "@/lib/cookie-utils"
 
 import { authKeys } from "./useAuth"
 
@@ -93,6 +94,8 @@ export function useVerifyEmailAndLogin() {
 			return response.data
 		},
 		onSuccess: async (data) => {
+			// User successfully logged in after email verification, set the cookie
+			setAuthCookieClient()
 			queryClient.setQueryData(authKeys.profile(), data.user)
 			await queryClient.invalidateQueries({ queryKey: authKeys.all })
 		},

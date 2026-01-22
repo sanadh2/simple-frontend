@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
 
 import { apiClient } from "@/lib/api"
+import { clearAuthCookieClient, setAuthCookieClient } from "@/lib/cookie-utils"
 
 const HTTP_UNAUTHORIZED = 401
 const MILLISECONDS_PER_SECOND = 1000
@@ -74,6 +75,8 @@ export function useLogin() {
 		},
 		onSuccess: (data) => {
 			if ("user" in data) {
+				// User successfully logged in, set the isAuthenticated cookie
+				setAuthCookieClient()
 				queryClient.setQueryData(authKeys.profile(), data.user)
 			} else if ("requiresVerification" in data) {
 				queryClient.setQueryData(authKeys.profile(), null)
@@ -130,6 +133,8 @@ export function useLogout() {
 			}
 		},
 		onSuccess: async () => {
+			// Clear the isAuthenticated cookie on logout
+			clearAuthCookieClient()
 			queryClient.setQueryData(authKeys.profile(), null)
 			queryClient.removeQueries({ queryKey: authKeys.all })
 			await queryClient.cancelQueries({ queryKey: authKeys.profile() })
