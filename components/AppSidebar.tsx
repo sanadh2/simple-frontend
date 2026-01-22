@@ -8,6 +8,7 @@ import { useTheme } from "next-themes"
 import {
 	Briefcase,
 	Building2,
+	FileCheck,
 	FileText,
 	Home,
 	LogOut,
@@ -51,6 +52,11 @@ export function AppSidebar() {
 			title: "Applications",
 			url: "/job-applications",
 			icon: Briefcase,
+		},
+		{
+			title: "Resumes",
+			url: "/resumes",
+			icon: FileCheck,
 		},
 		{
 			title: "Companies",

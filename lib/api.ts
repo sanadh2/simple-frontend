@@ -170,6 +170,7 @@ export interface JobApplication {
 	job_posting_url?: string
 	application_method?: string
 	priority: PriorityLevel
+	resume_id?: string
 	resume_url?: string
 	cover_letter_url?: string
 	createdAt: string
@@ -190,11 +191,41 @@ export interface CreateJobApplicationInput {
 	job_posting_url?: string
 	application_method?: string
 	priority: PriorityLevel
+	resume_id?: string
 	resume_url?: string
 	cover_letter_url?: string
 }
 
 export type UpdateJobApplicationInput = Partial<CreateJobApplicationInput>
+
+export interface Resume {
+	_id: string
+	user_id: string
+	version: number
+	description?: string
+	file_url: string
+	file_name?: string
+	file_size?: number
+	application_count?: number
+	createdAt: string
+	updatedAt: string
+}
+
+export interface CreateResumeInput {
+	description?: string
+	file_name?: string
+	file_size?: number
+}
+
+export interface UpdateResumeInput {
+	description?: string
+}
+
+export interface ResumeApplication {
+	_id: string
+	company_name: string
+	job_title: string
+}
 
 export interface PaginatedJobApplications {
 	applications: JobApplication[]
@@ -630,6 +661,73 @@ class ApiClient {
 	async deleteCompany(id: string): Promise<ApiResponse> {
 		return this.request(`/api/companies/${id}`, {
 			method: "DELETE",
+		})
+	}
+
+	// Resume Management APIs
+	async createResume(
+		file: File,
+		data?: CreateResumeInput
+	): Promise<ApiResponse<Resume>> {
+		const formData = new FormData()
+		formData.append("file", file)
+		if (data?.description) {
+			formData.append("description", data.description)
+		}
+		if (data?.file_name) {
+			formData.append("file_name", data.file_name)
+		}
+		if (data?.file_size) {
+			formData.append("file_size", data.file_size.toString())
+		}
+
+		return this.request("/api/resumes", {
+			method: "POST",
+			body: formData,
+		})
+	}
+
+	async getResumes(): Promise<ApiResponse<Resume[]>> {
+		return this.request("/api/resumes", {
+			method: "GET",
+		})
+	}
+
+	async getResumeById(id: string): Promise<ApiResponse<Resume>> {
+		return this.request(`/api/resumes/${id}`, {
+			method: "GET",
+		})
+	}
+
+	async updateResume(
+		id: string,
+		data: UpdateResumeInput
+	): Promise<ApiResponse<Resume>> {
+		return this.request(`/api/resumes/${id}`, {
+			method: "PUT",
+			body: JSON.stringify(data),
+		})
+	}
+
+	async deleteResume(id: string): Promise<ApiResponse> {
+		return this.request(`/api/resumes/${id}`, {
+			method: "DELETE",
+		})
+	}
+
+	async getResumeApplications(
+		id: string
+	): Promise<ApiResponse<ResumeApplication[]>> {
+		return this.request(`/api/resumes/${id}/applications`, {
+			method: "GET",
+		})
+	}
+
+	async getResumeDownloadUrl(
+		id: string
+	): Promise<ApiResponse<{ url: string; file_name?: string }>> {
+		return this.request(`/api/resumes/${id}/download`, {
+			method: "GET",
 		})
 	}
 }

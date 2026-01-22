@@ -48,7 +48,7 @@
 
 ::-webkit-scrollbar-thumb:hover {
 	@apply bg-zinc-400 dark:bg-zinc-600;
-} 
+}
 
 /* @theme inline {
 	--color-background: var(--background);
@@ -282,7 +282,6 @@
 	--sidebar-ring: oklch(0.62 0.21 22);
 }
 
-
 @layer base {
 	* {
 		@apply border-border outline-ring/50;
@@ -292,6 +291,6 @@
 	}
 }
 
-.filepond--credits{
+.filepond--credits {
 	display: none;
 }

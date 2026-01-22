@@ -29,6 +29,7 @@ import {
 } from "@/components/ui/select"
 import { useCompanies, useCreateCompany } from "@/hooks/useCompanies"
 import { useCreateJobApplication } from "@/hooks/useJobApplications"
+import { useResumes } from "@/hooks/useResumes"
 import {
 	apiClient,
 	type CreateCompanyInput,
@@ -61,6 +62,7 @@ const jobApplicationSchema = z.object({
 	job_posting_url: z.url("Invalid URL format").optional().or(z.literal("")),
 	application_method: z.string().optional(),
 	priority: z.enum(["high", "medium", "low"]),
+	resume_id: z.string().optional(),
 	resume_url: z.url().optional().or(z.literal("")),
 	cover_letter_url: z.url().optional().or(z.literal("")),
 })
@@ -98,6 +100,7 @@ export default function JobApplicationForm({
 	const createJobApplication = useCreateJobApplication()
 	const createCompany = useCreateCompany()
 	const { data: companiesData } = useCompanies({ limit: 100 })
+	const { data: resumesData } = useResumes()
 
 	const form = useForm<JobApplicationFormValues>({
 		resolver: zodResolver(jobApplicationSchema),
@@ -115,6 +118,7 @@ export default function JobApplicationForm({
 			job_posting_url: "",
 			application_method: "",
 			priority: "medium",
+			resume_id: "",
 			resume_url: "",
 			cover_letter_url: "",
 		},
@@ -254,6 +258,7 @@ export default function JobApplicationForm({
 	const buildPayload = (
 		data: JobApplicationFormValues,
 		companyId: string | undefined,
+		resumeId: string | undefined,
 		resumeUrl: string | undefined,
 		coverLetterUrl: string | undefined
 	): CreateJobApplicationInput => {
@@ -271,6 +276,7 @@ export default function JobApplicationForm({
 			job_posting_url: data.job_posting_url ?? undefined,
 			application_method: data.application_method ?? undefined,
 			priority: data.priority,
+			resume_id: resumeId,
 			resume_url: resumeUrl,
 			cover_letter_url: coverLetterUrl,
 		}
@@ -291,7 +297,10 @@ export default function JobApplicationForm({
 			data.company_name
 		)
 
-		const resumeUrl = await uploadResumeIfNeeded(data.resume_url ?? undefined)
+		const resumeId = data.resume_id ?? undefined
+		const resumeUrl = resumeId
+			? undefined
+			: await uploadResumeIfNeeded(data.resume_url ?? undefined)
 		const coverLetterUrl = await uploadCoverLetterIfNeeded(
 			data.cover_letter_url ?? undefined
 		)
@@ -299,6 +308,7 @@ export default function JobApplicationForm({
 		const payload = buildPayload(
 			data,
 			finalCompanyId,
+			resumeId,
 			resumeUrl,
 			coverLetterUrl
 		)
@@ -595,32 +605,95 @@ export default function JobApplicationForm({
 				<div className="space-y-4">
 					<FormField
 						control={form.control}
-						name="resume_url"
-						render={() => (
+						name="resume_id"
+						render={({ field }) => (
 							<FormItem>
-								<FormLabel>Resume</FormLabel>
-								<FormControl>
-									<DocumentUpload
-										ref={resumeUploadRef}
-										label="Resume"
-										currentFileUrl={form.watch("resume_url") ?? undefined}
-										onFileChange={(file) => {
-											setResumeFile(file)
-											if (file) {
-												form.setValue("resume_url", "")
-											}
-										}}
-										disabled={
-											isUploadingResume || createJobApplication.isPending
+								<FormLabel>Resume (Select from Managed Resumes)</FormLabel>
+								<Select
+									onValueChange={(value) => {
+										if (value === "__upload__") {
+											field.onChange(undefined)
+											form.setValue("resume_url", "")
+										} else if (value === "__none__") {
+											field.onChange(undefined)
+										} else {
+											field.onChange(value)
+											setResumeFile(null)
+											form.setValue("resume_url", "")
+											resumeUploadRef.current?.clearFile()
 										}
-										accept={[".pdf", ".doc", ".docx", ".txt"]}
-										maxSize="10MB"
-									/>
-								</FormControl>
+									}}
+									value={field.value ?? "__none__"}
+								>
+									<FormControl>
+										<SelectTrigger>
+											<SelectValue placeholder="Select a resume or upload new" />
+										</SelectTrigger>
+									</FormControl>
+									<SelectContent>
+										<SelectItem value="__none__">None</SelectItem>
+										{resumesData && resumesData.length > 0 ? (
+											<>
+												{resumesData.map((resume) => (
+													<SelectItem key={resume._id} value={resume._id}>
+														Resume v{resume.version}
+														{resume.description
+															? ` - ${resume.description}`
+															: ""}
+													</SelectItem>
+												))}
+												<SelectItem value="__upload__">
+													Upload New Resume
+												</SelectItem>
+											</>
+										) : (
+											<SelectItem value="__upload__">
+												Upload New Resume
+											</SelectItem>
+										)}
+									</SelectContent>
+								</Select>
 								<FormMessage />
 							</FormItem>
 						)}
 					/>
+
+					{(!form.watch("resume_id") ||
+						form.watch("resume_id") === "__upload__") && (
+						<FormField
+							control={form.control}
+							name="resume_url"
+							render={() => (
+								<FormItem>
+									<FormLabel>Upload Resume File</FormLabel>
+									<FormControl>
+										<DocumentUpload
+											ref={resumeUploadRef}
+											label="Resume"
+											currentFileUrl={form.watch("resume_url") ?? undefined}
+											onFileChange={(file) => {
+												setResumeFile(file)
+												if (file) {
+													form.setValue("resume_url", "")
+													form.setValue("resume_id", "")
+												}
+											}}
+											disabled={
+												isUploadingResume || createJobApplication.isPending
+											}
+											accept={[".pdf", ".doc", ".docx", ".txt"]}
+											maxSize="10MB"
+										/>
+									</FormControl>
+									<FormMessage />
+									<p className="text-xs text-muted-foreground">
+										Or select a managed resume above. Uploaded files are not
+										saved as managed resume versions.
+									</p>
+								</FormItem>
+							)}
+						/>
+					)}
 
 					<FormField
 						control={form.control}
