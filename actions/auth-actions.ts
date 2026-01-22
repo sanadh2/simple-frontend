@@ -25,9 +25,8 @@ export async function loginAction(
 		const response = await serverApiClient.login(email, password)
 
 		if (response.success && response.data) {
-			const { tokens } = response.data
-
-			await setAuthCookies(tokens.accessToken)
+			console.log("loginAction response.data", response.data)
+			await setAuthCookies()
 
 			revalidatePath("/")
 			revalidatePath("/auth")
@@ -67,9 +66,8 @@ export async function registerAction(
 		)
 
 		if (response.success && response.data) {
-			const { tokens } = response.data
-
-			await setAuthCookies(tokens.accessToken)
+			console.log("registerAction response.data", response.data)
+			await setAuthCookies()
 
 			revalidatePath("/")
 			revalidatePath("/auth")
@@ -142,9 +140,8 @@ export async function refreshTokenAction(): Promise<ActionResponse> {
 		const response = await serverApiClient.refreshToken()
 
 		if (response.success && response.data) {
-			const { accessToken } = response.data
-
-			await setAuthCookies(accessToken)
+			console.log("refreshTokenAction response.data", response.data)
+			await setAuthCookies()
 
 			revalidatePath("/")
 			revalidatePath("/auth")
