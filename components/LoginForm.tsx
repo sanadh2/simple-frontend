@@ -34,8 +34,11 @@ export default function LoginForm({ onToggleMode }: LoginFormProps) {
 					if ("requiresVerification" in data) {
 						setPendingEmail(email)
 						setShowVerificationModal(true)
-					} else if (searchParams.get("redirect")) {
-						router.push(searchParams.get("redirect") as string)
+					} else {
+						const redirectPath = searchParams.get("redirect")
+						router.push(
+							redirectPath && redirectPath !== "/auth" ? redirectPath : "/"
+						)
 					}
 				},
 			}
@@ -48,6 +51,8 @@ export default function LoginForm({ onToggleMode }: LoginFormProps) {
 		toast.success("Email verified!", {
 			description: "You have been logged in successfully.",
 		})
+		const redirectPath = searchParams.get("redirect")
+		router.push(redirectPath && redirectPath !== "/auth" ? redirectPath : "/")
 	}
 
 	const handleForgotPasswordSuccess = (email: string) => {
