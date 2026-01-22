@@ -152,18 +152,20 @@ export async function isAuthenticated(): Promise<boolean> {
 
 /**
  * Set the isAuthenticated cookie in the client app
- * This cookie is used by the middleware to determine if a user is authenticated
+ * This cookie is readable by both:
+ * - Client-side JavaScript (httpOnly: false)
+ * - Next.js middleware/proxy.ts (can read all cookies)
  */
 export async function setAuthCookies() {
 	const cookieStore = await cookies()
 	const isProduction = env.NODE_ENV === "production"
 
 	cookieStore.set("isAuthenticated", "true", {
-		path: "/",
-		httpOnly: false, // Must be false so client-side can read it
-		secure: isProduction,
-		sameSite: isProduction ? "none" : "lax",
-		maxAge: MAX_AGE, // 7 days in seconds
+		path: "/", // Available on all routes
+		httpOnly: false, // Allows client-side JavaScript to read it
+		secure: isProduction, // HTTPS only in production
+		sameSite: isProduction ? "none" : "lax", // Cross-site support in production
+		maxAge: MAX_AGE, // 7 days
 	})
 }
 
@@ -183,4 +185,13 @@ export async function getAccessToken(): Promise<string | null> {
 export async function getRefreshToken(): Promise<string | null> {
 	const cookieStore = await cookies()
 	return cookieStore.get("refreshToken")?.value ?? null
+}
+
+/**
+ * Get the isAuthenticated cookie value
+ * Can be used by server-side code to check authentication status
+ */
+export async function getIsAuthenticated(): Promise<boolean> {
+	const cookieStore = await cookies()
+	return cookieStore.get("isAuthenticated")?.value === "true"
 }
