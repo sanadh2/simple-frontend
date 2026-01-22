@@ -9,10 +9,35 @@ function isPublicRoute(pathname: string): boolean {
 
 export function proxy(request: NextRequest) {
 	const { pathname } = request.nextUrl
-	const isAuthenticated =
+
+	// Get all cookies for debugging
+	const allCookies = request.cookies.getAll()
+	const cookieNames = allCookies.map((c) => c.name)
+	const isAuthenticatedCookie =
 		request.cookies.get("isAuthenticated")?.value === "true"
+	const hasAccessToken = !!request.cookies.get("accessToken")?.value
+	const hasRefreshToken = !!request.cookies.get("refreshToken")?.value
+	const hasSessionId = !!request.cookies.get("sessionId")?.value
+
+	const isAuthenticated = isAuthenticatedCookie || hasAccessToken
+
+	// Debug logging
+	console.log("[Proxy Middleware] Request details:", {
+		pathname,
+		isPublicRoute: isPublicRoute(pathname),
+		cookieNames,
+		cookieCount: allCookies.length,
+		isAuthenticatedCookie,
+		hasAccessToken,
+		hasRefreshToken,
+		hasSessionId,
+		isAuthenticated,
+		userAgent: request.headers.get("user-agent")?.substring(0, 50),
+		referer: request.headers.get("referer"),
+	})
 
 	if (isPublicRoute(pathname)) {
+		console.log("[Proxy Middleware] Public route, allowing access:", pathname)
 		return NextResponse.next()
 	}
 
@@ -20,15 +45,31 @@ export function proxy(request: NextRequest) {
 		const redirectParam = request.nextUrl.searchParams.get("redirect")
 		const redirectUrl =
 			redirectParam && redirectParam !== "/auth" ? redirectParam : "/"
+		console.log(
+			"[Proxy Middleware] Authenticated user on /auth, redirecting:",
+			{
+				redirectUrl,
+				redirectParam,
+			}
+		)
 		return NextResponse.redirect(new URL(redirectUrl, request.url))
 	}
 
 	if (!isAuthenticated) {
 		const redirectUrl = new URL("/auth", request.url)
 		redirectUrl.searchParams.set("redirect", pathname)
+		console.log("[Proxy Middleware] Not authenticated, redirecting to /auth:", {
+			originalPath: pathname,
+			redirectUrl: redirectUrl.toString(),
+			reason:
+				!isAuthenticatedCookie && !hasAccessToken
+					? "No auth cookies found"
+					: "Unknown",
+		})
 		return NextResponse.redirect(redirectUrl)
 	}
 
+	console.log("[Proxy Middleware] Authenticated, allowing access:", pathname)
 	return NextResponse.next()
 }
 
