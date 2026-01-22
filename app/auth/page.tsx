@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { Suspense, useEffect, useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 
 import AuthLayout from "@/components/AuthLayout"
@@ -10,7 +10,7 @@ import LoginForm from "@/components/LoginForm"
 import RegisterForm from "@/components/RegisterForm"
 import { useProfile } from "@/hooks/useAuth"
 
-export default function AuthPage() {
+function AuthContent() {
 	const { data: user, isLoading, error, refetch } = useProfile()
 	const router = useRouter()
 	const searchParams = useSearchParams()
@@ -58,5 +58,13 @@ export default function AuthPage() {
 				</div>
 			</div>
 		</AuthLayout>
+	)
+}
+
+export default function AuthPage() {
+	return (
+		<Suspense fallback={<LoadingSpinner text="Loading..." />}>
+			<AuthContent />
+		</Suspense>
 	)
 }
