@@ -3,9 +3,7 @@ import { Bricolage_Grotesque, Geist_Mono } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import { SpeedInsights } from "@vercel/speed-insights/next"
 
-import { AppSidebar } from "@/components/AppSidebar"
-import Navbar from "@/components/Navbar"
-import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
+import { ConditionalSidebar } from "@/components/ConditionalSidebar"
 import { Toaster } from "@/components/ui/sonner"
 import { env } from "@/env"
 import { QueryProvider } from "@/providers/QueryProvider"
@@ -50,15 +48,7 @@ export default function RootLayout({
 					disableTransitionOnChange
 				>
 					<QueryProvider>
-						<SidebarProvider>
-							<AppSidebar />
-							<SidebarInset>
-								<Navbar />
-								<div className="flex flex-1 flex-col gap-4 p-4 pt-0">
-									{children}
-								</div>
-							</SidebarInset>
-						</SidebarProvider>
+						<ConditionalSidebar>{children}</ConditionalSidebar>
 						<Toaster />
 					</QueryProvider>
 				</ThemeProvider>

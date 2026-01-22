@@ -1,5 +1,6 @@
 "use client"
 
+import { useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
@@ -14,6 +15,7 @@ import {
 	Sun,
 } from "lucide-react"
 
+import LogoutModal from "@/components/LogoutModal"
 import {
 	Sidebar,
 	SidebarContent,
@@ -27,13 +29,15 @@ import {
 	SidebarMenuItem,
 	SidebarSeparator,
 } from "@/components/ui/sidebar"
-import { useLogout, useProfile } from "@/hooks/useAuth"
+import { useLogout, useLogoutAll, useProfile } from "@/hooks/useAuth"
 
 export function AppSidebar() {
 	const pathname = usePathname()
 	const { data: user } = useProfile()
 	const { mutate: logout, isPending: isLoggingOut } = useLogout()
+	const { mutate: logoutAll, isPending: isLoggingOutAll } = useLogoutAll()
 	const { theme, setTheme } = useTheme()
+	const [showLogoutModal, setShowLogoutModal] = useState(false)
 
 	const isActive = (path: string) => pathname === path
 
@@ -156,8 +160,8 @@ export function AppSidebar() {
 							</SidebarMenuItem>
 							<SidebarMenuItem>
 								<SidebarMenuButton
-									onClick={() => logout()}
-									disabled={isLoggingOut}
+									onClick={() => setShowLogoutModal(true)}
+									disabled={isLoggingOut || isLoggingOutAll}
 									className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-950/20"
 									tooltip="Logout"
 								>
@@ -169,6 +173,13 @@ export function AppSidebar() {
 					)}
 				</SidebarMenu>
 			</SidebarFooter>
+			<LogoutModal
+				isOpen={showLogoutModal}
+				onClose={() => setShowLogoutModal(false)}
+				onLogout={() => logout()}
+				onLogoutAll={() => logoutAll()}
+				isLoading={isLoggingOut || isLoggingOutAll}
+			/>
 		</Sidebar>
 	)
 }

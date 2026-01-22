@@ -1,7 +1,7 @@
 "use client"
 
 import { type ReactNode } from "react"
-import { Heart, Lock } from "lucide-react"
+import { Lock } from "lucide-react"
 
 interface AuthLayoutProps {
 	children: ReactNode
@@ -32,14 +32,6 @@ export default function AuthLayout({ children }: AuthLayoutProps) {
 				<div className="w-full max-w-md animate-in fade-in slide-in-from-bottom-4 duration-700">
 					{children}
 				</div>
-
-				<footer className="mt-8 text-center text-sm text-zinc-600 dark:text-zinc-400 animate-in fade-in duration-1000 delay-300">
-					<p className="flex items-center justify-center gap-1">
-						Built with{" "}
-						<Heart className="w-4 h-4 text-red-500 fill-red-500 animate-pulse" />{" "}
-						using Next.js & TanStack Query
-					</p>
-				</footer>
 			</main>
 		</div>
 	)

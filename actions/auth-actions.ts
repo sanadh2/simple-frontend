@@ -27,10 +27,10 @@ export async function loginAction(
 		if (response.success && response.data) {
 			const { tokens } = response.data
 
-			// Only set access token cookie - refresh token is set by backend
 			await setAuthCookies(tokens.accessToken)
 
 			revalidatePath("/")
+			revalidatePath("/auth")
 
 			return {
 				success: true,
@@ -72,6 +72,7 @@ export async function registerAction(
 			await setAuthCookies(tokens.accessToken)
 
 			revalidatePath("/")
+			revalidatePath("/auth")
 
 			return {
 				success: true,
@@ -100,13 +101,15 @@ export async function logoutAction(): Promise<ActionResponse> {
 		await clearAuthCookies()
 
 		revalidatePath("/")
-		redirect("/")
+		revalidatePath("/auth")
+		redirect("/auth")
 	} catch (error) {
 		console.error("Logout action error:", error)
 
 		await clearAuthCookies()
 		revalidatePath("/")
-		redirect("/")
+		revalidatePath("/auth")
+		redirect("/auth")
 	}
 }
 
@@ -144,6 +147,7 @@ export async function refreshTokenAction(): Promise<ActionResponse> {
 			await setAuthCookies(accessToken)
 
 			revalidatePath("/")
+			revalidatePath("/auth")
 
 			return {
 				success: true,

@@ -432,7 +432,7 @@ export default function InterviewForm({
 									<div className="space-y-2 mt-2">
 										{checklistItems.map((item, index) => (
 											<div
-												key={`checklist-item-${index}`}
+												key={`checklist-item-${item}`}
 												className="flex items-center gap-2 p-2 bg-muted"
 											>
 												<span className="flex-1 text-sm">{item}</span>
