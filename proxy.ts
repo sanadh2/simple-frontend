@@ -41,20 +41,6 @@ export function proxy(request: NextRequest) {
 		return NextResponse.next()
 	}
 
-	if (isAuthenticated && pathname === "/auth") {
-		const redirectParam = request.nextUrl.searchParams.get("redirect")
-		const redirectUrl =
-			redirectParam && redirectParam !== "/auth" ? redirectParam : "/"
-		console.log(
-			"[Proxy Middleware] Authenticated user on /auth, redirecting:",
-			{
-				redirectUrl,
-				redirectParam,
-			}
-		)
-		return NextResponse.redirect(new URL(redirectUrl, request.url))
-	}
-
 	if (!isAuthenticated) {
 		const redirectUrl = new URL("/auth", request.url)
 		redirectUrl.searchParams.set("redirect", pathname)
