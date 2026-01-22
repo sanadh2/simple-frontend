@@ -34,6 +34,109 @@ class ServerApiClient {
 		return cookieStore.toString()
 	}
 
+	/**
+	 * Parses Set-Cookie header and sets cookies in Next.js cookie store
+	 */
+	private async setCookiesFromResponse(response: Response): Promise<void> {
+		const setCookieHeaders = response.headers.getSetCookie()
+		if (setCookieHeaders.length === 0) {
+			return
+		}
+
+		const cookieStore = await cookies()
+		const MILLISECONDS_PER_SECOND = 1000
+
+		for (const setCookie of setCookieHeaders) {
+			// Parse the Set-Cookie header
+			// Format: name=value; Path=/; HttpOnly; SameSite=Lax; Max-Age=...
+			const parts = setCookie.split(";").map((s) => s.trim())
+			const nameValuePart = parts[0]
+			const equalsIndex = nameValuePart.indexOf("=")
+
+			if (equalsIndex === -1) {
+				continue
+			}
+
+			const name = nameValuePart.substring(0, equalsIndex).trim()
+			const value = nameValuePart.substring(equalsIndex + 1).trim()
+
+			if (!name) {
+				continue
+			}
+
+			// Parse attributes
+			const attrs: Record<string, string | number | boolean> = {}
+			for (let i = 1; i < parts.length; i++) {
+				const attr = parts[i]
+				const equalsIdx = attr.indexOf("=")
+				if (equalsIdx !== -1) {
+					const key = attr.substring(0, equalsIdx).trim().toLowerCase()
+					const val = attr.substring(equalsIdx + 1).trim()
+					if (key === "max-age") {
+						attrs[key] = parseInt(val, 10)
+					} else {
+						attrs[key] = val
+					}
+				} else {
+					attrs[attr.toLowerCase()] = true
+				}
+			}
+
+			// Handle cookie deletion (Max-Age=0 or Expires in the past)
+			const maxAge = attrs["max-age"] as number | undefined
+			if (maxAge !== undefined && maxAge <= 0) {
+				cookieStore.delete(name)
+				continue
+			}
+
+			// Set cookie with appropriate options
+			let expires: Date | undefined
+			if (attrs.expires) {
+				expires = new Date(attrs.expires as string)
+			} else if (maxAge !== undefined) {
+				expires = new Date(Date.now() + maxAge * MILLISECONDS_PER_SECOND)
+			}
+
+			// Check if expires is in the past (cookie should be deleted)
+			if (expires && expires.getTime() < Date.now()) {
+				cookieStore.delete(name)
+				continue
+			}
+
+			const cookieOptions: {
+				path?: string
+				httpOnly?: boolean
+				secure?: boolean
+				sameSite?: "strict" | "lax" | "none"
+				maxAge?: number
+				expires?: Date
+			} = {
+				path: (attrs.path as string) || "/",
+			}
+
+			if (attrs.httponly === true) {
+				cookieOptions.httpOnly = true
+			}
+			if (attrs.secure === true) {
+				cookieOptions.secure = true
+			}
+			if (attrs.samesite) {
+				cookieOptions.sameSite = (attrs.samesite as string).toLowerCase() as
+					| "strict"
+					| "lax"
+					| "none"
+			}
+			if (maxAge !== undefined && maxAge > 0) {
+				cookieOptions.maxAge = maxAge
+			}
+			if (expires && expires.getTime() > Date.now()) {
+				cookieOptions.expires = expires
+			}
+
+			cookieStore.set(name, value, cookieOptions)
+		}
+	}
+
 	private async handleResponse<T>(response: Response): Promise<ApiResponse<T>> {
 		if (!response.ok) {
 			const error = await response.json()
@@ -64,7 +167,16 @@ class ServerApiClient {
 
 		try {
 			const response = await fetch(url, config)
-			return this.handleResponse<T>(response)
+
+			// Extract and set cookies from Set-Cookie headers BEFORE consuming the response body
+			await this.setCookiesFromResponse(response)
+
+			if (!response.ok) {
+				const error = await response.json()
+				throw new Error(error.message ?? "An error occurred")
+			}
+
+			return response.json()
 		} catch (error) {
 			if (error instanceof Error) {
 				throw error
@@ -105,6 +217,7 @@ class ServerApiClient {
 		const cookieStore = await cookies()
 		const refreshToken = cookieStore.get("refreshToken")?.value
 
+		// The request method will automatically handle Set-Cookie headers
 		return this.request("/api/auth/logout", {
 			method: "POST",
 			body: JSON.stringify({ refreshToken }),
@@ -154,6 +267,9 @@ export async function setAuthCookies(_accessToken: string) {
 export async function clearAuthCookies() {
 	const cookieStore = await cookies()
 	cookieStore.delete("accessToken")
+	cookieStore.delete("refreshToken")
+	cookieStore.delete("isAuthenticated")
+	cookieStore.delete("sessionId")
 }
 
 export async function getAccessToken(): Promise<string | null> {
