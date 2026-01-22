@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 
 import AuthLayout from "@/components/AuthLayout"
 import ErrorFallback from "@/components/ErrorBoundaryFallback"
@@ -13,13 +13,16 @@ import { useProfile } from "@/hooks/useAuth"
 export default function AuthPage() {
 	const { data: user, isLoading, error, refetch } = useProfile()
 	const router = useRouter()
+	const searchParams = useSearchParams()
 	const [isLoginMode, setIsLoginMode] = useState(true)
 
 	useEffect(() => {
 		if (!isLoading && user) {
-			router.push("/")
+			const redirectPath = searchParams.get("redirect") ?? "/"
+			const finalPath = redirectPath !== "/auth" ? redirectPath : "/"
+			router.push(finalPath)
 		}
-	}, [user, isLoading, router])
+	}, [user, isLoading, router, searchParams])
 
 	if (error && !user) {
 		return <ErrorFallback error={error} onRetry={() => refetch()} />
