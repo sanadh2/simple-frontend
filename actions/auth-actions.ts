@@ -92,7 +92,9 @@ export async function registerAction(
 	}
 }
 
-export async function logoutAction(): Promise<ActionResponse> {
+export async function logoutAction(
+	redirectPath?: string
+): Promise<ActionResponse> {
 	try {
 		await serverApiClient.logout()
 
@@ -100,14 +102,22 @@ export async function logoutAction(): Promise<ActionResponse> {
 
 		revalidatePath("/")
 		revalidatePath("/auth")
-		redirect("/auth")
+
+		// Redirect to /auth with redirect param
+		const path = redirectPath && redirectPath !== "/auth" ? redirectPath : "/"
+		const redirectUrl = `/auth?redirect=${encodeURIComponent(path)}`
+		redirect(redirectUrl)
 	} catch (error) {
 		console.error("Logout action error:", error)
 
 		await clearAuthCookies()
 		revalidatePath("/")
 		revalidatePath("/auth")
-		redirect("/auth")
+
+		// Redirect to /auth with redirect param
+		const path = redirectPath && redirectPath !== "/auth" ? redirectPath : "/"
+		const redirectUrl = `/auth?redirect=${encodeURIComponent(path)}`
+		redirect(redirectUrl)
 	}
 }
 

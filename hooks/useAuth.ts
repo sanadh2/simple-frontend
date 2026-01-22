@@ -1,5 +1,6 @@
 "use client"
 
+import { usePathname, useRouter } from "next/navigation"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
 
@@ -123,6 +124,8 @@ export function useRegister() {
 
 export function useLogout() {
 	const queryClient = useQueryClient()
+	const router = useRouter()
+	const pathname = usePathname()
 
 	return useMutation({
 		mutationFn: async () => {
@@ -138,12 +141,19 @@ export function useLogout() {
 			queryClient.setQueryData(authKeys.profile(), null)
 			queryClient.removeQueries({ queryKey: authKeys.all })
 			await queryClient.cancelQueries({ queryKey: authKeys.profile() })
+
+			// Redirect to /auth with current path as redirect param
+			const redirectPath = pathname && pathname !== "/auth" ? pathname : "/"
+			const redirectUrl = `/auth?redirect=${encodeURIComponent(redirectPath)}`
+			router.push(redirectUrl)
 		},
 	})
 }
 
 export function useLogoutAll() {
 	const queryClient = useQueryClient()
+	const router = useRouter()
+	const pathname = usePathname()
 
 	return useMutation({
 		mutationFn: async () => {
@@ -154,14 +164,28 @@ export function useLogoutAll() {
 			}
 		},
 		onSuccess: async () => {
+			// Clear the isAuthenticated cookie on logout all
+			clearAuthCookieClient()
 			queryClient.setQueryData(authKeys.profile(), null)
 			queryClient.removeQueries({ queryKey: authKeys.all })
 			await queryClient.cancelQueries({ queryKey: authKeys.profile() })
+
+			// Redirect to /auth with current path as redirect param
+			const redirectPath = pathname && pathname !== "/auth" ? pathname : "/"
+			const redirectUrl = `/auth?redirect=${encodeURIComponent(redirectPath)}`
+			router.push(redirectUrl)
 		},
 		onError: async () => {
+			// Clear the isAuthenticated cookie on error
+			clearAuthCookieClient()
 			queryClient.setQueryData(authKeys.profile(), null)
 			queryClient.removeQueries({ queryKey: authKeys.all })
 			await queryClient.cancelQueries({ queryKey: authKeys.profile() })
+
+			// Redirect to /auth with current path as redirect param
+			const redirectPath = pathname && pathname !== "/auth" ? pathname : "/"
+			const redirectUrl = `/auth?redirect=${encodeURIComponent(redirectPath)}`
+			router.push(redirectUrl)
 		},
 	})
 }
