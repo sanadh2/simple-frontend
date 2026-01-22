@@ -7,6 +7,12 @@ import "server-only"
 
 const API_BASE_URL = env.NEXT_PUBLIC_API_URL
 
+// Time constants for cookie max age (7 days)
+const SECONDS_PER_MINUTE = 60
+const MINUTES_PER_HOUR = 60
+const HOURS_PER_DAY = 24
+const DAYS = 7
+const MAX_AGE = DAYS * HOURS_PER_DAY * MINUTES_PER_HOUR * SECONDS_PER_MINUTE
 class ServerApiClient {
 	private baseURL: string
 
@@ -144,9 +150,21 @@ export async function isAuthenticated(): Promise<boolean> {
 	return user !== null
 }
 
-export async function setAuthCookies(_accessToken: string) {
-	// Access token is now set by the backend as a cookie
-	// This function is kept for compatibility but does nothing
+/**
+ * Set the isAuthenticated cookie in the client app
+ * This cookie is used by the middleware to determine if a user is authenticated
+ */
+export async function setAuthCookies() {
+	const cookieStore = await cookies()
+	const isProduction = env.NODE_ENV === "production"
+
+	cookieStore.set("isAuthenticated", "true", {
+		path: "/",
+		httpOnly: false, // Must be false so client-side can read it
+		secure: isProduction,
+		sameSite: isProduction ? "none" : "lax",
+		maxAge: MAX_AGE, // 7 days in seconds
+	})
 }
 
 export async function clearAuthCookies() {
