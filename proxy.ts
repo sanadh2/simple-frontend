@@ -63,55 +63,31 @@ export async function proxy(request: NextRequest) {
 	try {
 		const { pathname } = request.nextUrl
 
-		console.log("[Proxy Middleware] Request received:", {
-			pathname,
-			method: request.method,
-			url: request.url,
-		})
-
 		if (shouldSkipAuth(pathname)) {
-			console.log("[Proxy Middleware] Skipping auth check for:", pathname)
 			return NextResponse.next()
 		}
 
 		if (isPublicRoute(pathname)) {
-			console.log("[Proxy Middleware] Public route detected:", pathname)
 			const authenticated = isAuthenticated(request)
-			console.log("[Proxy Middleware] Authentication status:", authenticated)
 
 			if (authenticated) {
 				const redirectParam = request.nextUrl.searchParams.get("redirect")
 				const redirectUrl =
 					redirectParam && redirectParam !== "/auth" ? redirectParam : "/"
-				console.log(
-					"[Proxy Middleware] Authenticated user on public route, redirecting to:",
-					redirectUrl
-				)
 				return NextResponse.redirect(new URL(redirectUrl, request.url))
 			}
 
-			console.log("[Proxy Middleware] Allowing access to public route")
 			return NextResponse.next()
 		}
 
-		console.log("[Proxy Middleware] Protected route detected:", pathname)
 		const authenticated = isAuthenticated(request)
-		console.log("[Proxy Middleware] Authentication status:", authenticated)
 
 		if (!authenticated) {
 			const redirectUrl = new URL("/auth", request.url)
 			redirectUrl.searchParams.set("redirect", pathname)
-			console.log(
-				"[Proxy Middleware] Not authenticated, redirecting to:",
-				redirectUrl.toString()
-			)
 			return NextResponse.redirect(redirectUrl)
 		}
 
-		console.log(
-			"[Proxy Middleware] Authenticated, allowing access to:",
-			pathname
-		)
 		return NextResponse.next()
 	} catch (error) {
 		console.error("[Proxy Middleware] Error occurred:", {

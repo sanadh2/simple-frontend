@@ -255,13 +255,14 @@ export default function JobApplicationForm({
 		return uploadedUrl
 	}
 
-	const buildPayload = (
-		data: JobApplicationFormValues,
-		companyId: string | undefined,
-		resumeId: string | undefined,
-		resumeUrl: string | undefined,
+	const buildPayload = (params: {
+		data: JobApplicationFormValues
+		companyId: string | undefined
+		resumeId: string | undefined
+		resumeUrl: string | undefined
 		coverLetterUrl: string | undefined
-	): CreateJobApplicationInput => {
+	}): CreateJobApplicationInput => {
+		const { data, companyId, resumeId, resumeUrl, coverLetterUrl } = params
 		return {
 			company_id: companyId,
 			company_name: data.company_name,
@@ -305,13 +306,13 @@ export default function JobApplicationForm({
 			data.cover_letter_url ?? undefined
 		)
 
-		const payload = buildPayload(
+		const payload = buildPayload({
 			data,
-			finalCompanyId,
+			companyId: finalCompanyId,
 			resumeId,
 			resumeUrl,
-			coverLetterUrl
-		)
+			coverLetterUrl,
+		})
 
 		await createJobApplication.mutateAsync(payload, {
 			onSuccess: resetFormState,

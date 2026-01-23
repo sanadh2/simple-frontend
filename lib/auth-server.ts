@@ -7,7 +7,6 @@ import "server-only"
 
 const API_BASE_URL = env.NEXT_PUBLIC_API_URL
 
-// Time constants for cookie max age (7 days)
 const SECONDS_PER_MINUTE = 60
 const MINUTES_PER_HOUR = 60
 const HOURS_PER_DAY = 24
@@ -158,36 +157,15 @@ export async function isAuthenticated(): Promise<boolean> {
  */
 export async function setAuthCookies() {
 	try {
-		console.log("[setAuthCookies] Setting isAuthenticated cookie...")
 		const cookieStore = await cookies()
 		const isProduction = env.NODE_ENV === "production"
 
-		console.log(
-			"[setAuthCookies] Cookie store obtained, isProduction:",
-			isProduction
-		)
-
 		cookieStore.set("isAuthenticated", "true", {
-			path: "/", // Available on all routes
-			httpOnly: false, // Allows client-side JavaScript to read it
-			secure: isProduction, // HTTPS only in production
-			sameSite: isProduction ? "none" : "lax", // Cross-site support in production
-			maxAge: MAX_AGE, // 7 days
-		})
-
-		console.log("[setAuthCookies] Cookie set successfully with options:", {
 			path: "/",
 			httpOnly: false,
 			secure: isProduction,
 			sameSite: isProduction ? "none" : "lax",
 			maxAge: MAX_AGE,
-		})
-
-		// Verify the cookie was set
-		const verifyCookie = cookieStore.get("isAuthenticated")
-		console.log("[setAuthCookies] Cookie verification:", {
-			exists: !!verifyCookie,
-			value: verifyCookie?.value,
 		})
 	} catch (error) {
 		console.error("[setAuthCookies] Error setting cookie:", {

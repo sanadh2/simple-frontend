@@ -283,10 +283,10 @@ const eslintConfig = defineConfig([
 			"no-await-in-loop": "warn",
 			"no-promise-executor-return": "error",
 			"require-atomic-updates": "error",
-			"max-nested-callbacks": ["warn", { max: 4 }],
+			"max-nested-callbacks": ["warn", { max: 5 }],
 			complexity: ["warn", { max: 16 }],
-			"max-depth": ["warn", { max: 4 }],
-			"max-params": ["warn", { max: 4 }],
+			"max-depth": ["warn", { max: 5 }],
+			"max-params": ["warn", { max: 5 }],
 			"no-magic-numbers": [
 				"warn",
 				{

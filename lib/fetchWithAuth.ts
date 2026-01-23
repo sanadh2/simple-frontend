@@ -1,5 +1,7 @@
 import { env } from "@/env"
 
+import { getDeviceFingerprint } from "./deviceFingerprint"
+
 const HTTP_UNAUTHORIZED = 401
 
 interface FetchOptions extends RequestInit {
@@ -48,47 +50,94 @@ async function refreshAccessToken(): Promise<boolean> {
 	return refreshPromise
 }
 
+function isAuthRequest(url: string): boolean {
+	const authPaths = [
+		"/api/auth/login",
+		"/api/auth/register",
+		"/api/auth/logout",
+		"/api/auth/logout-all",
+		"/api/auth/verify-email",
+		"/api/auth/verify-email-login",
+		"/api/auth/verify-email-registration",
+	]
+	return authPaths.some((path) => url.includes(path))
+}
+
+async function addFingerprintHeader(
+	headers: Record<string, string>
+): Promise<Record<string, string>> {
+	if (typeof window === "undefined") {
+		return headers
+	}
+
+	try {
+		const fingerprint = await getDeviceFingerprint()
+		return { ...headers, "X-Device-Fingerprint": fingerprint }
+	} catch (error) {
+		console.error("Failed to get device fingerprint:", error)
+		return headers
+	}
+}
+
+function buildHeaders(fetchOptions: RequestInit): Record<string, string> {
+	const isFormData = fetchOptions.body instanceof FormData
+	const baseHeaders = fetchOptions.headers as Record<string, string> | undefined
+
+	if (isFormData) {
+		return { ...baseHeaders }
+	}
+
+	return {
+		"Content-Type": "application/json",
+		...baseHeaders,
+	}
+}
+
+async function performFetch(
+	url: string,
+	fetchOptions: RequestInit,
+	headers: Record<string, string>
+): Promise<Response> {
+	return fetch(url, {
+		...fetchOptions,
+		headers,
+		credentials: "include",
+	})
+}
+
+async function handleUnauthorized(
+	url: string,
+	fetchOptions: RequestInit,
+	headers: Record<string, string>
+): Promise<Response | null> {
+	if (isAuthRequest(url)) {
+		return null
+	}
+
+	const refreshed = await refreshAccessToken()
+	if (!refreshed) {
+		return null
+	}
+
+	const updatedHeaders = await addFingerprintHeader(headers)
+	return performFetch(url, fetchOptions, updatedHeaders)
+}
+
 export async function fetchWithAuth(
 	url: string,
 	options: FetchOptions = {}
 ): Promise<Response> {
 	const { skipAuth = false, skipRetry = false, ...fetchOptions } = options
 
-	// Don't set Content-Type for FormData - browser will set it with boundary
-	const isFormData = fetchOptions.body instanceof FormData
-	const headers: Record<string, string> = isFormData
-		? { ...(fetchOptions.headers as Record<string, string>) }
-		: {
-				"Content-Type": "application/json",
-				...(fetchOptions.headers as Record<string, string>),
-			}
+	let headers = buildHeaders(fetchOptions)
+	headers = await addFingerprintHeader(headers)
 
-	const response = await fetch(url, {
-		...fetchOptions,
-		headers,
-		credentials: "include",
-	})
+	const response = await performFetch(url, fetchOptions, headers)
 
 	if (response.status === HTTP_UNAUTHORIZED && !skipRetry && !skipAuth) {
-		const isAuthRequest =
-			url.includes("/api/auth/login") ||
-			url.includes("/api/auth/register") ||
-			url.includes("/api/auth/logout") ||
-			url.includes("/api/auth/logout-all") ||
-			url.includes("/api/auth/verify-email") ||
-			url.includes("/api/auth/verify-email-login") ||
-			url.includes("/api/auth/verify-email-registration")
-
-		if (!isAuthRequest) {
-			const refreshed = await refreshAccessToken()
-
-			if (refreshed) {
-				return fetch(url, {
-					...fetchOptions,
-					headers,
-					credentials: "include",
-				})
-			}
+		const retryResponse = await handleUnauthorized(url, fetchOptions, headers)
+		if (retryResponse) {
+			return retryResponse
 		}
 	}
 
