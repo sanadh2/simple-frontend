@@ -387,16 +387,16 @@ export default function JobApplicationForm({
 									</div>
 								</FormControl>
 								<FormMessage />
-								{showCreateButton && (
-									<p className="text-xs text-muted-foreground">
-										Click &quot;Create & Link&quot; to create a company profile
-										and link it to this application, or select an existing
-										company above.
-									</p>
-								)}
 							</FormItem>
 						)}
 					/>
+
+					{showCreateButton && (
+						<p className="text-xs text-muted-foreground md:col-span-2">
+							Click &quot;Create & Link&quot; to create a company profile and
+							link it to this application, or select an existing company above.
+						</p>
+					)}
 
 					<FormField
 						control={form.control}

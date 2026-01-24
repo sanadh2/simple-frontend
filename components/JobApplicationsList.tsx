@@ -12,6 +12,7 @@ import {
 	Trash2,
 } from "lucide-react"
 
+import ContactList from "@/components/ContactList"
 import EditJobApplicationForm from "@/components/EditJobApplicationForm"
 import InterviewList from "@/components/InterviewList"
 import LoadingSpinner from "@/components/LoadingSpinner"
@@ -20,6 +21,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
+import { useContactsByJobApplication } from "@/hooks/useContacts"
 import { useInterviewsByJobApplication } from "@/hooks/useInterviews"
 import {
 	useDeleteJobApplication,
@@ -123,9 +125,12 @@ function JobApplicationCard({ application }: { application: JobApplication }) {
 	const [isDeleteOpen, setIsDeleteOpen] = useState(false)
 	const [showHistory, setShowHistory] = useState(false)
 	const [showInterviews, setShowInterviews] = useState(false)
+	const [showContacts, setShowContacts] = useState(false)
 	const deleteJobApplication = useDeleteJobApplication()
 	const { data: interviews = [], refetch: refetchInterviews } =
 		useInterviewsByJobApplication(application._id)
+	const { data: contacts = [], refetch: refetchContacts } =
+		useContactsByJobApplication(application._id)
 
 	const locationText = getLocationText(application)
 
@@ -246,6 +251,16 @@ function JobApplicationCard({ application }: { application: JobApplication }) {
 											interviews.length !== 1 ? "s" : ""
 										}`}
 							</button>
+							<button
+								onClick={() => setShowContacts(!showContacts)}
+								className="text-xs text-blue-600 dark:text-blue-400 hover:underline text-left"
+							>
+								{showContacts
+									? "Hide contacts"
+									: `View ${contacts.length} contact${
+											contacts.length !== 1 ? "s" : ""
+										}`}
+							</button>
 						</div>
 					</div>
 
@@ -315,6 +330,15 @@ function JobApplicationCard({ application }: { application: JobApplication }) {
 						jobApplicationId={application._id}
 						interviews={interviews}
 						onUpdate={refetchInterviews}
+					/>
+				</div>
+			)}
+
+			{showContacts && (
+				<div className="mt-4 pt-4 border-t">
+					<ContactList
+						jobApplicationId={application._id}
+						onUpdate={refetchContacts}
 					/>
 				</div>
 			)}

@@ -88,6 +88,48 @@ export interface CreateInterviewInput {
 
 export type UpdateInterviewInput = Partial<CreateInterviewInput>
 
+// Application Contact (recruiter/contact tracking)
+export interface Interaction {
+	date: string
+	type?: string
+	notes?: string
+}
+
+export interface ApplicationContact {
+	_id: string
+	job_application_id: string
+	name: string
+	role?: string
+	email?: string
+	phone?: string
+	linkedin_url?: string
+	last_contacted_at?: string
+	follow_up_reminder_at?: string
+	follow_up_reminder_sent_at?: string
+	interaction_history: Interaction[]
+	createdAt: string
+	updatedAt: string
+}
+
+export interface CreateContactInput {
+	job_application_id: string
+	name: string
+	role?: string
+	email?: string
+	phone?: string
+	linkedin_url?: string
+	last_contacted_at?: string | Date
+	follow_up_reminder_at?: string | Date
+}
+
+export type UpdateContactInput = Partial<CreateContactInput>
+
+export interface AddInteractionInput {
+	date?: string | Date
+	type?: string
+	notes?: string
+}
+
 export type CompanySize =
 	| "startup"
 	| "small"
@@ -175,6 +217,26 @@ export interface JobApplication {
 	cover_letter_url?: string
 	createdAt: string
 	updatedAt: string
+}
+
+export type ActivityType =
+	| "application_submitted"
+	| "status_change"
+	| "interview_completed"
+	| "follow_up_sent"
+
+export interface TimelineActivity {
+	type: ActivityType
+	date: string
+	description: string
+	job_application_id: string
+	company_name: string
+	job_title: string
+	meta?: {
+		status?: string
+		interview_type?: string
+		contact_name?: string
+	}
 }
 
 export interface CreateJobApplicationInput {
@@ -490,6 +552,22 @@ class ApiClient {
 		})
 	}
 
+	async getActivityTimeline(params?: {
+		startDate?: string
+		endDate?: string
+	}): Promise<ApiResponse<TimelineActivity[]>> {
+		const queryParams = new URLSearchParams()
+		if (params?.startDate) {
+			queryParams.append("startDate", params.startDate)
+		}
+		if (params?.endDate) {
+			queryParams.append("endDate", params.endDate)
+		}
+		const queryString = queryParams.toString()
+		const endpoint = `/api/activity/timeline${queryString ? `?${queryString}` : ""}`
+		return this.request(endpoint, { method: "GET" })
+	}
+
 	async updateJobApplication(
 		id: string,
 		data: UpdateJobApplicationInput
@@ -577,6 +655,52 @@ class ApiClient {
 	async deleteInterview(id: string): Promise<ApiResponse> {
 		return this.request(`/api/interviews/${id}`, {
 			method: "DELETE",
+		})
+	}
+
+	// Application Contacts (recruiters/contacts per application)
+	async createContact(
+		data: CreateContactInput
+	): Promise<ApiResponse<ApplicationContact>> {
+		return this.request("/api/contacts", {
+			method: "POST",
+			body: JSON.stringify(data),
+		})
+	}
+
+	async getContactsByJobApplicationId(
+		jobApplicationId: string
+	): Promise<ApiResponse<ApplicationContact[]>> {
+		return this.request(`/api/contacts/job-application/${jobApplicationId}`, {
+			method: "GET",
+		})
+	}
+
+	async getContactById(id: string): Promise<ApiResponse<ApplicationContact>> {
+		return this.request(`/api/contacts/${id}`, { method: "GET" })
+	}
+
+	async updateContact(
+		id: string,
+		data: UpdateContactInput
+	): Promise<ApiResponse<ApplicationContact>> {
+		return this.request(`/api/contacts/${id}`, {
+			method: "PUT",
+			body: JSON.stringify(data),
+		})
+	}
+
+	async deleteContact(id: string): Promise<ApiResponse> {
+		return this.request(`/api/contacts/${id}`, { method: "DELETE" })
+	}
+
+	async addContactInteraction(
+		id: string,
+		data: AddInteractionInput
+	): Promise<ApiResponse<ApplicationContact>> {
+		return this.request(`/api/contacts/${id}/interactions`, {
+			method: "POST",
+			body: JSON.stringify(data),
 		})
 	}
 

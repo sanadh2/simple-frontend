@@ -1,5 +1,6 @@
 import { env } from "@/env"
 
+import { clearAuthCookieClient } from "./cookie-utils"
 import { getDeviceFingerprint } from "./deviceFingerprint"
 
 const HTTP_UNAUTHORIZED = 401
@@ -116,6 +117,10 @@ async function handleUnauthorized(
 
 	const refreshed = await refreshAccessToken()
 	if (!refreshed) {
+		clearAuthCookieClient()
+		if (typeof window !== "undefined" && window.location.pathname !== "/auth") {
+			window.location.href = "/auth"
+		}
 		return null
 	}
 

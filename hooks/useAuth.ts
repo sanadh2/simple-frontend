@@ -18,6 +18,9 @@ export const authKeys = {
 }
 
 export function useProfile() {
+	const router = useRouter()
+	const pathname = usePathname()
+
 	return useQuery({
 		queryKey: authKeys.profile(),
 		queryFn: async () => {
@@ -43,7 +46,11 @@ export function useProfile() {
 							: null
 					}
 				} catch {
-					// Token refresh failed, return null (component will handle showing login form)
+					// Token refresh failed, clear auth cookie and redirect to /auth
+					clearAuthCookieClient()
+					if (pathname !== "/auth") {
+						router.push("/auth")
+					}
 				}
 				return null
 			}
@@ -192,6 +199,8 @@ export function useLogoutAll() {
 
 export function useRefreshToken() {
 	const queryClient = useQueryClient()
+	const router = useRouter()
+	const pathname = usePathname()
 
 	return useMutation({
 		mutationFn: async () => {
@@ -203,6 +212,12 @@ export function useRefreshToken() {
 		},
 		onSuccess: async () => {
 			await queryClient.invalidateQueries({ queryKey: authKeys.profile() })
+		},
+		onError: () => {
+			clearAuthCookieClient()
+			if (pathname !== "/auth") {
+				router.push("/auth")
+			}
 		},
 	})
 }

@@ -1,6 +1,7 @@
 "use server"
 
 import { revalidatePath } from "next/cache"
+import { headers } from "next/headers"
 import { redirect } from "next/navigation"
 
 import {
@@ -159,16 +160,37 @@ export async function refreshTokenAction(): Promise<ActionResponse> {
 			}
 		}
 
+		await clearAuthCookies()
+		if (!(await isOnAuthPage())) {
+			redirect("/auth")
+		}
 		return {
 			success: false,
 			error: "Token refresh failed",
 		}
 	} catch (error) {
 		console.error("Refresh token action error:", error)
+		await clearAuthCookies()
+		if (!(await isOnAuthPage())) {
+			redirect("/auth")
+		}
 		return {
 			success: false,
 			error: error instanceof Error ? error.message : "Token refresh failed",
 		}
+	}
+}
+
+async function isOnAuthPage(): Promise<boolean> {
+	try {
+		const referer = (await headers()).get("referer")
+		if (!referer) {
+			return false
+		}
+		const { pathname } = new URL(referer)
+		return pathname === "/auth"
+	} catch {
+		return false
 	}
 }
 
