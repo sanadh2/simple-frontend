@@ -255,6 +255,8 @@ export function useUpdateProfile() {
 			last_name?: string
 			currentRole?: string | null
 			yearsOfExperience?: number | null
+			timezone?: string | null
+			reminderTime?: string | null
 		}) => {
 			const response = await apiClient.updateProfile(data)
 			if (!response.success || !response.data) {

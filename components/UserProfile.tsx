@@ -1,6 +1,6 @@
 "use client"
 
-import { useRef, useState } from "react"
+import { useMemo, useRef, useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import {
@@ -26,12 +26,63 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select"
+import {
 	useLogout,
 	useLogoutAll,
 	useUpdateProfile,
 	useUploadProfilePicture,
 } from "@/hooks/useAuth"
 import { type User } from "@/lib/api"
+
+const TIMEZONE_FALLBACK = [
+	"Africa/Cairo",
+	"Africa/Johannesburg",
+	"Africa/Lagos",
+	"America/Chicago",
+	"America/Denver",
+	"America/Los_Angeles",
+	"America/New_York",
+	"America/Phoenix",
+	"America/Sao_Paulo",
+	"America/Toronto",
+	"Asia/Dubai",
+	"Asia/Hong_Kong",
+	"Asia/Kolkata",
+	"Asia/Seoul",
+	"Asia/Shanghai",
+	"Asia/Singapore",
+	"Asia/Tokyo",
+	"Australia/Melbourne",
+	"Australia/Sydney",
+	"Europe/Amsterdam",
+	"Europe/Berlin",
+	"Europe/London",
+	"Europe/Paris",
+	"Europe/Stockholm",
+	"Pacific/Auckland",
+	"UTC",
+] as const
+
+function getTimezones(): string[] {
+	if (
+		typeof Intl !== "undefined" &&
+		"supportedValuesOf" in Intl &&
+		typeof (Intl as { supportedValuesOf?: (key: string) => string[] })
+			.supportedValuesOf === "function"
+	) {
+		return (Intl as { supportedValuesOf: (key: string) => string[] })
+			.supportedValuesOf("timeZone")
+			.slice()
+			.sort()
+	}
+	return [...TIMEZONE_FALLBACK].sort()
+}
 
 interface UserProfileProps {
 	user: User
@@ -334,6 +385,127 @@ function AccountDetailsSection({
 	)
 }
 
+interface TimezoneSelectProps {
+	value: string
+	onChange: (value: string) => void
+	existingTimezone?: string | null
+}
+
+function TimezoneSelect({
+	value,
+	onChange,
+	existingTimezone,
+}: TimezoneSelectProps) {
+	const options = useMemo(() => {
+		const list = getTimezones()
+		const existing = existingTimezone
+		const merged =
+			existing && !list.includes(existing) ? [existing, ...list] : list
+		return merged
+	}, [existingTimezone])
+
+	const selectValue = value || "__none__"
+	const handleChange = (v: string) => onChange(v === "__none__" ? "" : v)
+
+	return (
+		<Select value={selectValue} onValueChange={handleChange}>
+			<SelectTrigger className="w-full">
+				<SelectValue placeholder="Not set (UTC)" />
+			</SelectTrigger>
+			<SelectContent>
+				<SelectItem value="__none__">Not set (UTC)</SelectItem>
+				{options.map((zone) => (
+					<SelectItem key={zone} value={zone}>
+						{zone.replace(/_/g, " ")}
+					</SelectItem>
+				))}
+			</SelectContent>
+		</Select>
+	)
+}
+
+interface ReminderSettingsSectionProps {
+	user: User
+	isEditing: boolean
+	timezone: string
+	reminderTime: string
+	onTimezoneChange: (value: string) => void
+	onReminderTimeChange: (value: string) => void
+}
+
+function ReminderSettingsSection({
+	user,
+	isEditing,
+	timezone,
+	reminderTime,
+	onTimezoneChange,
+	onReminderTimeChange,
+}: ReminderSettingsSectionProps) {
+	return (
+		<div className="bg-white dark:bg-zinc-900 -2xl p-6 space-y-4">
+			<h3 className="text-lg font-semibold text-zinc-900 dark:text-white flex items-center">
+				<Clock className="w-5 h-5 mr-2 text-amber-500" />
+				Reminder settings
+			</h3>
+			<p className="text-sm text-zinc-600 dark:text-zinc-400">
+				All reminders (follow-ups, interviews) use your local day. Set a
+				preferred hour to receive them, or leave empty for any hour.
+			</p>
+			<div className="space-y-3">
+				{isEditing ? (
+					<>
+						<div className="space-y-2 p-3 bg-zinc-50 dark:bg-zinc-800">
+							<Label className="text-sm font-medium text-zinc-600 dark:text-zinc-400">
+								Timezone (IANA)
+							</Label>
+							<TimezoneSelect
+								value={timezone}
+								onChange={onTimezoneChange}
+								existingTimezone={user.timezone?.trim()}
+							/>
+						</div>
+						<div className="space-y-2 p-3 bg-zinc-50 dark:bg-zinc-800">
+							<Label className="text-sm font-medium text-zinc-600 dark:text-zinc-400">
+								Reminder time (local)
+							</Label>
+							<Input
+								type="time"
+								value={reminderTime}
+								onChange={(e) => onReminderTimeChange(e.target.value)}
+								className="w-full"
+							/>
+							<p className="text-xs text-zinc-500">
+								Leave empty to get reminders at any hour when they’re due.
+							</p>
+						</div>
+					</>
+				) : (
+					<>
+						<div className="flex items-center justify-between p-3 bg-zinc-50 dark:bg-zinc-800">
+							<span className="text-sm font-medium text-zinc-600 dark:text-zinc-400">
+								Timezone
+							</span>
+							<span className="text-sm text-zinc-900 dark:text-white">
+								{user.timezone?.trim()
+									? user.timezone.replace(/_/g, " ")
+									: "Not set (UTC)"}
+							</span>
+						</div>
+						<div className="flex items-center justify-between p-3 bg-zinc-50 dark:bg-zinc-800">
+							<span className="text-sm font-medium text-zinc-600 dark:text-zinc-400">
+								Reminder time
+							</span>
+							<span className="text-sm text-zinc-900 dark:text-white">
+								{user.reminder_time?.trim() ? user.reminder_time : "Any hour"}
+							</span>
+						</div>
+					</>
+				)}
+			</div>
+		</div>
+	)
+}
+
 function ConnectionStatusSection() {
 	return (
 		<div className="bg-white dark:bg-zinc-900 -2xl p-6 space-y-4">
@@ -505,6 +677,8 @@ export default function UserProfile({ user }: UserProfileProps) {
 		last_name: user.last_name,
 		currentRole: user.current_role ?? "",
 		yearsOfExperience: user.years_of_experience?.toString() ?? "",
+		timezone: user.timezone ?? "",
+		reminderTime: user.reminder_time ?? "",
 	})
 	const uploadRef = useRef<ProfilePictureUploadRef>(null)
 	const { mutate: logout, isPending: isLoggingOut } = useLogout()
@@ -557,6 +731,8 @@ export default function UserProfile({ user }: UserProfileProps) {
 			last_name: user.last_name,
 			currentRole: user.current_role ?? "",
 			yearsOfExperience: user.years_of_experience?.toString() ?? "",
+			timezone: user.timezone ?? "",
+			reminderTime: user.reminder_time ?? "",
 		})
 		setIsEditing(true)
 	}
@@ -568,6 +744,8 @@ export default function UserProfile({ user }: UserProfileProps) {
 			last_name: user.last_name,
 			currentRole: user.current_role ?? "",
 			yearsOfExperience: user.years_of_experience?.toString() ?? "",
+			timezone: user.timezone ?? "",
+			reminderTime: user.reminder_time ?? "",
 		})
 	}
 
@@ -579,6 +757,8 @@ export default function UserProfile({ user }: UserProfileProps) {
 			yearsOfExperience: formData.yearsOfExperience
 				? parseFloat(formData.yearsOfExperience)
 				: null,
+			timezone: formData.timezone.trim() || null,
+			reminderTime: formData.reminderTime || null,
 		})
 		setIsEditing(false)
 	}
@@ -597,6 +777,14 @@ export default function UserProfile({ user }: UserProfileProps) {
 
 	const handleYearsOfExperienceChange = (value: string) => {
 		setFormData({ ...formData, yearsOfExperience: value })
+	}
+
+	const handleTimezoneChange = (value: string) => {
+		setFormData({ ...formData, timezone: value })
+	}
+
+	const handleReminderTimeChange = (value: string) => {
+		setFormData({ ...formData, reminderTime: value })
 	}
 
 	const isLoading = isLoggingOut || isLoggingOutAll || isUpdatingProfile
@@ -652,6 +840,14 @@ export default function UserProfile({ user }: UserProfileProps) {
 					formData={formData}
 					onCurrentRoleChange={handleCurrentRoleChange}
 					onYearsOfExperienceChange={handleYearsOfExperienceChange}
+				/>
+				<ReminderSettingsSection
+					user={user}
+					isEditing={isEditing}
+					timezone={formData.timezone}
+					reminderTime={formData.reminderTime}
+					onTimezoneChange={handleTimezoneChange}
+					onReminderTimeChange={handleReminderTimeChange}
 				/>
 				<ConnectionStatusSection />
 			</div>

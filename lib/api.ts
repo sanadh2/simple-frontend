@@ -23,6 +23,8 @@ export interface User {
 	profile_picture?: string
 	current_role?: string
 	years_of_experience?: number
+	timezone?: string | null
+	reminder_time?: string | null
 	createdAt?: string
 	updatedAt?: string
 }
@@ -68,6 +70,7 @@ export interface Interview {
 	duration_minutes?: number
 	notes?: string
 	feedback?: string
+	interview_reminder_sent_at?: string
 	preparation_checklist?: string[]
 	createdAt: string
 	updatedAt: string
@@ -401,6 +404,8 @@ class ApiClient {
 		last_name?: string
 		currentRole?: string | null
 		yearsOfExperience?: number | null
+		timezone?: string | null
+		reminderTime?: string | null
 	}): Promise<ApiResponse<{ user: User }>> {
 		return this.request("/api/auth/update-profile", {
 			method: "PUT",
