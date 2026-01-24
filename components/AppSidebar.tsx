@@ -6,6 +6,7 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useTheme } from "next-themes"
 import {
+	BarChart3,
 	Briefcase,
 	Building2,
 	FileCheck,
@@ -52,6 +53,11 @@ export function AppSidebar() {
 			title: "Applications",
 			url: "/job-applications",
 			icon: Briefcase,
+		},
+		{
+			title: "Analytics",
+			url: "/analytics",
+			icon: BarChart3,
 		},
 		{
 			title: "Resumes",

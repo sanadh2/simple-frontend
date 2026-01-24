@@ -299,6 +299,48 @@ export interface PaginatedJobApplications {
 	pageSize: number
 	totalPages: number
 }
+export interface ApplicationFunnel {
+	applied: number
+	interview: number
+	offer: number
+}
+
+export interface DashboardAnalytics {
+	funnel: ApplicationFunnel
+	responseRate: number
+	interviewConversionRate: number
+	avgTimeToHearBackDays: number | null
+	avgTimeBetweenInterviewRoundsDays: number | null
+	successByApplicationMethod: Array<{
+		method: string
+		total: number
+		success: number
+		rate: number
+	}>
+	bestDaysToApply: Array<{
+		day: string
+		applications: number
+		responseCount: number
+		responseRate: number
+	}>
+	bestHoursToApply: Array<{
+		hour: number
+		label: string
+		applications: number
+		responseCount: number
+		responseRate: number
+	}>
+	salaryRange: {
+		min: number | null
+		max: number | null
+		median: number | null
+		sampleCount: number
+		currency: string
+		periodLabel: "annual" | "monthly" | "hourly" | "mixed"
+		byPeriod: { annual: number; monthly: number; hourly: number }
+		distribution: Array<{ range: string; count: number }>
+	}
+}
 
 class ApiClient {
 	private baseURL: string
@@ -571,6 +613,10 @@ class ApiClient {
 		const queryString = queryParams.toString()
 		const endpoint = `/api/activity/timeline${queryString ? `?${queryString}` : ""}`
 		return this.request(endpoint, { method: "GET" })
+	}
+
+	async getDashboardAnalytics(): Promise<ApiResponse<DashboardAnalytics>> {
+		return this.request("/api/analytics/dashboard", { method: "GET" })
 	}
 
 	async updateJobApplication(

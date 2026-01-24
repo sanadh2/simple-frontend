@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button"
 import {
 	Form,
 	FormControl,
+	FormDescription,
 	FormField,
 	FormItem,
 	FormLabel,
@@ -38,6 +39,11 @@ import {
 	type LocationType,
 	type PriorityLevel,
 } from "@/lib/api"
+import {
+	composeSalaryRange,
+	SALARY_CURRENCIES,
+	SALARY_PERIODS,
+} from "@/lib/salaryUtils"
 
 const jobApplicationSchema = z.object({
 	company_id: z.string().optional(),
@@ -56,7 +62,23 @@ const jobApplicationSchema = z.object({
 		"Accepted",
 		"Withdrawn",
 	]),
-	salary_range: z.string().optional(),
+	salary_min: z.string().optional(),
+	salary_max: z.string().optional(),
+	salary_currency: z.enum([
+		"Unknown",
+		"USD",
+		"EUR",
+		"GBP",
+		"CHF",
+		"CAD",
+		"AUD",
+		"JPY",
+		"KRW",
+		"BRL",
+		"INR",
+		"MXN",
+	]),
+	salary_period: z.enum(["annual", "monthly", "hourly"]),
 	location_type: z.enum(["remote", "hybrid", "onsite"]),
 	location_city: z.string().optional(),
 	job_posting_url: z.url("Invalid URL format").optional().or(z.literal("")),
@@ -112,7 +134,10 @@ export default function JobApplicationForm({
 			notes: "",
 			application_date: new Date().toISOString().split("T")[0],
 			status: "Wishlist",
-			salary_range: "",
+			salary_min: "",
+			salary_max: "",
+			salary_currency: "Unknown",
+			salary_period: "annual",
 			location_type: "remote",
 			location_city: "",
 			job_posting_url: "",
@@ -263,6 +288,24 @@ export default function JobApplicationForm({
 		coverLetterUrl: string | undefined
 	}): CreateJobApplicationInput => {
 		const { data, companyId, resumeId, resumeUrl, coverLetterUrl } = params
+		const minN = data.salary_min ? parseFloat(data.salary_min) : NaN
+		const maxN = data.salary_max ? parseFloat(data.salary_max) : NaN
+		const hasMin = !Number.isNaN(minN)
+		const hasMax = !Number.isNaN(maxN)
+		let salary_range: string | undefined
+		if (hasMin || hasMax) {
+			const lo = hasMin && hasMax ? Math.min(minN, maxN) : hasMin ? minN : maxN
+			const hi = hasMin && hasMax ? Math.max(minN, maxN) : hasMin ? minN : maxN
+			salary_range = composeSalaryRange(
+				lo,
+				hi,
+				data.salary_currency,
+				data.salary_period
+			)
+		} else {
+			salary_range = undefined
+		}
+
 		return {
 			company_id: companyId,
 			company_name: data.company_name,
@@ -271,7 +314,7 @@ export default function JobApplicationForm({
 			notes: data.notes ?? undefined,
 			application_date: data.application_date,
 			status: data.status,
-			salary_range: data.salary_range ?? undefined,
+			salary_range,
 			location_type: data.location_type,
 			location_city: data.location_city ?? undefined,
 			job_posting_url: data.job_posting_url ?? undefined,
@@ -521,13 +564,102 @@ export default function JobApplicationForm({
 
 					<FormField
 						control={form.control}
-						name="salary_range"
+						name="salary_min"
 						render={({ field }) => (
 							<FormItem>
-								<FormLabel>Salary Range</FormLabel>
+								<FormLabel>Start of range</FormLabel>
 								<FormControl>
-									<Input placeholder="e.g., $100k - $150k" {...field} />
+									<Input
+										type="number"
+										placeholder="e.g. 50000 (annual) or 15 (hourly)"
+										{...field}
+										value={field.value ?? ""}
+										onChange={(e) =>
+											field.onChange(
+												e.target.value === "" ? "" : e.target.value
+											)
+										}
+									/>
 								</FormControl>
+								<FormMessage />
+							</FormItem>
+						)}
+					/>
+					<FormField
+						control={form.control}
+						name="salary_max"
+						render={({ field }) => (
+							<FormItem>
+								<FormLabel>End of range</FormLabel>
+								<FormControl>
+									<Input
+										type="number"
+										placeholder="e.g. 70000 (annual) or 20 (hourly)"
+										{...field}
+										value={field.value ?? ""}
+										onChange={(e) =>
+											field.onChange(
+												e.target.value === "" ? "" : e.target.value
+											)
+										}
+									/>
+								</FormControl>
+								<FormMessage />
+							</FormItem>
+						)}
+					/>
+					<FormField
+						control={form.control}
+						name="salary_currency"
+						render={({ field }) => (
+							<FormItem>
+								<FormLabel>Currency</FormLabel>
+								<Select onValueChange={field.onChange} value={field.value}>
+									<FormControl>
+										<SelectTrigger>
+											<SelectValue placeholder="Select currency" />
+										</SelectTrigger>
+									</FormControl>
+									<SelectContent>
+										{SALARY_CURRENCIES.map((c) => (
+											<SelectItem key={c.value} value={c.value}>
+												{c.label}
+											</SelectItem>
+										))}
+									</SelectContent>
+								</Select>
+								<FormDescription>
+									Currency for the numbers above (e.g. USD, EUR). Use Unknown if
+									not specified.
+								</FormDescription>
+								<FormMessage />
+							</FormItem>
+						)}
+					/>
+					<FormField
+						control={form.control}
+						name="salary_period"
+						render={({ field }) => (
+							<FormItem>
+								<FormLabel>Annual, monthly, or hourly?</FormLabel>
+								<Select onValueChange={field.onChange} value={field.value}>
+									<FormControl>
+										<SelectTrigger>
+											<SelectValue />
+										</SelectTrigger>
+									</FormControl>
+									<SelectContent>
+										{SALARY_PERIODS.map((p) => (
+											<SelectItem key={p.value} value={p.value}>
+												{p.label}
+											</SelectItem>
+										))}
+									</SelectContent>
+								</Select>
+								<FormDescription>
+									Is this pay per year, per month, or per hour? Pick what
+									matches the job posting.
+								</FormDescription>
 								<FormMessage />
 							</FormItem>
 						)}
