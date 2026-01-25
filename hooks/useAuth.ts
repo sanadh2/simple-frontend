@@ -6,6 +6,7 @@ import { toast } from "sonner"
 
 import { apiClient } from "@/lib/api"
 import { clearAuthCookieClient, setAuthCookieClient } from "@/lib/cookie-utils"
+import { queryClient } from "@/lib/queryClient"
 
 const HTTP_UNAUTHORIZED = 401
 const MILLISECONDS_PER_SECOND = 1000
@@ -46,7 +47,8 @@ export function useProfile() {
 							: null
 					}
 				} catch {
-					// Token refresh failed, clear auth cookie and redirect to /auth
+					// Token refresh failed, clear caches and redirect to /auth
+					queryClient.clear()
 					clearAuthCookieClient()
 					if (pathname !== "/auth") {
 						router.push("/auth")
@@ -130,7 +132,6 @@ export function useRegister() {
 }
 
 export function useLogout() {
-	const queryClient = useQueryClient()
 	const router = useRouter()
 	const pathname = usePathname()
 
@@ -143,13 +144,9 @@ export function useLogout() {
 			}
 		},
 		onSuccess: async () => {
-			// Clear the isAuthenticated cookie on logout
 			clearAuthCookieClient()
-			queryClient.setQueryData(authKeys.profile(), null)
-			queryClient.removeQueries({ queryKey: authKeys.all })
-			await queryClient.cancelQueries({ queryKey: authKeys.profile() })
+			queryClient.clear()
 
-			// Redirect to /auth with current path as redirect param
 			const redirectPath = pathname && pathname !== "/auth" ? pathname : "/"
 			const redirectUrl = `/auth?redirect=${encodeURIComponent(redirectPath)}`
 			router.push(redirectUrl)
@@ -158,7 +155,6 @@ export function useLogout() {
 }
 
 export function useLogoutAll() {
-	const queryClient = useQueryClient()
 	const router = useRouter()
 	const pathname = usePathname()
 
@@ -171,25 +167,17 @@ export function useLogoutAll() {
 			}
 		},
 		onSuccess: async () => {
-			// Clear the isAuthenticated cookie on logout all
 			clearAuthCookieClient()
-			queryClient.setQueryData(authKeys.profile(), null)
-			queryClient.removeQueries({ queryKey: authKeys.all })
-			await queryClient.cancelQueries({ queryKey: authKeys.profile() })
+			queryClient.clear()
 
-			// Redirect to /auth with current path as redirect param
 			const redirectPath = pathname && pathname !== "/auth" ? pathname : "/"
 			const redirectUrl = `/auth?redirect=${encodeURIComponent(redirectPath)}`
 			router.push(redirectUrl)
 		},
 		onError: async () => {
-			// Clear the isAuthenticated cookie on error
 			clearAuthCookieClient()
-			queryClient.setQueryData(authKeys.profile(), null)
-			queryClient.removeQueries({ queryKey: authKeys.all })
-			await queryClient.cancelQueries({ queryKey: authKeys.profile() })
+			queryClient.clear()
 
-			// Redirect to /auth with current path as redirect param
 			const redirectPath = pathname && pathname !== "/auth" ? pathname : "/"
 			const redirectUrl = `/auth?redirect=${encodeURIComponent(redirectPath)}`
 			router.push(redirectUrl)
@@ -215,6 +203,7 @@ export function useRefreshToken() {
 		},
 		onError: () => {
 			clearAuthCookieClient()
+			queryClient.clear()
 			if (pathname !== "/auth") {
 				router.push("/auth")
 			}
