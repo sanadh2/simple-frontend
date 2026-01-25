@@ -441,6 +441,13 @@ class ApiClient {
 		})
 	}
 
+	async getExtensionToken(): Promise<ApiResponse<{ token: string }>> {
+		return this.request("/api/auth/extension-token", {
+			method: "POST",
+			body: JSON.stringify({}),
+		})
+	}
+
 	async updateProfile(data: {
 		first_name?: string
 		last_name?: string

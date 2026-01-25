@@ -114,10 +114,34 @@ const LOCATION_TYPE_OPTIONS: { value: LocationType; label: string }[] = [
 	{ value: "onsite", label: "Onsite" },
 ]
 
+const defaultFormValues: JobApplicationFormValues = {
+	company_id: "",
+	company_name: "",
+	job_title: "",
+	job_description: "",
+	notes: "",
+	application_date: new Date().toISOString().split("T")[0],
+	status: "Wishlist",
+	salary_min: "",
+	salary_max: "",
+	salary_currency: "Unknown",
+	salary_period: "annual",
+	location_type: "remote",
+	location_city: "",
+	job_posting_url: "",
+	application_method: "",
+	priority: "medium",
+	resume_id: "",
+	resume_url: "",
+	cover_letter_url: "",
+}
+
 export default function JobApplicationForm({
 	onClose,
+	prefill,
 }: {
 	onClose: () => void
+	prefill?: Partial<JobApplicationFormValues>
 }) {
 	const createJobApplication = useCreateJobApplication()
 	const createCompany = useCreateCompany()
@@ -126,28 +150,18 @@ export default function JobApplicationForm({
 
 	const form = useForm<JobApplicationFormValues>({
 		resolver: zodResolver(jobApplicationSchema),
-		defaultValues: {
-			company_id: "",
-			company_name: "",
-			job_title: "",
-			job_description: "",
-			notes: "",
-			application_date: new Date().toISOString().split("T")[0],
-			status: "Wishlist",
-			salary_min: "",
-			salary_max: "",
-			salary_currency: "Unknown",
-			salary_period: "annual",
-			location_type: "remote",
-			location_city: "",
-			job_posting_url: "",
-			application_method: "",
-			priority: "medium",
-			resume_id: "",
-			resume_url: "",
-			cover_letter_url: "",
-		},
+		defaultValues: defaultFormValues,
 	})
+
+	useEffect(() => {
+		if (prefill && Object.keys(prefill).length > 0) {
+			form.reset({
+				...defaultFormValues,
+				application_date: new Date().toISOString().split("T")[0],
+				...prefill,
+			})
+		}
+	}, [prefill, form])
 
 	const selectedCompanyId = form.watch("company_id")
 	const companyName = form.watch("company_name")

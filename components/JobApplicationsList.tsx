@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import Link from "next/link"
 import { format } from "date-fns"
 import {
 	Building2,
@@ -23,10 +24,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
 import { useContactsByJobApplication } from "@/hooks/useContacts"
 import { useInterviewsByJobApplication } from "@/hooks/useInterviews"
-import {
-	useDeleteJobApplication,
-	useJobApplications,
-} from "@/hooks/useJobApplications"
+import { useDeleteJobApplication } from "@/hooks/useJobApplications"
 import type { JobApplication, JobStatus, PriorityLevel } from "@/lib/api"
 
 const statusColors: Record<Exclude<JobStatus, "All">, string> = {
@@ -57,23 +55,55 @@ const locationTypeLabels: Record<string, string> = {
 	onsite: "Onsite",
 }
 
-interface JobApplicationsListProps {
-	filters?: {
-		search?: string
-		status?: JobStatus
-		startDate?: string
-		endDate?: string
-		sortBy?: string
-		sortOrder?: "asc" | "desc"
-		limit?: number
+const statusAtLabels: Record<Exclude<JobStatus, "All">, string> = {
+	Wishlist: "Wishlisted at",
+	Applied: "Applied at",
+	"Interview Scheduled": "Interview scheduled at",
+	Interviewing: "Interviewing at",
+	Offer: "Offer at",
+	Rejected: "Rejected at",
+	Accepted: "Accepted at",
+	Withdrawn: "Withdrawn at",
+}
+
+function getStatusAtDate(application: JobApplication): string | null {
+	const { status, status_history, application_date, createdAt } = application
+	if (status === "All") {
+		return null
 	}
+	const fromHistory = status_history
+		.filter((e) => e.status === status)
+		.sort(
+			(a, b) =>
+				new Date(b.changed_at).getTime() - new Date(a.changed_at).getTime()
+		)[0]
+	if (fromHistory) {
+		return fromHistory.changed_at
+	}
+	if (status === "Applied" && application_date) {
+		return application_date
+	}
+	return createdAt
+}
+
+interface JobApplicationsListProps {
+	data?: {
+		applications: JobApplication[]
+		totalCount?: number
+		currentPage?: number
+		pageSize?: number
+		totalPages?: number
+	}
+	isLoading?: boolean
+	error?: Error | null
+	refetch?: () => void
 }
 
 export default function JobApplicationsList({
-	filters,
+	data,
+	isLoading,
+	error,
 }: JobApplicationsListProps) {
-	const { data, isLoading, error } = useJobApplications(filters)
-
 	if (isLoading) {
 		return <LoadingSpinner text="Loading job applications..." />
 	}
@@ -83,14 +113,15 @@ export default function JobApplicationsList({
 			<Card>
 				<CardContent className="pt-6">
 					<p className="text-red-600 dark:text-red-400">
-						Error loading job applications: {error.message}
+						Error loading job applications:{" "}
+						{error instanceof Error ? error.message : String(error)}
 					</p>
 				</CardContent>
 			</Card>
 		)
 	}
 
-	if (!data || data.applications.length === 0) {
+	if (!data?.applications || data.applications.length === 0) {
 		return (
 			<div className="text-center py-12">
 				<Building2 className="w-12 h-12 mx-auto text-gray-400 mb-4" />
@@ -133,6 +164,12 @@ function JobApplicationCard({ application }: { application: JobApplication }) {
 		useContactsByJobApplication(application._id)
 
 	const locationText = getLocationText(application)
+	const statusAt =
+		application.status !== "All" ? getStatusAtDate(application) : null
+	const statusAtLabel =
+		statusAt && application.status !== "All"
+			? statusAtLabels[application.status]
+			: null
 
 	const handleDelete = async () => {
 		await deleteJobApplication.mutateAsync(application._id, {
@@ -159,9 +196,12 @@ function JobApplicationCard({ application }: { application: JobApplication }) {
 							</div>
 							<div className="flex-1">
 								<div className="flex items-center gap-2 mb-1">
-									<h3 className="font-semibold text-lg text-zinc-900 dark:text-white">
+									<Link
+										href={`/job-applications/${application._id}`}
+										className="font-semibold text-lg text-zinc-900 dark:text-white hover:underline"
+									>
 										{application.job_title}
-									</h3>
+									</Link>
 									<Badge
 										className={
 											statusColors[
@@ -186,16 +226,14 @@ function JobApplicationCard({ application }: { application: JobApplication }) {
 						</div>
 
 						<div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm text-zinc-600 dark:text-zinc-400">
-							<div className="flex items-center gap-2">
-								<Calendar className="w-4 h-4" />
-								<span>
-									Applied:{" "}
-									{format(
-										new Date(application.application_date),
-										"MMM d, yyyy"
-									)}
-								</span>
-							</div>
+							{statusAt && statusAtLabel && (
+								<div className="flex items-center gap-2">
+									<Calendar className="w-4 h-4" />
+									<span>
+										{statusAtLabel} {format(new Date(statusAt), "MMM d, yyyy")}
+									</span>
+								</div>
+							)}
 							<div className="flex items-center gap-2">
 								<MapPin className="w-4 h-4" />
 								<span>{locationText}</span>
@@ -219,12 +257,24 @@ function JobApplicationCard({ application }: { application: JobApplication }) {
 							<div className="text-sm text-zinc-600 dark:text-zinc-400">
 								<p className="font-medium mb-1">Job Description:</p>
 								<p className="line-clamp-2">{application.job_description}</p>
+								<Link
+									href={`/job-applications/${application._id}`}
+									className="text-xs text-blue-600 dark:text-blue-400 hover:underline mt-0.5 inline-block"
+								>
+									View full description →
+								</Link>
 							</div>
 						)}
 						{application.notes && (
 							<div className="text-sm text-zinc-600 dark:text-zinc-400">
 								<p className="font-medium mb-1">Notes:</p>
 								<p className="line-clamp-2">{application.notes}</p>
+								<Link
+									href={`/job-applications/${application._id}`}
+									className="text-xs text-blue-600 dark:text-blue-400 hover:underline mt-0.5 inline-block"
+								>
+									View full notes →
+								</Link>
 							</div>
 						)}
 
@@ -265,17 +315,25 @@ function JobApplicationCard({ application }: { application: JobApplication }) {
 					</div>
 
 					<div className="flex flex-col gap-2">
-						{application.job_posting_url && (
-							<a
-								href={application.job_posting_url}
-								target="_blank"
-								rel="noopener noreferrer"
+						<div className="flex flex-wrap items-center gap-2">
+							<Link
+								href={`/job-applications/${application._id}`}
 								className="inline-flex items-center gap-1 text-sm text-blue-600 dark:text-blue-400 hover:underline"
 							>
-								<ExternalLink className="w-4 h-4" />
-								View Posting
-							</a>
-						)}
+								View details
+							</Link>
+							{application.job_posting_url && (
+								<a
+									href={application.job_posting_url}
+									target="_blank"
+									rel="noopener noreferrer"
+									className="inline-flex items-center gap-1 text-sm text-blue-600 dark:text-blue-400 hover:underline"
+								>
+									<ExternalLink className="w-4 h-4" />
+									View Posting
+								</a>
+							)}
+						</div>
 						<div className="flex gap-2">
 							<Button
 								variant="outline"

@@ -1,10 +1,12 @@
 "use client"
 
-import { useMemo, useState } from "react"
-import { Plus, Search, X } from "lucide-react"
+import { Suspense, useMemo, useState } from "react"
+import { useSearchParams } from "next/navigation"
+import { Plus, RotateCw, Search, X } from "lucide-react"
 
 import JobApplicationForm from "@/components/JobApplicationForm"
 import JobApplicationsList from "@/components/JobApplicationsList"
+import LoadingSpinner from "@/components/LoadingSpinner"
 import { Button } from "@/components/ui/button"
 import {
 	Card,
@@ -22,6 +24,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select"
+import { useJobApplications } from "@/hooks/useJobApplications"
 import type { JobStatus } from "@/lib/api"
 
 const STATUS_OPTIONS: { value: JobStatus | ""; label: string }[] = [
@@ -45,8 +48,48 @@ const SORT_OPTIONS = [
 	{ value: "salary_range:asc", label: "Salary (Low-High)" },
 ]
 
-export default function JobApplicationsPage() {
-	const [showForm, setShowForm] = useState(false)
+const DATE_FILTER_PREFIX: Record<string, string> = {
+	All: "Created",
+	"": "Created",
+	Wishlist: "Wishlisted",
+	Applied: "Applied",
+	"Interview Scheduled": "Interview scheduled",
+	Interviewing: "Interviewing",
+	Offer: "Offer",
+	Rejected: "Rejected",
+	Accepted: "Accepted",
+	Withdrawn: "Withdrawn",
+}
+
+function JobApplicationsPageContent() {
+	const searchParams = useSearchParams()
+	const openForm = searchParams.get("openForm") === "1"
+	const prefill = useMemo(() => {
+		const company = searchParams.get("company") ?? ""
+		const title = searchParams.get("title") ?? ""
+		const url =
+			searchParams.get("job_posting_url") ?? searchParams.get("url") ?? ""
+		const description = searchParams.get("description") ?? ""
+		if (!company && !title && !url && !description) {
+			return undefined
+		}
+		const p: Record<string, string> = {}
+		if (company) {
+			p.company_name = company
+		}
+		if (title) {
+			p.job_title = title
+		}
+		if (url) {
+			p.job_posting_url = url
+		}
+		if (description) {
+			p.job_description = description
+		}
+		return p
+	}, [searchParams])
+
+	const [showForm, setShowForm] = useState(openForm)
 	const [search, setSearch] = useState("")
 	const [status, setStatus] = useState<JobStatus | "">("")
 	const [startDate, setStartDate] = useState("")
@@ -89,6 +132,8 @@ export default function JobApplicationsPage() {
 		return params
 	}, [search, status, startDate, endDate, sortField, sortOrder])
 
+	const { data, isLoading, error, refetch } = useJobApplications(filters)
+
 	const clearFilters = () => {
 		setSearch("")
 		setStatus("")
@@ -115,10 +160,23 @@ export default function JobApplicationsPage() {
 						Track and manage your job applications
 					</p>
 				</div>
-				<Button onClick={() => setShowForm(!showForm)}>
-					<Plus className="mr-2 h-4 w-4" />
-					{showForm ? "Hide Form" : "Add New Application"}
-				</Button>
+				<div className="flex gap-2">
+					<Button
+						variant="outline"
+						size="icon"
+						onClick={() => refetch()}
+						disabled={isLoading}
+						title="Refresh"
+					>
+						<RotateCw
+							className={`h-4 w-4 ${isLoading ? "animate-spin" : ""}`}
+						/>
+					</Button>
+					<Button onClick={() => setShowForm(!showForm)}>
+						<Plus className="mr-2 h-4 w-4" />
+						{showForm ? "Hide Form" : "Add New Application"}
+					</Button>
+				</div>
 			</div>
 
 			{showForm && (
@@ -130,7 +188,10 @@ export default function JobApplicationsPage() {
 						</CardDescription>
 					</CardHeader>
 					<CardContent>
-						<JobApplicationForm onClose={() => setShowForm(false)} />
+						<JobApplicationForm
+							onClose={() => setShowForm(false)}
+							prefill={prefill}
+						/>
 					</CardContent>
 				</Card>
 			)}
@@ -179,7 +240,9 @@ export default function JobApplicationsPage() {
 							</div>
 
 							<div className="space-y-2">
-								<Label htmlFor="startDate">Start Date</Label>
+								<Label htmlFor="startDate">
+									{DATE_FILTER_PREFIX[status] ?? "Created"} from
+								</Label>
 								<Input
 									id="startDate"
 									type="date"
@@ -189,7 +252,9 @@ export default function JobApplicationsPage() {
 							</div>
 
 							<div className="space-y-2">
-								<Label htmlFor="endDate">End Date</Label>
+								<Label htmlFor="endDate">
+									{DATE_FILTER_PREFIX[status] ?? "Created"} to
+								</Label>
 								<Input
 									id="endDate"
 									type="date"
@@ -231,7 +296,24 @@ export default function JobApplicationsPage() {
 				</CardContent>
 			</Card>
 
-			<JobApplicationsList filters={filters} />
+			<JobApplicationsList
+				data={data}
+				isLoading={isLoading}
+				error={error}
+				refetch={refetch}
+			/>
 		</div>
+	)
+}
+
+export default function JobApplicationsPage() {
+	return (
+		<Suspense
+			fallback={
+				<LoadingSpinner text="Loading job applications..." fullScreen={false} />
+			}
+		>
+			<JobApplicationsPageContent />
+		</Suspense>
 	)
 }

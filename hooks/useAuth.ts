@@ -246,6 +246,36 @@ export function useUploadProfilePicture() {
 	})
 }
 
+export function useGetExtensionToken() {
+	return useMutation({
+		mutationFn: async () => {
+			const response = await apiClient.getExtensionToken()
+			if (!response.success || !response.data) {
+				throw new Error(response.message || "Failed to get extension token")
+			}
+			return response.data.token
+		},
+		onSuccess: async (token) => {
+			try {
+				await navigator.clipboard.writeText(token)
+				toast.success("Extension token copied to clipboard", {
+					description:
+						"Paste it in the extension's Settings. It expires in 90 days.",
+				})
+			} catch {
+				toast.success("Extension token generated", {
+					description: "Copy the token from the app. It expires in 90 days.",
+				})
+			}
+		},
+		onError: (error) => {
+			toast.error("Failed to get extension token", {
+				description: error instanceof Error ? error.message : "Unknown error",
+			})
+		},
+	})
+}
+
 export function useUpdateProfile() {
 	const queryClient = useQueryClient()
 

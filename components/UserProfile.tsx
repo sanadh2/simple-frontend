@@ -11,6 +11,7 @@ import {
 	FileText,
 	HelpCircle,
 	LogOut,
+	Puzzle,
 	Save,
 	Settings,
 	Shield,
@@ -33,6 +34,7 @@ import {
 	SelectValue,
 } from "@/components/ui/select"
 import {
+	useGetExtensionToken,
 	useLogout,
 	useLogoutAll,
 	useUpdateProfile,
@@ -549,6 +551,48 @@ function ConnectionStatusSection() {
 	)
 }
 
+interface BrowserExtensionSectionProps {
+	onGenerateToken: () => void
+	isLoading: boolean
+}
+
+function BrowserExtensionSection({
+	onGenerateToken,
+	isLoading,
+}: BrowserExtensionSectionProps) {
+	return (
+		<div className="bg-white dark:bg-zinc-900 -2xl p-6 space-y-4">
+			<h3 className="text-lg font-semibold text-zinc-900 dark:text-white flex items-center">
+				<Puzzle className="w-5 h-5 mr-2 text-indigo-500" />
+				Browser extension
+			</h3>
+			<p className="text-sm text-zinc-600 dark:text-zinc-400">
+				Save jobs from LinkedIn, Indeed, or any career page with one click.
+				Update status from the extension popup.
+			</p>
+			<div className="space-y-3">
+				<Button
+					onClick={onGenerateToken}
+					disabled={isLoading}
+					variant="outline"
+					className="w-full sm:w-auto"
+				>
+					{isLoading ? "Generating…" : "Generate extension token"}
+				</Button>
+				<p className="text-xs text-zinc-500">
+					1) Generate token and paste in extension Settings. 2) Set API URL to
+					your backend (e.g. http://localhost:3000). 3) Load the extension from
+					the{" "}
+					<code className="bg-zinc-100 dark:bg-zinc-800 px-1 rounded">
+						extension
+					</code>{" "}
+					folder.
+				</p>
+			</div>
+		</div>
+	)
+}
+
 function QuickActionsSection() {
 	return (
 		<div className="bg-white dark:bg-zinc-900 -2xl p-6">
@@ -687,6 +731,8 @@ export default function UserProfile({ user }: UserProfileProps) {
 		useUploadProfilePicture()
 	const { mutate: updateProfile, isPending: isUpdatingProfile } =
 		useUpdateProfile()
+	const { mutate: getExtensionToken, isPending: isGettingExtensionToken } =
+		useGetExtensionToken()
 
 	const handleUploadSuccess = () => {
 		setShowUploadModal(false)
@@ -850,6 +896,10 @@ export default function UserProfile({ user }: UserProfileProps) {
 					onReminderTimeChange={handleReminderTimeChange}
 				/>
 				<ConnectionStatusSection />
+				<BrowserExtensionSection
+					onGenerateToken={() => getExtensionToken()}
+					isLoading={isGettingExtensionToken}
+				/>
 			</div>
 
 			<QuickActionsSection />
