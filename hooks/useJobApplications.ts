@@ -16,6 +16,7 @@ import {
 } from "@/lib/api"
 
 import { companyKeys } from "./useCompanies"
+import { upcomingScheduledEmailsKeys } from "./useUpcomingScheduledEmails"
 
 export const jobApplicationKeys = {
 	all: ["job-applications"] as const,
@@ -659,6 +660,9 @@ export function useDeleteJobApplication() {
 		onSettled: async (_data, _error, _id, context) => {
 			await queryClient.invalidateQueries({
 				queryKey: jobApplicationKeys.lists(),
+			})
+			await queryClient.invalidateQueries({
+				queryKey: upcomingScheduledEmailsKeys.all,
 			})
 			if (context?.companyId) {
 				await queryClient.invalidateQueries({

@@ -44,6 +44,7 @@ import type { ApplicationContact, CreateContactInput } from "@/lib/api"
 
 import ContactForm from "./ContactForm"
 
+const INTERACTION_HISTORY_PREVIEW_COUNT = 5
 const INTERACTION_TYPES = [
 	{ value: "", label: "—" },
 	{ value: "email", label: "Email" },
@@ -306,7 +307,7 @@ export default function ContactList({
 														new Date(b.date).getTime() -
 														new Date(a.date).getTime()
 												)
-												.slice(0, 5)
+												.slice(0, INTERACTION_HISTORY_PREVIEW_COUNT)
 												.map((i) => (
 													<li
 														key={i.type?.toString() + i.date.toString()}
@@ -321,9 +322,13 @@ export default function ContactList({
 														</span>
 													</li>
 												))}
-											{contact.interaction_history.length > 5 && (
+											{contact.interaction_history.length >
+												INTERACTION_HISTORY_PREVIEW_COUNT && (
 												<li className="text-muted-foreground text-xs">
-													+{contact.interaction_history.length - 5} more
+													+
+													{contact.interaction_history.length -
+														INTERACTION_HISTORY_PREVIEW_COUNT}{" "}
+													more
 												</li>
 											)}
 										</ul>

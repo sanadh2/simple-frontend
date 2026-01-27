@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useQueryClient } from "@tanstack/react-query"
 import { format } from "date-fns"
 import {
 	Calendar,
@@ -23,6 +24,7 @@ import {
 	CardTitle,
 } from "@/components/ui/card"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
+import { upcomingScheduledEmailsKeys } from "@/hooks/useUpcomingScheduledEmails"
 import {
 	type Interview,
 	type InterviewFormat,
@@ -58,6 +60,7 @@ export default function InterviewList({
 	interviews,
 	onUpdate,
 }: InterviewListProps) {
+	const queryClient = useQueryClient()
 	const [formState, setFormState] = useState<{
 		isOpen: boolean
 		editingInterview: Interview | null
@@ -85,6 +88,9 @@ export default function InterviewList({
 		try {
 			await apiClient.deleteInterview(interviewToDelete)
 			toast.success("Interview deleted successfully")
+			await queryClient.invalidateQueries({
+				queryKey: upcomingScheduledEmailsKeys.all,
+			})
 			onUpdate?.()
 		} catch (error) {
 			toast.error("Failed to delete interview", {
@@ -118,8 +124,11 @@ export default function InterviewList({
 		})
 	}
 
-	const handleFormSuccess = () => {
+	const handleFormSuccess = async () => {
 		handleFormClose()
+		await queryClient.invalidateQueries({
+			queryKey: upcomingScheduledEmailsKeys.all,
+		})
 		onUpdate?.()
 	}
 

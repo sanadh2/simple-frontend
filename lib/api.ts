@@ -127,6 +127,20 @@ export interface CreateContactInput {
 
 export type UpdateContactInput = Partial<CreateContactInput>
 
+export interface UpcomingScheduledEmail {
+	_id: string
+	type: "follow_up" | "interview"
+	scheduled_for: string
+	meta: {
+		company_name?: string
+		job_title?: string
+		contact_name?: string
+		interview_type?: string
+		interview_format?: string
+	}
+	job_application_id: string
+}
+
 export interface AddInteractionInput {
 	date?: string | Date
 	type?: string
@@ -714,6 +728,18 @@ class ApiClient {
 		return this.request(`/api/interviews/${id}`, {
 			method: "DELETE",
 		})
+	}
+
+	async getUpcomingScheduledEmails(
+		limit?: number
+	): Promise<ApiResponse<UpcomingScheduledEmail[]>> {
+		const queryParams = new URLSearchParams()
+		if (limit) {
+			queryParams.append("limit", limit.toString())
+		}
+		const queryString = queryParams.toString()
+		const endpoint = `/api/scheduled-emails/upcoming${queryString ? `?${queryString}` : ""}`
+		return this.request(endpoint, { method: "GET" })
 	}
 
 	// Application Contacts (recruiters/contacts per application)

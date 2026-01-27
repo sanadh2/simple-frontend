@@ -2,6 +2,7 @@ import type { QueryClient } from "@tanstack/react-query"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
 
+import { upcomingScheduledEmailsKeys } from "@/hooks/useUpcomingScheduledEmails"
 import {
 	type AddInteractionInput,
 	apiClient,
@@ -145,6 +146,9 @@ export function useCreateContact() {
 				await queryClient.invalidateQueries({
 					queryKey: contactKeys.byJobApplication(data.job_application_id),
 				})
+				await queryClient.invalidateQueries({
+					queryKey: upcomingScheduledEmailsKeys.all,
+				})
 			}
 		},
 	})
@@ -264,6 +268,9 @@ export function useUpdateContact() {
 				await queryClient.invalidateQueries({
 					queryKey: contactKeys.byJobApplication(data.job_application_id),
 				})
+				await queryClient.invalidateQueries({
+					queryKey: upcomingScheduledEmailsKeys.all,
+				})
 			}
 		},
 	})
@@ -311,6 +318,9 @@ export function useDeleteContact() {
 		},
 		onSettled: async () => {
 			await queryClient.invalidateQueries({ queryKey: contactKeys.all })
+			await queryClient.invalidateQueries({
+				queryKey: upcomingScheduledEmailsKeys.all,
+			})
 		},
 	})
 }

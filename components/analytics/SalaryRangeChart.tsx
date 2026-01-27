@@ -11,6 +11,34 @@ import {
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
+const BAR_CORNER_RADIUS = 4
+const BAR_RADIUS = [BAR_CORNER_RADIUS, BAR_CORNER_RADIUS, 0, 0] as const
+
+function getPeriodNote(
+	periodLabel: "annual" | "monthly" | "hourly" | "mixed"
+): string {
+	if (periodLabel === "mixed") {
+		return " (annual, monthly, and hourly normalized to annual equivalent)"
+	}
+	if (periodLabel === "monthly") {
+		return " (monthly salaries ×12)"
+	}
+	if (periodLabel === "hourly") {
+		return " (hourly ×2080)"
+	}
+	return ""
+}
+
+function getCurrencyNote(currency: string): string {
+	if (currency === "mixed") {
+		return " Mixed currencies; values are not converted."
+	}
+	if (currency !== "unknown") {
+		return ` ${currency}.`
+	}
+	return ""
+}
+
 interface SalaryRangeChartProps {
 	salaryRange: {
 		min: number | null
@@ -79,20 +107,8 @@ export function SalaryRangeChart({ salaryRange }: SalaryRangeChartProps) {
 		{ label: "Max", value: max != null ? `${max}${unit}` : "—" },
 	]
 
-	const periodNote =
-		periodLabel === "mixed"
-			? " (annual, monthly, and hourly normalized to annual equivalent)"
-			: periodLabel === "monthly"
-				? " (monthly salaries ×12)"
-				: periodLabel === "hourly"
-					? " (hourly ×2080)"
-					: ""
-	const currencyNote =
-		currency === "mixed"
-			? " Mixed currencies; values are not converted."
-			: currency !== "unknown"
-				? ` ${currency}.`
-				: ""
+	const periodNote = getPeriodNote(periodLabel)
+	const currencyNote = getCurrencyNote(currency)
 	const byPeriodParts: string[] = []
 	if (byPeriod.annual > 0) {
 		byPeriodParts.push(`${byPeriod.annual} annual`)
@@ -144,7 +160,7 @@ export function SalaryRangeChart({ salaryRange }: SalaryRangeChartProps) {
 								]}
 								labelFormatter={(label) => `Range: ${label}`}
 							/>
-							<Bar dataKey="count" fill="#22C55E" radius={[4, 4, 0, 0]} />
+							<Bar dataKey="count" fill="#22C55E" radius={[...BAR_RADIUS]} />
 						</BarChart>
 					</ResponsiveContainer>
 				) : null}

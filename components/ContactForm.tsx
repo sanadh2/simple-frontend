@@ -41,6 +41,8 @@ const contactSchema = z.object({
 
 type ContactFormValues = z.infer<typeof contactSchema>
 
+const ISO_DATE_LENGTH = 10
+
 const formatDateForInput = (date: string | undefined): string => {
 	if (!date) {
 		return ""
@@ -49,7 +51,7 @@ const formatDateForInput = (date: string | undefined): string => {
 	if (Number.isNaN(d.getTime())) {
 		return ""
 	}
-	return d.toISOString().slice(0, 10)
+	return d.toISOString().slice(0, ISO_DATE_LENGTH)
 }
 
 interface ContactFormProps {
@@ -284,11 +286,12 @@ export default function ContactForm({
 								Cancel
 							</Button>
 							<Button type="submit" disabled={isSubmitting}>
-								{isSubmitting
-									? "Saving..."
-									: contact
-										? "Update Contact"
-										: "Add Contact"}
+								{(() => {
+									if (isSubmitting) {
+										return "Saving..."
+									}
+									return contact ? "Update Contact" : "Add Contact"
+								})()}
 							</Button>
 						</DialogFooter>
 					</form>

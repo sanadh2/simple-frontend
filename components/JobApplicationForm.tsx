@@ -308,8 +308,18 @@ export default function JobApplicationForm({
 		const hasMax = !Number.isNaN(maxN)
 		let salary_range: string | undefined
 		if (hasMin || hasMax) {
-			const lo = hasMin && hasMax ? Math.min(minN, maxN) : hasMin ? minN : maxN
-			const hi = hasMin && hasMax ? Math.max(minN, maxN) : hasMin ? minN : maxN
+			let lo: number
+			let hi: number
+			if (hasMin && hasMax) {
+				lo = Math.min(minN, maxN)
+				hi = Math.max(minN, maxN)
+			} else if (hasMin) {
+				lo = minN
+				hi = minN
+			} else {
+				lo = maxN
+				hi = maxN
+			}
 			salary_range = composeSalaryRange(
 				lo,
 				hi,

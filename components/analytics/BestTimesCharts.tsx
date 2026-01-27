@@ -11,6 +11,10 @@ import {
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
+const PERCENTAGE_DOMAIN_MAX = 100
+const CHART_BAR_CORNER_PX = 4
+const BAR_RADIUS_TOP = [CHART_BAR_CORNER_PX, CHART_BAR_CORNER_PX, 0, 0] as const
+
 interface DayItem {
 	day: string
 	applications: number
@@ -96,7 +100,7 @@ export function BestTimesCharts({ bestDays, bestHours }: BestTimesChartsProps) {
 								<XAxis dataKey="day" tick={{ fontSize: 10 }} interval={0} />
 								<YAxis
 									tickFormatter={(v) => `${v}%`}
-									domain={[0, 100]}
+									domain={[0, PERCENTAGE_DOMAIN_MAX]}
 									tick={{ fontSize: 10 }}
 								/>
 								<Tooltip
@@ -109,7 +113,7 @@ export function BestTimesCharts({ bestDays, bestHours }: BestTimesChartsProps) {
 								<Bar
 									dataKey="responseRate"
 									fill="#3B82F6"
-									radius={[4, 4, 0, 0]}
+									radius={[...BAR_RADIUS_TOP]}
 								/>
 							</BarChart>
 						</ResponsiveContainer>
@@ -138,7 +142,7 @@ export function BestTimesCharts({ bestDays, bestHours }: BestTimesChartsProps) {
 								<XAxis dataKey="label" tick={{ fontSize: 9 }} interval={0} />
 								<YAxis
 									tickFormatter={(v) => `${v}%`}
-									domain={[0, 100]}
+									domain={[0, PERCENTAGE_DOMAIN_MAX]}
 									tick={{ fontSize: 10 }}
 								/>
 								<Tooltip
@@ -151,7 +155,7 @@ export function BestTimesCharts({ bestDays, bestHours }: BestTimesChartsProps) {
 								<Bar
 									dataKey="responseRate"
 									fill="#A855F7"
-									radius={[4, 4, 0, 0]}
+									radius={[...BAR_RADIUS_TOP]}
 								/>
 							</BarChart>
 						</ResponsiveContainer>

@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
 
+import { upcomingScheduledEmailsKeys } from "@/hooks/useUpcomingScheduledEmails"
 import {
 	apiClient,
 	type CreateInterviewInput,
@@ -219,6 +220,9 @@ export function useCreateInterview() {
 				await queryClient.invalidateQueries({
 					queryKey: interviewKeys.upcoming(),
 				})
+				await queryClient.invalidateQueries({
+					queryKey: upcomingScheduledEmailsKeys.all,
+				})
 			}
 		},
 	})
@@ -405,6 +409,9 @@ export function useUpdateInterview() {
 				await queryClient.invalidateQueries({
 					queryKey: interviewKeys.upcoming(),
 				})
+				await queryClient.invalidateQueries({
+					queryKey: upcomingScheduledEmailsKeys.all,
+				})
 			}
 		},
 	})
@@ -515,6 +522,9 @@ export function useDeleteInterview() {
 		onSettled: async () => {
 			await queryClient.invalidateQueries({
 				queryKey: interviewKeys.all,
+			})
+			await queryClient.invalidateQueries({
+				queryKey: upcomingScheduledEmailsKeys.all,
 			})
 		},
 	})

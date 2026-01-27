@@ -77,7 +77,8 @@ function getStatusAtDate(application: JobApplication): string | null {
 			(a, b) =>
 				new Date(b.changed_at).getTime() - new Date(a.changed_at).getTime()
 		)[0]
-	if (fromHistory) {
+	// Array [0] can be undefined when empty
+	if (fromHistory != null) {
 		return fromHistory.changed_at
 	}
 	if (status === "Applied" && application_date) {

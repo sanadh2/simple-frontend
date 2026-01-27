@@ -2,6 +2,16 @@
  * Compose structured salary fields into the salary_range string for the API.
  * Format: "min-max CURRENCY/period" e.g. "50000-70000 USD/year", "3000-4000 EUR/month", "15-20/hour"
  */
+function getPeriodSuffix(period: "annual" | "monthly" | "hourly"): string {
+	if (period === "annual") {
+		return "year"
+	}
+	if (period === "monthly") {
+		return "month"
+	}
+	return "hour"
+}
+
 export function composeSalaryRange(
 	min: number,
 	max: number,
@@ -10,8 +20,7 @@ export function composeSalaryRange(
 ): string {
 	const a = Math.min(min, max)
 	const b = Math.max(min, max)
-	const suf =
-		period === "annual" ? "year" : period === "monthly" ? "month" : "hour"
+	const suf = getPeriodSuffix(period)
 	const curr = currency === "Unknown" ? "" : ` ${currency}`
 	return `${a}-${b}${curr}/${suf}`
 }
@@ -98,11 +107,12 @@ export function parseSalaryRangeToStructured(raw: string): {
 		.replace(/\s+/g, " ")
 		.trim()
 
+	const K_MULTIPLIER = 1000
 	const toNum = (v: string): number => {
 		const t = v.replace(/[\s,]/g, "").toLowerCase()
 		const m = t.match(/^([\d.]+)k$/)
 		if (m?.[1] !== undefined) {
-			return parseFloat(m[1]) * 1000
+			return parseFloat(m[1]) * K_MULTIPLIER
 		}
 		const m2 = t.match(/^([\d.]+)$/)
 		if (m2?.[1] !== undefined) {
@@ -116,7 +126,7 @@ export function parseSalaryRangeToStructured(raw: string): {
 	const p1 = parts[1]
 	let min: number
 	let max: number
-	if (p0 !== undefined && p1 !== undefined) {
+	if (typeof p0 === "string" && typeof p1 === "string") {
 		const a = toNum(p0)
 		const b = toNum(p1)
 		if (Number.isNaN(a) || Number.isNaN(b)) {

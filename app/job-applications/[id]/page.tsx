@@ -15,13 +15,16 @@ import {
 	Trash2,
 } from "lucide-react"
 
+import ContactList from "@/components/ContactList"
 import EditJobApplicationForm from "@/components/EditJobApplicationForm"
+import InterviewList from "@/components/InterviewList"
 import LoadingSpinner from "@/components/LoadingSpinner"
 import StatusHistoryTimeline from "@/components/StatusHistoryTimeline"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { ConfirmDialog } from "@/components/ui/confirm-dialog"
+import { useInterviewsByJobApplication } from "@/hooks/useInterviews"
 import {
 	useDeleteJobApplication,
 	useJobApplication,
@@ -56,11 +59,45 @@ const locationLabels: Record<string, string> = {
 	onsite: "Onsite",
 }
 
+function getLocationDisplay(
+	locationType: string,
+	locationCity: string | undefined
+): string {
+	if (locationType === "remote") {
+		return "Remote"
+	}
+	const label = locationLabels[locationType] ?? locationType
+	return locationCity ? `${label} – ${locationCity}` : label
+}
+
+function ApplicationErrorView({ error }: { error: unknown }) {
+	return (
+		<div className="container mx-auto py-8 px-4">
+			<Link
+				href="/job-applications"
+				className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-4"
+			>
+				<ArrowLeft className="h-4 w-4" />
+				Back to applications
+			</Link>
+			<Card>
+				<CardContent className="pt-6">
+					<p className="text-red-600 dark:text-red-400">
+						{error instanceof Error ? error.message : "Application not found"}
+					</p>
+				</CardContent>
+			</Card>
+		</div>
+	)
+}
+
 export default function JobApplicationDetailPage() {
 	const params = useParams()
 	const router = useRouter()
-	const id = typeof params?.id === "string" ? params.id : ""
+	const id = typeof params.id === "string" ? params.id : ""
 	const { data: application, isLoading, error } = useJobApplication(id)
+	const { data: interviews = [], refetch: refetchInterviews } =
+		useInterviewsByJobApplication(id)
 	const deleteJob = useDeleteJobApplication()
 	const [isEditOpen, setIsEditOpen] = useState(false)
 	const [isDeleteOpen, setIsDeleteOpen] = useState(false)
@@ -70,35 +107,11 @@ export default function JobApplicationDetailPage() {
 	}
 
 	if (error || !application) {
-		return (
-			<div className="container mx-auto py-8 px-4">
-				<Link
-					href="/job-applications"
-					className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-4"
-				>
-					<ArrowLeft className="h-4 w-4" />
-					Back to applications
-				</Link>
-				<Card>
-					<CardContent className="pt-6">
-						<p className="text-red-600 dark:text-red-400">
-							{error instanceof Error ? error.message : "Application not found"}
-						</p>
-					</CardContent>
-				</Card>
-			</div>
-		)
+		return <ApplicationErrorView error={error} />
 	}
 
 	const app = application
-	let locationText: string
-	if (app.location_type === "remote") {
-		locationText = "Remote"
-	} else if (app.location_city) {
-		locationText = `${locationLabels[app.location_type] ?? app.location_type} – ${app.location_city}`
-	} else {
-		locationText = locationLabels[app.location_type] ?? app.location_type
-	}
+	const locationText = getLocationDisplay(app.location_type, app.location_city)
 
 	const handleDelete = async () => {
 		await deleteJob.mutateAsync(app._id, {
@@ -276,6 +289,14 @@ export default function JobApplicationDetailPage() {
 					</div>
 				</CardContent>
 			</Card>
+
+			<ContactList jobApplicationId={id} />
+
+			<InterviewList
+				jobApplicationId={id}
+				interviews={interviews}
+				onUpdate={() => refetchInterviews()}
+			/>
 
 			<EditJobApplicationForm
 				application={app}
