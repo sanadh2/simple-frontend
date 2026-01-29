@@ -3,7 +3,7 @@ import { type NextRequest, NextResponse } from "next/server"
 /**
  * Public routes that don't require authentication
  */
-const publicRoutes = ["/auth"]
+const publicRoutes = ["/auth", "/landing"]
 
 /**
  * API routes that should be excluded from authentication checks

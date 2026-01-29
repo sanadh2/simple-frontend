@@ -265,6 +265,22 @@ export function useGetExtensionToken() {
 	})
 }
 
+export function useDeviceHistory(enabled = true) {
+	return useQuery({
+		queryKey: ["auth", "device-history"],
+		queryFn: async () => {
+			const response = await apiClient.getDeviceHistory()
+			if (!response.success || !response.data) {
+				throw new Error(response.message || "Failed to get device history")
+			}
+			return response.data.devices
+		},
+		enabled,
+		staleTime:
+			STALE_TIME_MINUTES * SECONDS_PER_MINUTE * MILLISECONDS_PER_SECOND,
+	})
+}
+
 export function useUpdateProfile() {
 	const queryClient = useQueryClient()
 

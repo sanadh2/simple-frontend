@@ -1,25 +1,13 @@
-"use client"
-
 import { redirect } from "next/navigation"
 
 import DashboardOverview from "@/components/DashboardOverview"
-import ErrorFallback from "@/components/ErrorBoundaryFallback"
-import LoadingSpinner from "@/components/LoadingSpinner"
-import { useProfile } from "@/hooks/useAuth"
+import { getIsAuthenticated } from "@/lib/auth-server"
 
-export default function Home() {
-	const { data: user, isLoading, error, refetch } = useProfile()
-
-	if (error && !user) {
-		return <ErrorFallback error={error} onRetry={() => refetch()} />
+export default async function Home() {
+	const isAuthed = await getIsAuthenticated()
+	if (!isAuthed) {
+		redirect("/landing")
 	}
 
-	if (isLoading) {
-		return <LoadingSpinner text="Checking authentication..." />
-	}
-
-	if (!user) {
-		redirect("/auth")
-	}
 	return <DashboardOverview />
 }

@@ -462,6 +462,28 @@ class ApiClient {
 		})
 	}
 
+	async getDeviceHistory(): Promise<
+		ApiResponse<{
+			devices: Array<{
+				id: string
+				fingerprintHash: string
+				browserName: string
+				browserVersion: string
+				osName: string
+				osVersion: string
+				deviceType: string
+				ip: string
+				eventType: string
+				createdAt: string
+				lastSeen: string
+			}>
+		}>
+	> {
+		return this.request("/api/auth/device-history", {
+			method: "GET",
+		})
+	}
+
 	async updateProfile(data: {
 		first_name?: string
 		last_name?: string

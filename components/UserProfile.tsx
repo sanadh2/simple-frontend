@@ -2,24 +2,21 @@
 
 import { useMemo, useRef, useState } from "react"
 import Image from "next/image"
-import Link from "next/link"
 import {
 	BadgeCheck,
 	CheckCircle2,
 	Clock,
 	Edit,
-	FileText,
-	HelpCircle,
 	LogOut,
 	Puzzle,
 	Save,
-	Settings,
 	Shield,
 	Upload,
 	UserCircle,
 	X,
 } from "lucide-react"
 
+import DeviceHistory from "@/components/DeviceHistory"
 import LogoutModal from "@/components/LogoutModal"
 import type { ProfilePictureUploadRef } from "@/components/ProfilePictureUpload"
 import { ProfilePictureUpload } from "@/components/ProfilePictureUpload"
@@ -593,51 +590,6 @@ function BrowserExtensionSection({
 	)
 }
 
-function QuickActionsSection() {
-	return (
-		<div className="bg-white dark:bg-zinc-900 -2xl p-6">
-			<h3 className="text-lg font-semibold text-zinc-900 dark:text-white mb-4">
-				Quick Actions
-			</h3>
-			<div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-				<Button
-					variant="outline"
-					className="flex flex-col items-center justify-center h-auto p-4"
-				>
-					<UserCircle className="w-6 h-6 text-zinc-600 dark:text-zinc-400 mb-2" />
-					<span className="text-xs font-medium">Edit Profile</span>
-				</Button>
-
-				<Button
-					variant="outline"
-					className="flex flex-col items-center justify-center h-auto p-4"
-				>
-					<Settings className="w-6 h-6 text-zinc-600 dark:text-zinc-400 mb-2" />
-					<span className="text-xs font-medium">Settings</span>
-				</Button>
-
-				<Link href="/logs" className="w-full">
-					<Button
-						variant="outline"
-						className="w-full flex flex-col items-center justify-center h-auto p-4"
-					>
-						<FileText className="w-6 h-6 text-zinc-600 dark:text-zinc-400 mb-2" />
-						<span className="text-xs font-medium">Logs</span>
-					</Button>
-				</Link>
-
-				<Button
-					variant="outline"
-					className="flex flex-col items-center justify-center h-auto p-4"
-				>
-					<HelpCircle className="w-6 h-6 text-zinc-600 dark:text-zinc-400 mb-2" />
-					<span className="text-xs font-medium">Help</span>
-				</Button>
-			</div>
-		</div>
-	)
-}
-
 interface UploadModalProps {
 	isOpen: boolean
 	onClose: () => void
@@ -900,9 +852,8 @@ export default function UserProfile({ user }: UserProfileProps) {
 					onGenerateToken={() => getExtensionToken()}
 					isLoading={isGettingExtensionToken}
 				/>
+				<DeviceHistory />
 			</div>
-
-			<QuickActionsSection />
 
 			<UploadModal
 				isOpen={showUploadModal}

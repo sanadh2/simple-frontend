@@ -12,9 +12,9 @@ interface ConditionalSidebarProps {
 
 export function ConditionalSidebar({ children }: ConditionalSidebarProps) {
 	const pathname = usePathname()
-	const isAuthPage = pathname === "/auth"
+	const isPublicNoShellPage = pathname === "/auth" || pathname === "/landing"
 
-	if (isAuthPage) {
+	if (isPublicNoShellPage) {
 		return children
 	}
 
